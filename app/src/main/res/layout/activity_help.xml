@@ -1,26 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#ffffff"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:background="#ffffff">
+    android:padding="24dp">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:text="Помощь"
-        android:textSize="24sp"
-        android:textStyle="bold"
         android:textColor="#2c3e50"
-        android:layout_marginBottom="16dp"/>
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Как пользоваться приложением:\n\n• Выберите корпус\n• Найдите нужную аудиторию\n• Следуйте маршруту\n\nЕсли возникли вопросы — напишите нам: studkomпас@urfu.ru"
-        android:textSize="16sp"
-        android:textColor="#34495e"/>
+        android:textColor="#34495e"
+        android:textSize="16sp" />
 
 </LinearLayout>

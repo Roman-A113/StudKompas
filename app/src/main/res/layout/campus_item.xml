@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -15,20 +14,20 @@
         android:padding="16dp">
 
         <TextView
-            android:id="@+id/textViewBuildingName"
+            android:id="@+id/textViewCampusName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="#2c3e50"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#2c3e50"/>
+            android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/textViewBuildingAddress"
+            android:id="@+id/textViewCampusAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:layout_marginTop="4dp"
             android:textColor="#7f8c8d"
-            android:layout_marginTop="4dp"/>
+            android:textSize="14sp" />
 
     </LinearLayout>
 

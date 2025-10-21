@@ -22,7 +22,7 @@
         </activity>
 
         <activity
-            android:name=".BuildingMapActivity"
+            android:name=".CampusMapActivity"
             android:exported="false" />
 
         <activity android:name=".HelpActivity" android:exported="false" />

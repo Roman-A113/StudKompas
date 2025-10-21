@@ -1,30 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
+    android:background="#ffffff"
     android:gravity="center"
-    android:background="#ffffff">
+    android:orientation="vertical"
+    android:padding="24dp">
 
     <TextView
         android:id="@+id/textViewMapTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:text="Карта корпуса"
-        android:textSize="22sp"
-        android:textStyle="bold"
         android:textColor="#2c3e50"
-        android:gravity="center"/>
+        android:textSize="22sp"
+        android:textStyle="bold" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
+        android:gravity="center"
         android:text="Здесь будет карта корпуса\n(в будущем)"
-        android:textSize="16sp"
         android:textColor="#7f8c8d"
-        android:gravity="center"/>
+        android:textSize="16sp" />
 
 </LinearLayout>
