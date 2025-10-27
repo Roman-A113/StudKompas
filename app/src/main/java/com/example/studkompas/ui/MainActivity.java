@@ -1,4 +1,4 @@
-package com.example.studkompas;
+package com.example.studkompas.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,6 +6,10 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.studkompas.R;
+import com.example.studkompas.adapter.CampusListAdapter;
+import com.example.studkompas.model.CampusItem;
 
 import java.util.ArrayList;
 import java.util.List;

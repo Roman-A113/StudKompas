@@ -1,8 +1,10 @@
-package com.example.studkompas;
+package com.example.studkompas.ui;
 
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.studkompas.R;
 
 public class SettingsActivity extends AppCompatActivity {
     @Override

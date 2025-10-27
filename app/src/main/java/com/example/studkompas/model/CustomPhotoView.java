@@ -1,9 +1,15 @@
-package com.example.studkompas;
+package com.example.studkompas.model;
 
 import android.content.Context;
-import android.graphics.*;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+
+import androidx.annotation.NonNull;
+
 import com.github.chrisbanes.photoview.PhotoView;
 
 public class CustomPhotoView extends PhotoView {
@@ -29,7 +35,7 @@ public class CustomPhotoView extends PhotoView {
     }
 
     @Override
-    protected void dispatchDraw(Canvas canvas) {
+    protected void dispatchDraw(@NonNull Canvas canvas) {
         super.dispatchDraw(canvas);
 
         if (showTestLine) {
@@ -49,27 +55,27 @@ public class CustomPhotoView extends PhotoView {
         }
     }
 
-    private void drawLinesOnImage(Canvas canvas, int imgWidth, int imgHeight) {
+    private void drawLinesOnImage(Canvas canvas, float imgWidth, float imgHeight) {
         testPaint.setColor(Color.RED);
         canvas.drawLine(0, 0, imgWidth, imgHeight, testPaint);
 
         testPaint.setColor(Color.BLUE);
-        canvas.drawLine(0, imgHeight/2, imgWidth, imgHeight/2, testPaint);
+        canvas.drawLine(0, imgHeight / 2, imgWidth, imgHeight / 2, testPaint);
 
         testPaint.setColor(Color.GREEN);
-        canvas.drawLine(imgWidth/2, 0, imgWidth/2, imgHeight, testPaint);
+        canvas.drawLine(imgWidth / 2, 0, imgWidth / 2, imgHeight, testPaint);
 
         testPaint.setColor(Color.YELLOW);
         testPaint.setStrokeWidth(3f);
         canvas.drawRect(0, 0, imgWidth, imgHeight, testPaint);
     }
 
+    public boolean getShowTestLine() {
+        return showTestLine;
+    }
+
     public void setShowTestLine(boolean show) {
         this.showTestLine = show;
         invalidate();
-    }
-
-    public boolean getShowTestLine() {
-        return showTestLine;
     }
 }

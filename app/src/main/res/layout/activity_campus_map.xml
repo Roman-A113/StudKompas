@@ -35,7 +35,7 @@
 
     </LinearLayout>
 
-    <com.example.studkompas.CustomPhotoView
+    <com.example.studkompas.model.CustomPhotoView
         android:id="@+id/imageViewCampusMap"
         android:layout_width="match_parent"
         android:layout_height="0dp"

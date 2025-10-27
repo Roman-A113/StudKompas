@@ -1,4 +1,4 @@
-package com.example.studkompas;
+package com.example.studkompas.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +9,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.studkompas.ui.CampusMapActivity;
+import com.example.studkompas.R;
+import com.example.studkompas.model.CampusItem;
 
 import java.util.List;
 

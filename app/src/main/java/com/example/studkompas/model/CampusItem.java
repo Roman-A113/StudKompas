@@ -1,10 +1,10 @@
-package com.example.studkompas;
+package com.example.studkompas.model;
 
 public class CampusItem {
     public String name;
     public String address;
 
-    CampusItem(String name, String address) {
+    public CampusItem(String name, String address) {
         this.name = name;
         this.address = address;
     }
