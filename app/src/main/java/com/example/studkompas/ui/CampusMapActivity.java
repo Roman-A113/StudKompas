@@ -18,6 +18,7 @@ public class CampusMapActivity extends AppCompatActivity {
 
         photoView = findViewById(R.id.imageViewCampusMap);
         photoView.setMaximumScale(10.0f);
+        photoView.postDelayed(() -> photoView.setScale(3.0f, true), 200);
 
         Button btnFloor1 = findViewById(R.id.btnFloor1);
         Button btnFloor2 = findViewById(R.id.btnFloor2);
@@ -43,7 +44,7 @@ public class CampusMapActivity extends AppCompatActivity {
     private void setupFloorButton(Button button, int drawableResId) {
         button.setOnClickListener(v -> {
             photoView.setImageResource(drawableResId);
-            //photoView.postDelayed(() -> photoView.setScale(2.0f, true), 100);
+            photoView.postDelayed(() -> photoView.setScale(3.0f, true), 200);
         });
     }
 }
