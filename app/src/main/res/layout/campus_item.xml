@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:background="@color/green"
         android:padding="16dp">
 
 
@@ -28,7 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textColor="#7f8c8d"
+            android:textColor="#5B5A5A"
             android:textSize="14sp" />
 
     </LinearLayout>

@@ -1,28 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#ffffff">
 
-    <TextView
-        android:id="@+id/textViewMapTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#2c3e50"
-        android:gravity="center"
-        android:padding="16dp"
-        android:text="Тест линий на карте"
-        android:textColor="#ffffff"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-
-    <!-- Панель управления (кнопка линий) -->
     <LinearLayout
         android:id="@+id/controlPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/textViewMapTitle"
         android:orientation="horizontal"
         android:padding="8dp"
         android:background="#f0f0f0">
@@ -30,9 +16,11 @@
         <Button
             android:id="@+id/btnToggleLine"
             android:layout_width="0dp"
+            android:textColor="#000000"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_margin="4dp"
+            android:backgroundTint="@color/green"
             android:text="Скрыть линии"
             android:textSize="12sp" />
     </LinearLayout>
@@ -42,6 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/controlPanel"
+        android:layout_marginTop="-1dp"
         android:src="@drawable/guk_1" />
 
     <LinearLayout
@@ -53,58 +42,67 @@
         android:layout_marginEnd="8dp"
         android:orientation="vertical"
         android:background="#ffffff"
-        android:elevation="4dp"
-        android:padding="4dp">
+        android:elevation="4dp" >
 
         <Button
             android:id="@+id/btnFloor1"
             android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_margin="2dp"
+            android:layout_height="52dp"
+            android:layout_margin="5dp"
+            android:padding="0dp"
+            android:backgroundTint="@color/green"
             android:text="1"
-            android:textSize="20sp"
             android:textColor="#000000"
-            android:padding="0dp"/>
+            android:textSize="20sp"
+            app:cornerRadius="8dp" />
 
         <Button
             android:id="@+id/btnFloor2"
             android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_margin="2dp"
+            android:layout_height="52dp"
+            android:layout_margin="5dp"
             android:text="2"
             android:textSize="20sp"
+            android:backgroundTint="@color/green"
             android:textColor="#000000"
-            android:padding="0dp"/>
+            android:padding="0dp"
+            app:cornerRadius="8dp"/>
 
         <Button
             android:id="@+id/btnFloor3"
             android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_margin="2dp"
+            android:layout_height="52dp"
+            android:layout_margin="5dp"
             android:text="3"
             android:textSize="20sp"
             android:textColor="#000000"
-            android:padding="0dp"/>
+            android:backgroundTint="@color/green"
+            android:padding="0dp"
+            app:cornerRadius="8dp"/>
 
         <Button
             android:id="@+id/btnFloor4"
             android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_margin="2dp"
+            android:layout_height="52dp"
+            android:layout_margin="5dp"
             android:text="4"
             android:textSize="20sp"
+            android:backgroundTint="@color/green"
             android:textColor="#000000"
-            android:padding="0dp"/>
+            android:padding="0dp"
+            app:cornerRadius="8dp"/>
 
         <Button
             android:id="@+id/btnFloor5"
             android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_margin="2dp"
+            android:layout_height="52dp"
+            android:layout_margin="5dp"
             android:text="5"
             android:textSize="20sp"
+            android:backgroundTint="@color/green"
             android:textColor="#000000"
-            android:padding="0dp"/>
+            android:padding="2dp"
+            app:cornerRadius="8dp"/>
 
     </LinearLayout>
 
