@@ -14,7 +14,6 @@ import com.github.chrisbanes.photoview.PhotoView;
 
 public class CustomPhotoView extends PhotoView {
     private Paint testPaint;
-    private boolean showTestLine = true;
 
     public CustomPhotoView(Context context) {
         super(context);
@@ -37,7 +36,9 @@ public class CustomPhotoView extends PhotoView {
     @Override
     protected void dispatchDraw(@NonNull Canvas canvas) {
         super.dispatchDraw(canvas);
+        // TODO
 
+        /*
         if (showTestLine) {
             Drawable drawable = getDrawable();
             if (drawable != null) {
@@ -53,9 +54,13 @@ public class CustomPhotoView extends PhotoView {
                 canvas.restore();
             }
         }
+        */
     }
 
     private void drawLinesOnImage(Canvas canvas, float imgWidth, float imgHeight) {
+        // TODO
+
+        /*
         testPaint.setColor(Color.RED);
         canvas.drawLine(0, 0, imgWidth, imgHeight, testPaint);
 
@@ -68,14 +73,16 @@ public class CustomPhotoView extends PhotoView {
         testPaint.setColor(Color.YELLOW);
         testPaint.setStrokeWidth(3f);
         canvas.drawRect(0, 0, imgWidth, imgHeight, testPaint);
+        */
     }
 
     public boolean getShowTestLine() {
-        return showTestLine;
+        // TODO
+        return false;
     }
 
     public void setShowTestLine(boolean show) {
-        this.showTestLine = show;
-        invalidate();
+        // TODO
+        // invalidate();
     }
 }

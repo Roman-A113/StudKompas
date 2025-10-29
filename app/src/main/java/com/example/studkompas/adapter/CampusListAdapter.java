@@ -10,17 +10,17 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.studkompas.ui.CampusMapActivity;
 import com.example.studkompas.R;
-import com.example.studkompas.model.CampusItem;
+import com.example.studkompas.model.Campus;
+import com.example.studkompas.ui.CampusMapActivity;
 
 import java.util.List;
 
 public class CampusListAdapter extends RecyclerView.Adapter<CampusListAdapter.ViewHolder> {
-    private final List<CampusItem> campusItems;
+    private final List<Campus> campusItems;
     private final Context context;
 
-    public CampusListAdapter(Context context, List<CampusItem> campusItems) {
+    public CampusListAdapter(Context context, List<Campus> campusItems) {
         this.campusItems = campusItems;
         this.context = context;
     }
@@ -34,14 +34,14 @@ public class CampusListAdapter extends RecyclerView.Adapter<CampusListAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        CampusItem campusItem = campusItems.get(position);
-        holder.nameTextView.setText(campusItem.name);
-        holder.addressTextView.setText(campusItem.address);
+        Campus campus = campusItems.get(position);
+        holder.nameTextView.setText(campus.Name);
+        holder.addressTextView.setText(campus.Address);
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, CampusMapActivity.class);
-            intent.putExtra("campus_name", campusItem.name);
-            intent.putExtra("campus_address", campusItem.address);
+            intent.putExtra("campus_name", campus.Name);
+            intent.putExtra("campus_address", campus.Address);
             context.startActivity(intent);
         });
     }

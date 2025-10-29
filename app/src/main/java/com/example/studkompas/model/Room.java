@@ -5,12 +5,11 @@ import android.graphics.Point;
 import com.github.chrisbanes.photoview.PhotoView;
 
 public class Room {
-    private int number;
-    private String name;
-    private Point absoluteLocation;
-
+    private final int number;
+    private final String name;
+    private final Point absoluteLocation;
+    private final int floorIndex;
     private PhotoView floorImage;
-    private int floorIndex;
 
     public Room(int number, String name, Point location, int floorIndex) {
         this.number = number;

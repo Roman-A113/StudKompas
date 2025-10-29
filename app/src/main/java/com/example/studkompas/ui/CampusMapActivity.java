@@ -1,15 +1,23 @@
 package com.example.studkompas.ui;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.studkompas.R;
+import com.example.studkompas.model.Campus;
 import com.example.studkompas.model.CustomPhotoView;
 
+import java.util.ArrayList;
+
 public class CampusMapActivity extends AppCompatActivity {
+    public static final String EXTRA_CAMPUS_NAME = "campus_name";
     private CustomPhotoView photoView;
+    private Campus selectedCampus;
+
+    private ArrayList<Button> floorButtons;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,34 +25,60 @@ public class CampusMapActivity extends AppCompatActivity {
         setContentView(R.layout.activity_campus_map);
 
         photoView = findViewById(R.id.imageViewCampusMap);
+
+        initializeFloorButtons();
+
+        String campusName = getIntent().getStringExtra(EXTRA_CAMPUS_NAME);
+
+        selectedCampus = findCampusByName(campusName);
+
         photoView.setMaximumScale(10.0f);
-        photoView.postDelayed(() -> photoView.setScale(3.0f, true), 200);
 
-        Button btnFloor1 = findViewById(R.id.btnFloor1);
-        Button btnFloor2 = findViewById(R.id.btnFloor2);
-        Button btnFloor3 = findViewById(R.id.btnFloor3);
-        Button btnFloor4 = findViewById(R.id.btnFloor4);
-        Button btnFloor5 = findViewById(R.id.btnFloor5);
-
-        setupFloorButton(btnFloor1, R.drawable.guk_1);
-        setupFloorButton(btnFloor2, R.drawable.guk_2);
-        setupFloorButton(btnFloor3, R.drawable.guk_3);
-        setupFloorButton(btnFloor4, R.drawable.guk_4);
-        setupFloorButton(btnFloor5, R.drawable.guk_5);
-
-
-        Button btnToggleLine = findViewById(R.id.btnToggleLine);
-        btnToggleLine.setOnClickListener(v -> {
-           boolean currentlyShowing = photoView.getShowTestLine();
-            photoView.setShowTestLine(!currentlyShowing);
-            btnToggleLine.setText(currentlyShowing ? "Показать линии" : "Скрыть линии");
-        });
+        Integer firstFloorResId = selectedCampus.FloorsDrawableIds.get(1);
+        photoView.setImageResource(firstFloorResId);
+        photoView.postDelayed(() -> photoView.setScale(2.0f, true), 200);
+        setupFloorButtons();
     }
 
-    private void setupFloorButton(Button button, int drawableResId) {
-        button.setOnClickListener(v -> {
-            photoView.setImageResource(drawableResId);
-            photoView.postDelayed(() -> photoView.setScale(3.0f, true), 200);
-        });
+    private void initializeFloorButtons() {
+        floorButtons = new ArrayList<>();
+        floorButtons.add(findViewById(R.id.btnFloor1));
+        floorButtons.add(findViewById(R.id.btnFloor2));
+        floorButtons.add(findViewById(R.id.btnFloor3));
+        floorButtons.add(findViewById(R.id.btnFloor4));
+        floorButtons.add(findViewById(R.id.btnFloor5));
+        floorButtons.add(findViewById(R.id.btnFloor6));
+        floorButtons.add(findViewById(R.id.btnFloor7));
+        floorButtons.add(findViewById(R.id.btnFloor8));
+        floorButtons.add(findViewById(R.id.btnFloor9));
+        floorButtons.add(findViewById(R.id.btnFloor10));
+    }
+
+    private void setupFloorButtons() {
+        for (Button button : floorButtons) {
+            button.setVisibility(View.GONE);
+        }
+
+        for (int floorNumber : selectedCampus.FloorsDrawableIds.keySet()) {
+            int buttonIndex = floorNumber - 1;
+            Button button = floorButtons.get(buttonIndex);
+            button.setVisibility(View.VISIBLE);
+            button.setText(String.valueOf(floorNumber));
+            final int floor = floorNumber;
+            button.setOnClickListener(v -> {
+                Integer resId = selectedCampus.FloorsDrawableIds.get(floor);
+                photoView.setImageResource(resId);
+                photoView.postDelayed(() -> photoView.setScale(2.0f, true), 200);
+            });
+        }
+    }
+
+    private Campus findCampusByName(String name) {
+        for (Campus campus : MainActivity.Campuses) {
+            if (campus.Name.equals(name)) {
+                return campus;
+            }
+        }
+        return null;
     }
 }
