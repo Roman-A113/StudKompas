@@ -5,15 +5,22 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 
 import androidx.annotation.NonNull;
-
+import com.example.studkompas.utils.GraphManager;
 import com.github.chrisbanes.photoview.PhotoView;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public class CustomPhotoView extends PhotoView {
-    private Paint testPaint;
+    private Paint nodePaint;
+    private Paint edgePaint;
+    private boolean showGraph = false;
+    private List<GraphNode> nodes = new ArrayList<>();
+    private Map<String, GraphNode> nodeMap;
 
     public CustomPhotoView(Context context) {
         super(context);
@@ -26,63 +33,75 @@ public class CustomPhotoView extends PhotoView {
     }
 
     private void init() {
-        testPaint = new Paint();
-        testPaint.setColor(Color.RED);
-        testPaint.setStyle(Paint.Style.STROKE);
-        testPaint.setStrokeWidth(8f);
-        testPaint.setAntiAlias(true);
+        nodePaint = new Paint();
+        nodePaint.setColor(Color.RED);
+        nodePaint.setStyle(Paint.Style.FILL);
+        nodePaint.setAntiAlias(true);
+
+        edgePaint = new Paint();
+        edgePaint.setColor(Color.RED);
+        edgePaint.setStyle(Paint.Style.STROKE);
+        edgePaint.setStrokeWidth(20f);
+        edgePaint.setAntiAlias(true);
+    }
+
+    public void loadGraphForCampus(String campusKey, Context context) {
+        CampusGraph graph = GraphManager.loadGraph(context);
+
+        switch (campusKey.toLowerCase()) {
+            case "guk":
+                nodeMap = graph.guk;
+                break;
+            case "turgeneva":
+                nodeMap = graph.turgeneva;
+                break;
+            case "bio":
+                nodeMap = graph.bio;
+                break;
+            default:
+                nodeMap = null;
+                break;
+        }
+
+        nodes.clear();
+        nodes.addAll(nodeMap.values());
+        showGraph = true;
+        invalidate();
     }
 
     @Override
     protected void dispatchDraw(@NonNull Canvas canvas) {
         super.dispatchDraw(canvas);
-        // TODO
 
-        /*
-        if (showTestLine) {
-            Drawable drawable = getDrawable();
-            if (drawable != null) {
-                int imgWidth = drawable.getIntrinsicWidth();
-                int imgHeight = drawable.getIntrinsicHeight();
-                canvas.save();
+        if (!showGraph || nodeMap == null)
+            return;
 
-                Matrix imageMatrix = getImageMatrix();
-                canvas.concat(imageMatrix);
+        canvas.save();
+        Matrix matrix = getImageMatrix();
+        canvas.concat(matrix);
 
-                drawLinesOnImage(canvas, imgWidth, imgHeight);
+        for (GraphNode node : nodes) {
+            if (node.location == null || node.location.length < 2)
+                continue;
+            float cx = node.location[0];
+            float cy = node.location[1];
+            canvas.drawCircle(cx, cy, 40f, nodePaint);
+        }
 
-                canvas.restore();
+        for (GraphNode node : nodes) {
+            if (node.location == null || node.location.length < 2)
+                continue;
+
+            float x1 = node.location[0];
+            float y1 = node.location[1];
+
+            for (String neighborId : node.edges) {
+                GraphNode neighbor = nodeMap.get(neighborId);
+                float x2 = neighbor.location[0];
+                float y2 = neighbor.location[1];
+                canvas.drawLine(x1, y1, x2, y2, edgePaint);
             }
         }
-        */
-    }
-
-    private void drawLinesOnImage(Canvas canvas, float imgWidth, float imgHeight) {
-        // TODO
-
-        /*
-        testPaint.setColor(Color.RED);
-        canvas.drawLine(0, 0, imgWidth, imgHeight, testPaint);
-
-        testPaint.setColor(Color.BLUE);
-        canvas.drawLine(0, imgHeight / 2, imgWidth, imgHeight / 2, testPaint);
-
-        testPaint.setColor(Color.GREEN);
-        canvas.drawLine(imgWidth / 2, 0, imgWidth / 2, imgHeight, testPaint);
-
-        testPaint.setColor(Color.YELLOW);
-        testPaint.setStrokeWidth(3f);
-        canvas.drawRect(0, 0, imgWidth, imgHeight, testPaint);
-        */
-    }
-
-    public boolean getShowTestLine() {
-        // TODO
-        return false;
-    }
-
-    public void setShowTestLine(boolean show) {
-        // TODO
-        // invalidate();
+        canvas.restore();
     }
 }

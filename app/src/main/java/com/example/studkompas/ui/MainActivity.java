@@ -11,6 +11,11 @@ import com.example.studkompas.R;
 import com.example.studkompas.adapter.CampusListAdapter;
 import com.example.studkompas.model.Campus;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
 
         Campuses = createCampusesList();
 
+        copyAssetGraphToFile();
+
         RecyclerView recyclerView = findViewById(R.id.recyclerViewBuildings);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         CampusListAdapter adapter = new CampusListAdapter(this, Campuses);
@@ -33,6 +40,28 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById(R.id.buttonHelp).setOnClickListener(v -> startActivity(new Intent(MainActivity.this, HelpActivity.class)));
         findViewById(R.id.buttonSettings).setOnClickListener(v -> startActivity(new Intent(MainActivity.this, SettingsActivity.class)));
+    }
+
+    private void copyAssetGraphToFile() {
+        File graphFile = new File(getFilesDir(), "graph.json");
+        if (!graphFile.exists()) {
+            try {
+                InputStream inputStream = getAssets().open("graph.json");
+                File outFile = new File(getFilesDir(), "graph.json");
+                OutputStream outputStream = new FileOutputStream(outFile);
+
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = inputStream.read(buffer)) > 0) {
+                    outputStream.write(buffer, 0, length);
+                }
+                outputStream.flush();
+                outputStream.close();
+                inputStream.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     private ArrayList<Campus> createCampusesList() {

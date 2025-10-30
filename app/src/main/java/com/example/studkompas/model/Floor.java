@@ -6,11 +6,11 @@ import java.util.List;
 
 public class Floor {
     public int Number;
-    public List<Room> Rooms;
+    public List<GraphNode> Rooms;
 
     public PhotoView Photo;
 
-    public Floor(int number, List<Room> rooms) {
+    public Floor(int number, List<GraphNode> rooms) {
         Number = number;
         Rooms = rooms;
     }
