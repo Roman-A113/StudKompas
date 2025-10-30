@@ -20,7 +20,7 @@ public class CustomPhotoView extends PhotoView {
     private Paint edgePaint;
     private boolean showGraph = false;
     private List<GraphNode> nodes = new ArrayList<>();
-    private Map<String, GraphNode> nodeMap;
+    private Map<String, GraphNode> campusGraph;
 
     public CustomPhotoView(Context context) {
         super(context);
@@ -45,26 +45,10 @@ public class CustomPhotoView extends PhotoView {
         edgePaint.setAntiAlias(true);
     }
 
-    public void loadGraphForCampus(String campusKey, Context context) {
-        CampusGraph graph = GraphManager.loadGraph(context);
-
-        switch (campusKey.toLowerCase()) {
-            case "guk":
-                nodeMap = graph.guk;
-                break;
-            case "turgeneva":
-                nodeMap = graph.turgeneva;
-                break;
-            case "bio":
-                nodeMap = graph.bio;
-                break;
-            default:
-                nodeMap = null;
-                break;
-        }
-
+    public void loadGraphForCampus(String campusKey) {
+        campusGraph = GraphManager.Graphs.get(campusKey);
         nodes.clear();
-        nodes.addAll(nodeMap.values());
+        nodes.addAll(campusGraph.values());
         showGraph = true;
         invalidate();
     }
@@ -73,7 +57,7 @@ public class CustomPhotoView extends PhotoView {
     protected void dispatchDraw(@NonNull Canvas canvas) {
         super.dispatchDraw(canvas);
 
-        if (!showGraph || nodeMap == null)
+        if (!showGraph || campusGraph == null)
             return;
 
         canvas.save();
@@ -96,7 +80,7 @@ public class CustomPhotoView extends PhotoView {
             float y1 = node.location[1];
 
             for (String neighborId : node.edges) {
-                GraphNode neighbor = nodeMap.get(neighborId);
+                GraphNode neighbor = campusGraph.get(neighborId);
                 float x2 = neighbor.location[0];
                 float y2 = neighbor.location[1];
                 canvas.drawLine(x1, y1, x2, y2, edgePaint);

@@ -2,12 +2,8 @@ package com.example.studkompas.ui;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
-
-import com.github.chrisbanes.photoview.OnPhotoTapListener;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -41,27 +37,20 @@ public class CampusMapActivity extends AppCompatActivity {
         photoView = findViewById(R.id.imageViewCampusMap);
         photoView.setMaximumScale(10.0f);
         photoView.setImageResource(firstFloorResId);
-        photoView.setOnPhotoTapListener(new OnPhotoTapListener() {
-            @Override
-            public void onPhotoTap(ImageView view, float x, float y) {
-                Drawable drawable = photoView.getDrawable();
-                float pixelX = x * drawable.getIntrinsicWidth();
-                float pixelY = y * drawable.getIntrinsicHeight();
-                GraphManager.addNode(
-                        CampusMapActivity.this,
-                        campusKey,
-                        pixelX,
-                        pixelY
-                );
-                photoView.loadGraphForCampus(campusKey, CampusMapActivity.this);
-            }
-
-            public void onOutsidePhotoTap() {
-                // Касание за пределами изображения (по фону)
-            }
+        photoView.setOnPhotoTapListener((view, x, y) -> {
+            Drawable drawable = photoView.getDrawable();
+            float pixelX = x * drawable.getIntrinsicWidth();
+            float pixelY = y * drawable.getIntrinsicHeight();
+            GraphManager.addNode(
+                    CampusMapActivity.this,
+                    campusKey,
+                    pixelX,
+                    pixelY
+            );
+            photoView.loadGraphForCampus(campusKey);
         });
 
-        photoView.loadGraphForCampus(campusKey, this);
+        photoView.loadGraphForCampus(campusKey);
 
         photoView.postDelayed(() -> photoView.setScale(2.0f, true), 200);
         setupFloorButtons();
@@ -96,7 +85,7 @@ public class CampusMapActivity extends AppCompatActivity {
                 Integer resId = selectedCampus.FloorsDrawableIds.get(floor);
                 photoView.setImageResource(resId);
 
-                photoView.loadGraphForCampus("guk", this);
+                photoView.loadGraphForCampus("guk");
                 photoView.postDelayed(() -> photoView.setScale(2.0f, true), 200);
             });
         }

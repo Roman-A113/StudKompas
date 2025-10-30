@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.studkompas.R;
 import com.example.studkompas.adapter.CampusListAdapter;
 import com.example.studkompas.model.Campus;
+import com.example.studkompas.utils.GraphManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
         Campuses = createCampusesList();
 
         copyAssetGraphToFile();
+        GraphManager.loadGraphFromFile(this);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerViewBuildings);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
