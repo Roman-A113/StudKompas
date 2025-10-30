@@ -13,7 +13,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -25,7 +27,7 @@ public class GraphManager {
     private static final String TAG = "GraphManager";
     private static final String GRAPH_FILENAME = "graph.json";
 
-    public static void loadGraphFromFile(Context context) {
+    public static void loadGraphFromTempFile(Context context) {
         File file = new File(context.getFilesDir(), GRAPH_FILENAME);
 
         try (FileInputStream fis = new FileInputStream(file);
@@ -38,15 +40,15 @@ public class GraphManager {
             }
 
             Type type = new TypeToken<Map<String, Map<String, GraphNode>>>(){}.getType();
-            Graphs = new Gson().fromJson(sb.toString(), type);
 
+            Graphs = new Gson().fromJson(sb.toString(), type);
         } catch (Exception e) {
             Log.e(TAG, "Ошибка при загрузке graph.json", e);
-            Graphs = new HashMap<>(); // fallback
+            Graphs = new HashMap<>();
         }
     }
 
-    public static void saveGraphToFile(Context context) {
+    public static void saveGraphToTempFile(Context context) {
         File file = new File(context.getFilesDir(), GRAPH_FILENAME);
         try (FileOutputStream fos = new FileOutputStream(file);
              OutputStreamWriter writer = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
@@ -58,6 +60,28 @@ public class GraphManager {
         }
     }
 
+    public static void copyAssetGraphToTempFile(Context context) {
+        File graphFile = new File(context.getFilesDir(), "graph.json");
+        if (!graphFile.exists()) {
+            try {
+                InputStream inputStream = context.getAssets().open("graph.json");
+                File outFile = new File(context.getFilesDir(), "graph.json");
+                OutputStream outputStream = new FileOutputStream(outFile);
+
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = inputStream.read(buffer)) > 0) {
+                    outputStream.write(buffer, 0, length);
+                }
+                outputStream.flush();
+                outputStream.close();
+                inputStream.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     public static void addNode(Context context, String campusKey, float x, float y) {
         Graphs.putIfAbsent(campusKey, new HashMap<>());
         Map<String, GraphNode> campusMap = Graphs.get(campusKey);
@@ -66,6 +90,6 @@ public class GraphManager {
         String idStr = String.valueOf(nextId);
         GraphNode newNode = new GraphNode(idStr, "Точка " + nextId, new float[]{x, y});
         campusMap.put(idStr, newNode);
-        saveGraphToFile(context);
+        saveGraphToTempFile(context);
     }
 }
