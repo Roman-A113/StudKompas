@@ -4,15 +4,18 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.studkompas.R;
 import com.example.studkompas.model.Campus;
 import com.example.studkompas.model.CustomPhotoView;
+import com.example.studkompas.model.GraphNode;
 import com.example.studkompas.utils.GraphManager;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class CampusMapActivity extends AppCompatActivity {
     public static final String EXTRA_CAMPUS_NAME = "campus_name";
@@ -20,6 +23,9 @@ public class CampusMapActivity extends AppCompatActivity {
     private Campus selectedCampus;
     private String campusKey;
     private ArrayList<Button> floorButtons;
+
+    private boolean edgeSelectionMode = false;
+    private String firstSelectedNodeId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +38,17 @@ public class CampusMapActivity extends AppCompatActivity {
         selectedCampus = findCampusByName(campusName);
         campusKey = getCampusKeyByName(campusName);
 
+        Button btnEdgeMode = findViewById(R.id.btn_edge_mode);
+        btnEdgeMode.setOnClickListener(v -> {
+            edgeSelectionMode = !edgeSelectionMode;
+            if (edgeSelectionMode) {
+                firstSelectedNodeId = null;
+                btnEdgeMode.setText("Режим добавления ребер");
+            } else {
+                btnEdgeMode.setText("Режим добавления вершин");
+            }
+        });
+
         Integer firstFloorResId = selectedCampus.FloorsDrawableIds.get(1);
 
         photoView = findViewById(R.id.imageViewCampusMap);
@@ -39,21 +56,52 @@ public class CampusMapActivity extends AppCompatActivity {
         photoView.setImageResource(firstFloorResId);
         photoView.setOnPhotoTapListener((view, x, y) -> {
             Drawable drawable = photoView.getDrawable();
+
             float pixelX = x * drawable.getIntrinsicWidth();
             float pixelY = y * drawable.getIntrinsicHeight();
-            GraphManager.addNode(
-                    CampusMapActivity.this,
-                    campusKey,
-                    pixelX,
-                    pixelY
-            );
-            photoView.loadGraphForCampus(campusKey);
+
+            if (edgeSelectionMode) {
+                String tappedNodeId = findNodeAt(pixelX, pixelY, campusKey);
+                if (tappedNodeId != null) {
+                    if (firstSelectedNodeId == null) {
+                        firstSelectedNodeId = tappedNodeId;
+                        btnEdgeMode.setText("Выбрана вершина: " + tappedNodeId);
+                    } else if (!firstSelectedNodeId.equals(tappedNodeId)) {
+                        GraphManager.addEdge(this, campusKey, firstSelectedNodeId, tappedNodeId);
+                        photoView.loadGraphForCampus(campusKey);
+                        firstSelectedNodeId = null;
+                        btnEdgeMode.setText("Режим добавления ребер");
+                    }
+                } else {
+                    Toast.makeText(this, "Узел не найден", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                GraphManager.addNode(CampusMapActivity.this, campusKey, pixelX, pixelY);
+                photoView.loadGraphForCampus(campusKey);
+            }
         });
 
         photoView.loadGraphForCampus(campusKey);
 
         photoView.postDelayed(() -> photoView.setScale(2.0f, true), 200);
         setupFloorButtons();
+    }
+
+    private String findNodeAt(float x, float y, String campusKey) {
+        Map<String, GraphNode> campusGraph = GraphManager.Graphs.get(campusKey);
+        if (campusGraph == null) return null;
+
+        final float TOLERANCE = 60f; // пикселей (в координатах изображения)
+
+        for (GraphNode node : campusGraph.values()) {
+            if (node.location == null || node.location.length < 2) continue;
+            float dx = node.location[0] - x;
+            float dy = node.location[1] - y;
+            if (dx * dx + dy * dy <= TOLERANCE * TOLERANCE) {
+                return node.id;
+            }
+        }
+        return null;
     }
 
     private void initializeFloorButtons() {

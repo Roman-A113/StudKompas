@@ -92,4 +92,16 @@ public class GraphManager {
         campusMap.put(idStr, newNode);
         saveGraphToTempFile(context);
     }
+
+    public static void addEdge(Context context, String campusKey, String nodeId1, String nodeId2) {
+        Map<String, GraphNode> campusMap = Graphs.get(campusKey);
+
+        GraphNode node1 = campusMap.get(nodeId1);
+        GraphNode node2 = campusMap.get(nodeId2);
+
+
+        node1.edges.add(nodeId2);
+        node2.edges.add(nodeId1);
+        saveGraphToTempFile(context);
+    }
 }
