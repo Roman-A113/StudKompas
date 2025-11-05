@@ -1,12 +1,16 @@
 package com.example.studkompas.ui;
 
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.view.View;
+import android.util.TypedValue;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.studkompas.R;
 import com.example.studkompas.model.Campus;
@@ -14,29 +18,31 @@ import com.example.studkompas.model.CustomPhotoView;
 import com.example.studkompas.model.GraphNode;
 import com.example.studkompas.utils.GraphManager;
 
-import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class CampusMapActivity extends AppCompatActivity {
-    public static final String EXTRA_CAMPUS_NAME = "campus_name";
     private CustomPhotoView photoView;
     private Campus selectedCampus;
-    private String campusKey;
-    private ArrayList<Button> floorButtons;
 
     private boolean edgeSelectionMode = false;
     private String firstSelectedNodeId = null;
+
+    private LinearLayout floorButtonsContainer;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_campus_map);
 
-        initializeFloorButtons();
+        selectedCampus = (Campus) getIntent().getSerializableExtra("campus");
 
-        String campusName = getIntent().getStringExtra(EXTRA_CAMPUS_NAME);
-        selectedCampus = findCampusByName(campusName);
-        campusKey = getCampusKeyByName(campusName);
+        floorButtonsContainer = findViewById(R.id.floorPanel);
+        Set<Integer> sortedFloors = new TreeSet<>(selectedCampus.FloorNumberToDrawable.keySet());
+        setupFloorButtons(sortedFloors);
+
 
         Button btnEdgeMode = findViewById(R.id.btn_edge_mode);
         btnEdgeMode.setOnClickListener(v -> {
@@ -49,11 +55,10 @@ public class CampusMapActivity extends AppCompatActivity {
             }
         });
 
-        Integer firstFloorResId = selectedCampus.FloorsDrawableIds.get(1);
 
         photoView = findViewById(R.id.imageViewCampusMap);
         photoView.setMaximumScale(10.0f);
-        photoView.setImageResource(firstFloorResId);
+        photoView.setImageResource(selectedCampus.FloorNumberToDrawable.get(1));
         photoView.setOnPhotoTapListener((view, x, y) -> {
             Drawable drawable = photoView.getDrawable();
 
@@ -61,14 +66,14 @@ public class CampusMapActivity extends AppCompatActivity {
             float pixelY = y * drawable.getIntrinsicHeight();
 
             if (edgeSelectionMode) {
-                String tappedNodeId = findNodeAt(pixelX, pixelY, campusKey);
+                String tappedNodeId = findNodeAt(pixelX, pixelY, selectedCampus.Id);
                 if (tappedNodeId != null) {
                     if (firstSelectedNodeId == null) {
                         firstSelectedNodeId = tappedNodeId;
                         btnEdgeMode.setText("Выбрана вершина: " + tappedNodeId);
                     } else if (!firstSelectedNodeId.equals(tappedNodeId)) {
-                        GraphManager.addEdge(this, campusKey, firstSelectedNodeId, tappedNodeId);
-                        photoView.loadGraphForCampus(campusKey);
+                        GraphManager.addEdge(this, selectedCampus.Id, firstSelectedNodeId, tappedNodeId);
+                        photoView.loadGraphForCampus(selectedCampus.Id);
                         firstSelectedNodeId = null;
                         btnEdgeMode.setText("Режим добавления ребер");
                     }
@@ -76,22 +81,19 @@ public class CampusMapActivity extends AppCompatActivity {
                     Toast.makeText(this, "Узел не найден", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                GraphManager.addNode(CampusMapActivity.this, campusKey, pixelX, pixelY);
-                photoView.loadGraphForCampus(campusKey);
+                GraphManager.addNode(CampusMapActivity.this, selectedCampus.Id, pixelX, pixelY);
+                photoView.loadGraphForCampus(selectedCampus.Id);
             }
         });
-
-        photoView.loadGraphForCampus(campusKey);
-
+        photoView.loadGraphForCampus(selectedCampus.Id);
         photoView.postDelayed(() -> photoView.setScale(2.0f, true), 200);
-        setupFloorButtons();
     }
 
     private String findNodeAt(float x, float y, String campusKey) {
         Map<String, GraphNode> campusGraph = GraphManager.Graphs.get(campusKey);
         if (campusGraph == null) return null;
 
-        final float TOLERANCE = 60f; // пикселей (в координатах изображения)
+        final float TOLERANCE = 60f;
 
         for (GraphNode node : campusGraph.values()) {
             if (node.location == null || node.location.length < 2) continue;
@@ -104,54 +106,47 @@ public class CampusMapActivity extends AppCompatActivity {
         return null;
     }
 
-    private void initializeFloorButtons() {
-        floorButtons = new ArrayList<>();
-        floorButtons.add(findViewById(R.id.btnFloor1));
-        floorButtons.add(findViewById(R.id.btnFloor2));
-        floorButtons.add(findViewById(R.id.btnFloor3));
-        floorButtons.add(findViewById(R.id.btnFloor4));
-        floorButtons.add(findViewById(R.id.btnFloor5));
-        floorButtons.add(findViewById(R.id.btnFloor6));
-        floorButtons.add(findViewById(R.id.btnFloor7));
-        floorButtons.add(findViewById(R.id.btnFloor8));
-        floorButtons.add(findViewById(R.id.btnFloor9));
-        floorButtons.add(findViewById(R.id.btnFloor10));
-    }
+    private void setupFloorButtons(Set<Integer> floorNumbers) {
+        floorButtonsContainer.removeAllViews();
 
-    private void setupFloorButtons() {
-        for (Button button : floorButtons) {
-            button.setVisibility(View.GONE);
-        }
+        for (Integer floorNumber : floorNumbers) {
+            Button floorButton = new Button(this);
+            floorButton.setText(String.valueOf(floorNumber));
 
-        for (int floorNumber : selectedCampus.FloorsDrawableIds.keySet()) {
-            int buttonIndex = floorNumber - 1;
-            Button button = floorButtons.get(buttonIndex);
-            button.setVisibility(View.VISIBLE);
-            button.setText(String.valueOf(floorNumber));
+            float density = getResources().getDisplayMetrics().density;
+            int widthPx = (int) (48 * density + 0.5f);
+            int heightPx = (int) (52 * density + 0.5f);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(widthPx, heightPx);
+
+            int marginDp = 5;
+            int marginPx = (int) (marginDp * density + 0.5f);
+            params.setMargins(marginPx, marginPx, marginPx, marginPx);
+
+            floorButton.setLayoutParams(params);
+
+            int paddingDp = 0;
+            int paddingPx = (int) (paddingDp * density + 0.5f);
+            floorButton.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
+
+            float cornerRadiusDp = 8f;
+            float cornerRadiusPx = cornerRadiusDp * density;
+            GradientDrawable roundedBackground = new GradientDrawable();
+            roundedBackground.setColor(ContextCompat.getColor(this, R.color.green));
+            roundedBackground.setCornerRadius(cornerRadiusPx);
+            floorButton.setBackground(roundedBackground);
+
+            floorButton.setTextColor(Color.BLACK);
+
+            floorButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+
             final int floor = floorNumber;
-            button.setOnClickListener(v -> {
-                Integer resId = selectedCampus.FloorsDrawableIds.get(floor);
-                photoView.setImageResource(resId);
-
-                photoView.loadGraphForCampus("guk");
+            floorButton.setOnClickListener(v -> {
+                Integer floorDrawable = selectedCampus.FloorNumberToDrawable.get(floor);
+                photoView.setImageResource(floorDrawable);
+                photoView.loadGraphForCampus(selectedCampus.Id);
                 photoView.postDelayed(() -> photoView.setScale(2.0f, true), 200);
             });
+            floorButtonsContainer.addView(floorButton);
         }
-    }
-
-    private Campus findCampusByName(String name) {
-        for (Campus campus : MainActivity.Campuses) {
-            if (campus.Name.equals(name)) {
-                return campus;
-            }
-        }
-        return null;
-    }
-
-    private String getCampusKeyByName(String name) {
-        if ("ГУК".equals(name)) return "guk";
-        if ("Матмех".equals(name)) return "turgeneva";
-        if ("Биологический".equals(name)) return "bio";
-        return "guk"; // по умолчанию
     }
 }

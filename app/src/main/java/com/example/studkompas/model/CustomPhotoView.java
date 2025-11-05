@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 
 import androidx.annotation.NonNull;
+
 import com.example.studkompas.utils.GraphManager;
 import com.github.chrisbanes.photoview.PhotoView;
 
@@ -16,10 +17,10 @@ import java.util.List;
 import java.util.Map;
 
 public class CustomPhotoView extends PhotoView {
+    private final List<GraphNode> nodes = new ArrayList<>();
     private Paint nodePaint;
     private Paint edgePaint;
     private boolean showGraph = false;
-    private List<GraphNode> nodes = new ArrayList<>();
     private Map<String, GraphNode> campusGraph;
 
     public CustomPhotoView(Context context) {

@@ -41,14 +41,14 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Campus> createCampusesList() {
         ArrayList<Campus> campuses = new ArrayList<>();
-        campuses.add(new Campus("ГУК", "ул. Мира, 19", Map.of(
+        campuses.add(new Campus("ГУК", "guk", "ул. Мира, 19", Map.of(
                 1, R.drawable.guk_1,
                 2, R.drawable.guk_2,
                 3, R.drawable.guk_3,
                 4, R.drawable.guk_4,
                 5, R.drawable.guk_5
         )));
-        campuses.add(new Campus("Матмех", "ул. Тургенева, 4", Map.of(
+        campuses.add(new Campus("Матмех", "turgeneva", "ул. Тургенева, 4", Map.of(
                 1, R.drawable.turgeneva_1,
                 2, R.drawable.turgeneva_2,
                 3, R.drawable.turgeneva_3,
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
                 6, R.drawable.turgeneva_6
         )));
 
-        campuses.add(new Campus("Биологический", "ул. Куйбышева, 48", Map.of(
+        campuses.add(new Campus("Биологический", "bio", "ул. Куйбышева, 48", Map.of(
                 1, R.drawable.bio_1,
                 2, R.drawable.bio_2,
                 3, R.drawable.bio_3

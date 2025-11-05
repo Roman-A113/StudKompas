@@ -23,9 +23,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GraphManager {
-    public static Map<String, Map<String, GraphNode>> Graphs = new HashMap<>();
     private static final String TAG = "GraphManager";
     private static final String GRAPH_FILENAME = "graph.json";
+    public static Map<String, Map<String, GraphNode>> Graphs = new HashMap<>();
 
     public static void loadGraphFromTempFile(Context context) {
         File file = new File(context.getFilesDir(), GRAPH_FILENAME);
@@ -39,7 +39,8 @@ public class GraphManager {
                 sb.append(line);
             }
 
-            Type type = new TypeToken<Map<String, Map<String, GraphNode>>>(){}.getType();
+            Type type = new TypeToken<Map<String, Map<String, GraphNode>>>() {
+            }.getType();
 
             Graphs = new Gson().fromJson(sb.toString(), type);
         } catch (Exception e) {
@@ -98,7 +99,6 @@ public class GraphManager {
 
         GraphNode node1 = campusMap.get(nodeId1);
         GraphNode node2 = campusMap.get(nodeId2);
-
 
         node1.edges.add(nodeId2);
         node2.edges.add(nodeId1);

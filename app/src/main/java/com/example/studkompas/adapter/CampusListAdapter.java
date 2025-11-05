@@ -40,8 +40,7 @@ public class CampusListAdapter extends RecyclerView.Adapter<CampusListAdapter.Vi
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, CampusMapActivity.class);
-            intent.putExtra("campus_name", campus.Name);
-            intent.putExtra("campus_address", campus.Address);
+            intent.putExtra("campus", campus);
             context.startActivity(intent);
         });
     }
