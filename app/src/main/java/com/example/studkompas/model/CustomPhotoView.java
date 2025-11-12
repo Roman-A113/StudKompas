@@ -11,13 +11,9 @@ import androidx.annotation.NonNull;
 
 import com.example.studkompas.utils.GraphManager;
 import com.github.chrisbanes.photoview.PhotoView;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class CustomPhotoView extends PhotoView {
-    private final List<GraphNode> nodes = new ArrayList<>();
     private Paint nodePaint;
     private Paint edgePaint;
     private boolean showGraph = false;
@@ -46,10 +42,9 @@ public class CustomPhotoView extends PhotoView {
         edgePaint.setAntiAlias(true);
     }
 
+
     public void loadGraphForCampus(String campusKey) {
         campusGraph = GraphManager.Graphs.get(campusKey);
-        nodes.clear();
-        nodes.addAll(campusGraph.values());
         showGraph = true;
         invalidate();
     }
@@ -65,15 +60,16 @@ public class CustomPhotoView extends PhotoView {
         Matrix matrix = getImageMatrix();
         canvas.concat(matrix);
 
-        for (GraphNode node : nodes) {
+        for (GraphNode node : campusGraph.values()) {
             if (node.location == null || node.location.length < 2)
                 continue;
             float cx = node.location[0];
             float cy = node.location[1];
             canvas.drawCircle(cx, cy, 40f, nodePaint);
+            drawNodeName(canvas, node, cx, cy);
         }
 
-        for (GraphNode node : nodes) {
+        for (GraphNode node : campusGraph.values()) {
             if (node.location == null || node.location.length < 2)
                 continue;
 
@@ -88,5 +84,14 @@ public class CustomPhotoView extends PhotoView {
             }
         }
         canvas.restore();
+    }
+
+    private static void drawNodeName(@NonNull Canvas canvas, GraphNode node, float cx, float cy) {
+        Paint textPaint = new Paint();
+        textPaint.setColor(Color.BLACK);
+        textPaint.setTextSize(40);
+        textPaint.setAntiAlias(true);
+        textPaint.setTextAlign(Paint.Align.CENTER);
+        canvas.drawText(node.name, cx, cy - 40, textPaint);
     }
 }

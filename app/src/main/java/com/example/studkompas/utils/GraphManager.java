@@ -10,7 +10,6 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,11 +26,9 @@ public class GraphManager {
     private static final String GRAPH_FILENAME = "graph.json";
     public static Map<String, Map<String, GraphNode>> Graphs = new HashMap<>();
 
-    public static void loadGraphFromTempFile(Context context) {
-        File file = new File(context.getFilesDir(), GRAPH_FILENAME);
-
-        try (FileInputStream fis = new FileInputStream(file);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(fis, StandardCharsets.UTF_8))) {
+    public static void loadGraphFromAssets(Context context) {
+        try (InputStream is = context.getAssets().open("graph.json");
+             BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
 
             StringBuilder sb = new StringBuilder();
             String line;
@@ -39,12 +36,15 @@ public class GraphManager {
                 sb.append(line);
             }
 
-            Type type = new TypeToken<Map<String, Map<String, GraphNode>>>() {
-            }.getType();
-
+            Type type = new TypeToken<Map<String, Map<String, GraphNode>>>() {}.getType();
             Graphs = new Gson().fromJson(sb.toString(), type);
+
+            if (Graphs == null) {
+                Graphs = new HashMap<>();
+            }
+
         } catch (Exception e) {
-            Log.e(TAG, "Ошибка при загрузке graph.json", e);
+            Log.e(TAG, "Ошибка при загрузке graph.json из assets", e);
             Graphs = new HashMap<>();
         }
     }
@@ -62,34 +62,32 @@ public class GraphManager {
     }
 
     public static void copyAssetGraphToTempFile(Context context) {
-        File graphFile = new File(context.getFilesDir(), "graph.json");
-        if (!graphFile.exists()) {
-            try {
-                InputStream inputStream = context.getAssets().open("graph.json");
-                File outFile = new File(context.getFilesDir(), "graph.json");
-                OutputStream outputStream = new FileOutputStream(outFile);
+        try {
+            InputStream inputStream = context.getAssets().open("graph.json");
+            File outFile = new File(context.getFilesDir(), "graph.json");
+            OutputStream outputStream = new FileOutputStream(outFile);
 
-                byte[] buffer = new byte[1024];
-                int length;
-                while ((length = inputStream.read(buffer)) > 0) {
-                    outputStream.write(buffer, 0, length);
-                }
-                outputStream.flush();
-                outputStream.close();
-                inputStream.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
             }
+
+            outputStream.flush();
+            outputStream.close();
+            inputStream.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Не удалось скопировать graph.json из assets", e);
         }
     }
 
-    public static void addNode(Context context, String campusKey, float x, float y) {
+    public static void addNode(Context context, String campusKey, float x, float y, String name) {
         Graphs.putIfAbsent(campusKey, new HashMap<>());
         Map<String, GraphNode> campusMap = Graphs.get(campusKey);
 
         int nextId = campusMap.size() + 1;
         String idStr = String.valueOf(nextId);
-        GraphNode newNode = new GraphNode(idStr, "Точка " + nextId, new float[]{x, y});
+        GraphNode newNode = new GraphNode(idStr, name, new float[]{x, y});
         campusMap.put(idStr, newNode);
         saveGraphToTempFile(context);
     }

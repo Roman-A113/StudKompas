@@ -4,11 +4,14 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.TypedValue;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -59,6 +62,8 @@ public class CampusMapActivity extends AppCompatActivity {
         photoView = findViewById(R.id.imageViewCampusMap);
         photoView.setMaximumScale(10.0f);
         photoView.setImageResource(selectedCampus.FloorNumberToDrawable.get(1));
+        photoView.loadGraphForCampus(selectedCampus.Id);
+
         photoView.setOnPhotoTapListener((view, x, y) -> {
             Drawable drawable = photoView.getDrawable();
 
@@ -73,7 +78,7 @@ public class CampusMapActivity extends AppCompatActivity {
                         btnEdgeMode.setText("Выбрана вершина: " + tappedNodeId);
                     } else if (!firstSelectedNodeId.equals(tappedNodeId)) {
                         GraphManager.addEdge(this, selectedCampus.Id, firstSelectedNodeId, tappedNodeId);
-                        photoView.loadGraphForCampus(selectedCampus.Id);
+                        photoView.invalidate();
                         firstSelectedNodeId = null;
                         btnEdgeMode.setText("Режим добавления ребер");
                     }
@@ -81,11 +86,24 @@ public class CampusMapActivity extends AppCompatActivity {
                     Toast.makeText(this, "Узел не найден", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                GraphManager.addNode(CampusMapActivity.this, selectedCampus.Id, pixelX, pixelY);
-                photoView.loadGraphForCampus(selectedCampus.Id);
+                AlertDialog.Builder builder = new AlertDialog.Builder(CampusMapActivity.this);
+                builder.setTitle("Введите имя вершины");
+
+                final EditText input = new EditText(CampusMapActivity.this);
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                input.setHint("Например: Кабинет 101");
+                builder.setView(input);
+
+                builder.setPositiveButton("Добавить", (dialog, which) -> {
+                    String nodeName = input.getText().toString().trim();
+                    GraphManager.addNode(CampusMapActivity.this, selectedCampus.Id, pixelX, pixelY, nodeName);
+                    photoView.invalidate();
+                });
+
+                builder.setNegativeButton("Отмена", null);
+                builder.show();
             }
         });
-        photoView.loadGraphForCampus(selectedCampus.Id);
         photoView.postDelayed(() -> photoView.setScale(2.0f, true), 200);
     }
 

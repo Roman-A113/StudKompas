@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         GraphManager.copyAssetGraphToTempFile(this);
-        GraphManager.loadGraphFromTempFile(this);
+        GraphManager.loadGraphFromAssets(this);
 
         Campuses = createCampusesList();
 
