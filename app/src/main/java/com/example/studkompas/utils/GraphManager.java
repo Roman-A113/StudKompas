@@ -24,7 +24,7 @@ import java.util.Map;
 public class GraphManager {
     private static final String TAG = "GraphManager";
     private static final String GRAPH_FILENAME = "graph.json";
-    public static Map<String, Map<String, GraphNode>> Graphs = new HashMap<>();
+    public static Map<String, Map<String, Map<String, GraphNode>>> Graphs = new HashMap<>();
 
     public static void loadGraphFromAssets(Context context) {
         try (InputStream is = context.getAssets().open("graph.json");
@@ -36,7 +36,7 @@ public class GraphManager {
                 sb.append(line);
             }
 
-            Type type = new TypeToken<Map<String, Map<String, GraphNode>>>() {}.getType();
+            Type type = new TypeToken<Map<String, Map<String, Map<String, GraphNode>>>>() {}.getType();
             Graphs = new Gson().fromJson(sb.toString(), type);
 
             if (Graphs == null) {
@@ -81,9 +81,9 @@ public class GraphManager {
         }
     }
 
-    public static void addNode(Context context, String campusKey, float x, float y, String name) {
+    public static void addNode(Context context, String campusKey, String floor, float x, float y, String name) {
         Graphs.putIfAbsent(campusKey, new HashMap<>());
-        Map<String, GraphNode> campusMap = Graphs.get(campusKey);
+        Map<String, GraphNode> campusMap = Graphs.get(campusKey).get(floor);
 
         int nextId = campusMap.size() + 1;
         String idStr = String.valueOf(nextId);
@@ -92,8 +92,8 @@ public class GraphManager {
         saveGraphToTempFile(context);
     }
 
-    public static void addEdge(Context context, String campusKey, String nodeId1, String nodeId2) {
-        Map<String, GraphNode> campusMap = Graphs.get(campusKey);
+    public static void addEdge(Context context, String campusKey, String floor, String nodeId1, String nodeId2) {
+        Map<String, GraphNode> campusMap = Graphs.get(campusKey).get(floor);
 
         GraphNode node1 = campusMap.get(nodeId1);
         GraphNode node2 = campusMap.get(nodeId2);

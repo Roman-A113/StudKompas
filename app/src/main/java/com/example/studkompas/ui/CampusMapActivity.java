@@ -28,6 +28,7 @@ import java.util.TreeSet;
 public class CampusMapActivity extends AppCompatActivity {
     private CustomPhotoView photoView;
     private Campus selectedCampus;
+    private String currentFloor = "1";
 
     private boolean edgeSelectionMode = false;
     private String firstSelectedNodeId = null;
@@ -58,11 +59,10 @@ public class CampusMapActivity extends AppCompatActivity {
             }
         });
 
-
         photoView = findViewById(R.id.imageViewCampusMap);
         photoView.setMaximumScale(10.0f);
         photoView.setImageResource(selectedCampus.FloorNumberToDrawable.get(1));
-        photoView.loadGraphForCampus(selectedCampus.Id);
+        photoView.loadGraphForCampus(selectedCampus.Id, currentFloor);
 
         photoView.setOnPhotoTapListener((view, x, y) -> {
             Drawable drawable = photoView.getDrawable();
@@ -77,7 +77,7 @@ public class CampusMapActivity extends AppCompatActivity {
                         firstSelectedNodeId = tappedNodeId;
                         btnEdgeMode.setText("Выбрана вершина: " + tappedNodeId);
                     } else if (!firstSelectedNodeId.equals(tappedNodeId)) {
-                        GraphManager.addEdge(this, selectedCampus.Id, firstSelectedNodeId, tappedNodeId);
+                        GraphManager.addEdge(this, selectedCampus.Id, currentFloor, firstSelectedNodeId, tappedNodeId);
                         photoView.invalidate();
                         firstSelectedNodeId = null;
                         btnEdgeMode.setText("Режим добавления ребер");
@@ -96,7 +96,7 @@ public class CampusMapActivity extends AppCompatActivity {
 
                 builder.setPositiveButton("Добавить", (dialog, which) -> {
                     String nodeName = input.getText().toString().trim();
-                    GraphManager.addNode(CampusMapActivity.this, selectedCampus.Id, pixelX, pixelY, nodeName);
+                    GraphManager.addNode(CampusMapActivity.this, selectedCampus.Id, currentFloor, pixelX, pixelY, nodeName);
                     photoView.invalidate();
                 });
 
@@ -108,7 +108,7 @@ public class CampusMapActivity extends AppCompatActivity {
     }
 
     private String findNodeAt(float x, float y, String campusKey) {
-        Map<String, GraphNode> campusGraph = GraphManager.Graphs.get(campusKey);
+        Map<String, GraphNode> campusGraph = GraphManager.Graphs.get(campusKey).get(currentFloor);
         if (campusGraph == null) return null;
 
         final float TOLERANCE = 60f;
@@ -161,7 +161,8 @@ public class CampusMapActivity extends AppCompatActivity {
             floorButton.setOnClickListener(v -> {
                 Integer floorDrawable = selectedCampus.FloorNumberToDrawable.get(floor);
                 photoView.setImageResource(floorDrawable);
-                photoView.loadGraphForCampus(selectedCampus.Id);
+                currentFloor = String.valueOf(floor);
+                photoView.loadGraphForCampus(selectedCampus.Id, currentFloor);
                 photoView.postDelayed(() -> photoView.setScale(2.0f, true), 200);
             });
             floorButtonsContainer.addView(floorButton);

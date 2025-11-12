@@ -43,8 +43,8 @@ public class CustomPhotoView extends PhotoView {
     }
 
 
-    public void loadGraphForCampus(String campusKey) {
-        campusGraph = GraphManager.Graphs.get(campusKey);
+    public void loadGraphForCampus(String campusKey, String floor) {
+        campusGraph = GraphManager.Graphs.get(campusKey).get(floor);
         showGraph = true;
         invalidate();
     }
