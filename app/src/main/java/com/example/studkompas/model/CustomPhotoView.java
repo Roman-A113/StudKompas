@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 
 import com.example.studkompas.utils.GraphManager;
 import com.github.chrisbanes.photoview.PhotoView;
+
 import java.util.Map;
 
 public class CustomPhotoView extends PhotoView {
@@ -29,6 +30,15 @@ public class CustomPhotoView extends PhotoView {
         init();
     }
 
+    private static void drawNodeName(@NonNull Canvas canvas, GraphNode node, float cx, float cy) {
+        Paint textPaint = new Paint();
+        textPaint.setColor(Color.BLACK);
+        textPaint.setTextSize(40);
+        textPaint.setAntiAlias(true);
+        textPaint.setTextAlign(Paint.Align.CENTER);
+        canvas.drawText(node.name, cx, cy - 40, textPaint);
+    }
+
     private void init() {
         nodePaint = new Paint();
         nodePaint.setColor(Color.RED);
@@ -41,7 +51,6 @@ public class CustomPhotoView extends PhotoView {
         edgePaint.setStrokeWidth(20f);
         edgePaint.setAntiAlias(true);
     }
-
 
     public void loadGraphForCampus(String campusKey, String floor) {
         campusGraph = GraphManager.Graphs.get(campusKey).get(floor);
@@ -84,14 +93,5 @@ public class CustomPhotoView extends PhotoView {
             }
         }
         canvas.restore();
-    }
-
-    private static void drawNodeName(@NonNull Canvas canvas, GraphNode node, float cx, float cy) {
-        Paint textPaint = new Paint();
-        textPaint.setColor(Color.BLACK);
-        textPaint.setTextSize(40);
-        textPaint.setAntiAlias(true);
-        textPaint.setTextAlign(Paint.Align.CENTER);
-        canvas.drawText(node.name, cx, cy - 40, textPaint);
     }
 }

@@ -36,7 +36,8 @@ public class GraphManager {
                 sb.append(line);
             }
 
-            Type type = new TypeToken<Map<String, Map<String, Map<String, GraphNode>>>>() {}.getType();
+            Type type = new TypeToken<Map<String, Map<String, Map<String, GraphNode>>>>() {
+            }.getType();
             Graphs = new Gson().fromJson(sb.toString(), type);
 
             if (Graphs == null) {
@@ -79,6 +80,23 @@ public class GraphManager {
         } catch (IOException e) {
             throw new RuntimeException("Не удалось скопировать graph.json из assets", e);
         }
+    }
+
+    public static String findNodeAt(float x, float y, String campusKey, String currentFloorStr) {
+        Map<String, GraphNode> campusGraph = GraphManager.Graphs.get(campusKey).get(currentFloorStr);
+        if (campusGraph == null) return null;
+
+        final float TOLERANCE = 60f;
+
+        for (GraphNode node : campusGraph.values()) {
+            if (node.location == null || node.location.length < 2) continue;
+            float dx = node.location[0] - x;
+            float dy = node.location[1] - y;
+            if (dx * dx + dy * dy <= TOLERANCE * TOLERANCE) {
+                return node.id;
+            }
+        }
+        return null;
     }
 
     public static void addNode(Context context, String campusKey, String floor, float x, float y, String name) {
