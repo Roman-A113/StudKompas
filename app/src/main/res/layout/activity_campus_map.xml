@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:background="#ffffff">
 
+
     <com.example.studkompas.model.CustomPhotoView
         android:id="@+id/imageViewCampusMap"
         android:layout_width="match_parent"
@@ -11,16 +12,69 @@
         android:layout_marginTop="-1dp"
         android:src="@drawable/guk_1" />
 
-    <Button
-        android:id="@+id/btn_edge_mode"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/editor_controls"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="129dp"
-        android:layout_marginEnd="124dp"
-        android:text="Режим добавления вершин" />
+        android:layout_alignParentTop="true"
+        android:layout_margin="8dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:weightSum="4">
 
+        <Button
+            android:id="@+id/btn_add_node"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="2dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:text="вершины"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btn_add_edge"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="2dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:text="ребра"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btn_move_node"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="2dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:text="переместить"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btn_toggle_graph"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="2dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:text="скрыть граф"
+            android:textSize="12sp" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/floorPanel"
@@ -29,7 +83,7 @@
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:layout_marginEnd="8dp"
-        android:background="#ffffff"
+        android:background="@color/white"
         android:elevation="4dp"
         android:orientation="vertical">
     </LinearLayout>
