@@ -120,4 +120,23 @@ public class GraphManager {
         node2.edges.add(nodeId1);
         saveGraphToTempFile(context);
     }
+
+    public static void updateNodePosition(Context context, String campusKey, String floor, String nodeId, float x, float y) {
+        Map<String, Map<String, GraphNode>> campusGraphs = Graphs.get(campusKey);
+        if (campusGraphs == null) return;
+
+        Map<String, GraphNode> floorGraph = campusGraphs.get(floor);
+        if (floorGraph == null) return;
+
+        GraphNode node = floorGraph.get(nodeId);
+        if (node == null) return;
+
+        if (node.location == null || node.location.length < 2) {
+            node.location = new float[2];
+        }
+        node.location[0] = x;
+        node.location[1] = y;
+
+        saveGraphToTempFile(context);
+    }
 }

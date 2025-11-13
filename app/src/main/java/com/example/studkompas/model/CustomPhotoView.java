@@ -17,8 +17,8 @@ import java.util.Map;
 public class CustomPhotoView extends PhotoView {
     private Paint nodePaint;
     private Paint edgePaint;
-    private boolean showGraph = false;
     private Map<String, GraphNode> campusGraph;
+    private boolean isGraphVisible = true;
 
     public CustomPhotoView(Context context) {
         super(context);
@@ -54,7 +54,11 @@ public class CustomPhotoView extends PhotoView {
 
     public void loadGraphForCampus(String campusKey, String floor) {
         campusGraph = GraphManager.Graphs.get(campusKey).get(floor);
-        showGraph = true;
+        invalidate();
+    }
+
+    public void setGraphVisible(boolean visible) {
+        this.isGraphVisible = visible;
         invalidate();
     }
 
@@ -62,7 +66,7 @@ public class CustomPhotoView extends PhotoView {
     protected void dispatchDraw(@NonNull Canvas canvas) {
         super.dispatchDraw(canvas);
 
-        if (!showGraph || campusGraph == null)
+        if (!isGraphVisible)
             return;
 
         canvas.save();

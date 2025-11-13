@@ -6,7 +6,7 @@ import java.util.List;
 public class GraphNode {
     public final String id;
     public final String name;
-    public final float[] location;
+    public float[] location;
     public List<String> edges = new ArrayList<>();
 
     public GraphNode(String id, String name, float[] location) {

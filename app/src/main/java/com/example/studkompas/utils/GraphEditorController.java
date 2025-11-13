@@ -13,29 +13,17 @@ import androidx.core.content.ContextCompat;
 import com.example.studkompas.R;
 import com.example.studkompas.model.CustomPhotoView;
 
-import kotlin.NotImplementedError;
-
 public class GraphEditorController {
     private final Activity activity;
     private final CustomPhotoView photoView;
     private final String campusId;
-    private String currentFloor = "1";
-    private String firstSelectedNodeId = null;
-
-    private enum EditMode {
-        ADD_NODE,
-        ADD_EDGE,
-        MOVE_NODE,
-        HIDE_GRAPH
-    }
-
-    private EditMode currentMode = null;
-
     Button buttonAddNode;
     Button buttonAddEdge;
     Button buttonMoveNode;
     Button buttonToggleGraph;
-
+    private String currentFloor = "1";
+    private String selectedNodeId = null;
+    private EditMode currentMode = null;
     public GraphEditorController(Activity activity, CustomPhotoView photoView, String campusId) {
         this.activity = activity;
         this.photoView = photoView;
@@ -43,15 +31,19 @@ public class GraphEditorController {
         setup();
     }
 
+    public void setCurrentFloor(String floor) {
+        this.currentFloor = floor;
+    }
+
     public void setup() {
-        buttonAddNode =  activity.findViewById(R.id.btn_add_node);
-        buttonAddEdge =  activity.findViewById(R.id.btn_add_edge);
-        buttonMoveNode =  activity.findViewById(R.id.btn_move_node);
-        buttonToggleGraph =  activity.findViewById(R.id.btn_toggle_graph);
+        buttonAddNode = activity.findViewById(R.id.btn_add_node);
+        buttonAddEdge = activity.findViewById(R.id.btn_add_edge);
+        buttonMoveNode = activity.findViewById(R.id.btn_move_node);
+        buttonToggleGraph = activity.findViewById(R.id.btn_toggle_graph);
 
         resetColors();
         buttonAddNode.setOnClickListener(v -> {
-            if (currentMode == EditMode.HIDE_GRAPH){
+            if (currentMode == EditMode.HIDE_GRAPH) {
                 Toast.makeText(activity, "Граф скрыт, рисовать нельзя", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -62,7 +54,7 @@ public class GraphEditorController {
         });
 
         buttonAddEdge.setOnClickListener(v -> {
-            if (currentMode == EditMode.HIDE_GRAPH){
+            if (currentMode == EditMode.HIDE_GRAPH) {
                 Toast.makeText(activity, "Граф скрыт, рисовать нельзя", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -73,7 +65,7 @@ public class GraphEditorController {
         });
 
         buttonMoveNode.setOnClickListener(v -> {
-            if (currentMode == EditMode.HIDE_GRAPH){
+            if (currentMode == EditMode.HIDE_GRAPH) {
                 Toast.makeText(activity, "Граф скрыт, рисовать нельзя", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -89,16 +81,18 @@ public class GraphEditorController {
                 currentMode = EditMode.HIDE_GRAPH;
                 buttonToggleGraph.setBackgroundColor(ContextCompat.getColor(activity, R.color.red));
                 buttonToggleGraph.setText("показать граф");
+                photoView.setGraphVisible(false);
             } else {
                 currentMode = null;
                 buttonToggleGraph.setText("скрыть граф");
+                photoView.setGraphVisible(true);
             }
         });
 
         photoView.setOnPhotoTapListener((view, x, y) -> HandlePhotoTap(x, y));
     }
 
-    private void resetColors(){
+    private void resetColors() {
         int greyColor = ContextCompat.getColor(activity, R.color.grey);
         buttonAddNode.setBackgroundColor(greyColor);
         buttonAddEdge.setBackgroundColor(greyColor);
@@ -114,10 +108,10 @@ public class GraphEditorController {
         float pixelX = x * drawable.getIntrinsicWidth();
         float pixelY = y * drawable.getIntrinsicHeight();
 
-        if(currentMode == null)
+        if (currentMode == null)
             return;
 
-        switch(currentMode){
+        switch (currentMode) {
             case ADD_NODE:
                 handleAddNodeModeTap(pixelX, pixelY);
                 break;
@@ -125,7 +119,7 @@ public class GraphEditorController {
                 handleEdgeModeTap(pixelX, pixelY);
                 break;
             case MOVE_NODE:
-                handleMoveNodeTap();
+                handleMoveNodeTap(pixelX, pixelY);
                 break;
         }
     }
@@ -156,22 +150,40 @@ public class GraphEditorController {
             return;
         }
 
-        if (firstSelectedNodeId == null) {
-            firstSelectedNodeId = tappedNodeId;
+        if (selectedNodeId == null) {
+            selectedNodeId = tappedNodeId;
             buttonAddEdge.setText("вершина: " + tappedNodeId);
-        } else if (!firstSelectedNodeId.equals(tappedNodeId)) {
-            GraphManager.addEdge(activity, campusId, currentFloor, firstSelectedNodeId, tappedNodeId);
+        } else if (!selectedNodeId.equals(tappedNodeId)) {
+            GraphManager.addEdge(activity, campusId, currentFloor, selectedNodeId, tappedNodeId);
             photoView.invalidate();
-            firstSelectedNodeId = null;
+            selectedNodeId = null;
             buttonAddEdge.setText("ребра");
         }
     }
 
-    private void handleMoveNodeTap(){
-        throw new NotImplementedError();
+    private void handleMoveNodeTap(float pixelX, float pixelY) {
+        String nodeId = GraphManager.findNodeAt(pixelX, pixelY, campusId, currentFloor);
+        if (selectedNodeId == null) {
+            if (nodeId == null) {
+                Toast.makeText(activity, "Вершина не найдена", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            buttonMoveNode.setText("вершина: " + nodeId);
+            selectedNodeId = nodeId;
+            return;
+        }
+
+        GraphManager.updateNodePosition(activity, campusId, currentFloor, selectedNodeId, pixelX, pixelY);
+        photoView.invalidate();
+        Toast.makeText(activity, "Вершина " + selectedNodeId + " перемещена", Toast.LENGTH_SHORT).show();
+        buttonMoveNode.setText("переместить");
+        selectedNodeId = null;
     }
 
-    public void setCurrentFloor(String floor) {
-        this.currentFloor = floor;
+    private enum EditMode {
+        ADD_NODE,
+        ADD_EDGE,
+        MOVE_NODE,
+        HIDE_GRAPH
     }
 }
