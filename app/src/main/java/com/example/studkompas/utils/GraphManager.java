@@ -86,17 +86,17 @@ public class GraphManager {
         }
     }
 
-    public static String findNodeAt(float x, float y, String campusKey, String currentFloorStr) {
-        Map<String, GraphNode> campusGraph = GraphManager.Graphs.get(campusKey).get(currentFloorStr);
+    public static String findNodeAt(float relX, float relY, String campusKey, String floor) {
+        Map<String, GraphNode> campusGraph = Graphs.get(campusKey).get(floor);
         if (campusGraph == null) return null;
 
-        final float TOLERANCE = 60f;
+        final float TOL = 0.02f;
 
         for (GraphNode node : campusGraph.values()) {
             if (node.location == null || node.location.length < 2) continue;
-            float dx = node.location[0] - x;
-            float dy = node.location[1] - y;
-            if (dx * dx + dy * dy <= TOLERANCE * TOLERANCE) {
+            float dx = node.location[0] - relX;
+            float dy = node.location[1] - relY;
+            if (Math.abs(dx) <= TOL && Math.abs(dy) <= TOL) {
                 return node.id;
             }
         }
