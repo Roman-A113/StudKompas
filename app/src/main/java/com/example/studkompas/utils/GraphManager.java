@@ -18,8 +18,12 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class GraphManager {
     private static final String TAG = "GraphManager";
@@ -138,5 +142,32 @@ public class GraphManager {
         node.location[1] = y;
 
         saveGraphToTempFile(context);
+    }
+
+    public static List<String> getUniqueNonEmptyNodeNames(String campusKey) {
+        List<String> result = new ArrayList<>();
+        Set<String> seen = new LinkedHashSet<>();
+
+        Map<String, Map<String, GraphNode>> campusGraphs = Graphs.get(campusKey);
+
+        for (Map<String, GraphNode> floorGraph : campusGraphs.values()) {
+            if (floorGraph == null)
+                continue;
+
+            for (GraphNode node : floorGraph.values()) {
+                String name = node.name;
+                if (name == null)
+                    continue;
+
+                String trimmed = name.trim();
+                if (trimmed.isEmpty()) continue;
+
+                if (seen.add(trimmed)) {
+                    result.add(trimmed);
+                }
+            }
+        }
+
+        return result;
     }
 }

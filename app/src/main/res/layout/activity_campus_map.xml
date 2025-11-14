@@ -149,4 +149,14 @@
 
     </LinearLayout>
 
+    <!-- Добавьте это ПЕРЕД закрывающим </RelativeLayout> -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewLocations"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/routeInputPanel"
+        android:layout_marginTop="72dp"
+        android:background="#f5f5f5"
+        android:visibility="gone" />
+
 </RelativeLayout>
