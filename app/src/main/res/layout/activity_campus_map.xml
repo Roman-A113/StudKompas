@@ -1,25 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffff">
 
     <com.example.studkompas.model.CustomPhotoView
         android:id="@+id/imageViewCampusMap"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="-1dp"
-        android:src="@drawable/guk_1" />
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/guk_1"
+        app:layout_constraintTop_toBottomOf="@id/editor_controls"
+        app:layout_constraintBottom_toTopOf="@id/routeInputPanel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <LinearLayout
         android:id="@+id/editor_controls"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_margin="8dp"
-        android:layout_marginTop="8dp"
         android:orientation="horizontal"
-        android:weightSum="4">
+        android:weightSum="4"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <Button
             android:id="@+id/btn_add_node"
@@ -79,23 +85,26 @@
         android:id="@+id/floorPanel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
         android:layout_marginEnd="8dp"
         android:background="@color/white"
         android:elevation="4dp"
-        android:orientation="vertical"></LinearLayout>
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/routeInputPanel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editor_controls" />
 
     <LinearLayout
         android:id="@+id/routeInputPanel"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_margin="10dp"
         android:background="@drawable/rounded_purple_background"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="305dp"
@@ -148,11 +157,15 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/LocationsList"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/routeInputPanel"
-        android:layout_marginTop="72dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:background="#f5f5f5"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/editor_controls"
+        app:layout_constraintBottom_toTopOf="@id/routeInputPanel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

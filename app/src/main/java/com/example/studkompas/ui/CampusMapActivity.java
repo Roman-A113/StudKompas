@@ -84,9 +84,9 @@ public class CampusMapActivity extends AppCompatActivity {
             return;
         isLocationsListDisplays = true;
 
-        findViewById(R.id.imageViewCampusMap).animate().alpha(0f).setDuration(300).setInterpolator(new DecelerateInterpolator()).start();
-        findViewById(R.id.editor_controls).animate().alpha(0f).setDuration(300).start();
-        findViewById(R.id.floorPanel).animate().alpha(0f).setDuration(300).start();
+        findViewById(R.id.imageViewCampusMap).animate().alpha(0f).setDuration(200).setInterpolator(new DecelerateInterpolator()).start();
+        findViewById(R.id.editor_controls).animate().alpha(0f).setDuration(200).start();
+        findViewById(R.id.floorPanel).animate().alpha(0f).setDuration(200).start();
 
         locationsList.setVisibility(View.VISIBLE);
 
@@ -99,9 +99,9 @@ public class CampusMapActivity extends AppCompatActivity {
             return;
         isLocationsListDisplays = false;
 
-        findViewById(R.id.imageViewCampusMap).animate().alpha(1f).setDuration(300).start();
-        findViewById(R.id.editor_controls).animate().alpha(1f).setDuration(300).start();
-        findViewById(R.id.floorPanel).animate().alpha(1f).setDuration(300).start();
+        findViewById(R.id.imageViewCampusMap).animate().alpha(1f).setDuration(200).start();
+        findViewById(R.id.editor_controls).animate().alpha(1f).setDuration(200).start();
+        findViewById(R.id.floorPanel).animate().alpha(1f).setDuration(200).start();
 
         locationsList.setVisibility(View.GONE);
         currentFocusedInputField.clearFocus();
@@ -156,10 +156,10 @@ public class CampusMapActivity extends AppCompatActivity {
         button.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
 
         GradientDrawable bg = new GradientDrawable();
-        bg.setColor(ContextCompat.getColor(this, R.color.green));
+        bg.setColor(ContextCompat.getColor(this, R.color.purple));
         bg.setCornerRadius(cornerRadiusPx);
         button.setBackground(bg);
-        button.setTextColor(Color.BLACK);
+        button.setTextColor(Color.WHITE);
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
 
         button.setOnClickListener(v -> switchToFloor(floorNumber));
