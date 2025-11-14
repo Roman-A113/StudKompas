@@ -88,4 +88,65 @@
         android:orientation="vertical">
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/routeInputPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="10dp"
+        android:background="@drawable/rounded_purple_background"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="305dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_white_background"
+            android:hint="Откуда"
+            android:paddingStart="12dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="6dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextStart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:inputType="text"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="305dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/rounded_white_background"
+            android:hint="Куда"
+            android:paddingStart="12dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="6dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextEnd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:inputType="text"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="211dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#FFA500"
+            android:text="Маршрут"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
+
 </RelativeLayout>
