@@ -105,8 +105,8 @@ public class GraphEditorController {
         if (drawable == null)
             return;
 
-        float pixelX = x * drawable.getIntrinsicWidth();
-        float pixelY = y * drawable.getIntrinsicHeight();
+        float pixelX = x;
+        float pixelY = y;
 
         if (currentMode == null)
             return;

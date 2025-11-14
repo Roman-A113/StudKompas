@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 
 import androidx.annotation.NonNull;
@@ -65,37 +66,63 @@ public class CustomPhotoView extends PhotoView {
     @Override
     protected void dispatchDraw(@NonNull Canvas canvas) {
         super.dispatchDraw(canvas);
+        if (!isGraphVisible) return;
 
-        if (!isGraphVisible)
-            return;
+        Drawable drawable = getDrawable();
+        if (drawable == null) return;
 
-        canvas.save();
-        Matrix matrix = getImageMatrix();
-        canvas.concat(matrix);
+        int imageWidth = drawable.getIntrinsicWidth();
+        int imageHeight = drawable.getIntrinsicHeight();
 
+        // Получаем матрицу, которая преобразует координаты ИЗОБРАЖЕНИЯ → в координаты ЭКРАНА
+        Matrix imageMatrix = getImageMatrix();
+        if (imageMatrix.isIdentity()) {
+            // Если матрица тождественная — можно рисовать напрямую
+            drawGraphInImageCoords(canvas, imageWidth, imageHeight);
+        } else {
+            // Сохраняем текущее состояние canvas
+            canvas.save();
+
+            // Применяем ту же трансформацию, что и к изображению
+            canvas.concat(imageMatrix);
+
+            // Теперь рисуем в координатах ИСХОДНОГО изображения
+            drawGraphInImageCoords(canvas, imageWidth, imageHeight);
+
+            // Восстанавливаем canvas
+            canvas.restore();
+        }
+    }
+
+    private void drawGraphInImageCoords(Canvas canvas, int imageWidth, int imageHeight) {
+        // Рисуем узлы
         for (GraphNode node : campusGraph.values()) {
-            if (node.location == null || node.location.length < 2)
-                continue;
-            float cx = node.location[0];
-            float cy = node.location[1];
+            if (node.location == null || node.location.length < 2) continue;
+
+            // node.location — это относительные координаты (0.0–1.0)
+            float cx = node.location[0] * imageWidth;
+            float cy = node.location[1] * imageHeight;
+
             canvas.drawCircle(cx, cy, 40f, nodePaint);
             drawNodeName(canvas, node, cx, cy);
         }
 
+        // Рисуем рёбра
         for (GraphNode node : campusGraph.values()) {
-            if (node.location == null || node.location.length < 2)
-                continue;
+            if (node.location == null || node.location.length < 2) continue;
 
-            float x1 = node.location[0];
-            float y1 = node.location[1];
+            float x1 = node.location[0] * imageWidth;
+            float y1 = node.location[1] * imageHeight;
 
             for (String neighborId : node.edges) {
                 GraphNode neighbor = campusGraph.get(neighborId);
-                float x2 = neighbor.location[0];
-                float y2 = neighbor.location[1];
+                if (neighbor == null || neighbor.location == null || neighbor.location.length < 2) continue;
+
+                float x2 = neighbor.location[0] * imageWidth;
+                float y2 = neighbor.location[1] * imageHeight;
+
                 canvas.drawLine(x1, y1, x2, y2, edgePaint);
             }
         }
-        canvas.restore();
     }
 }
