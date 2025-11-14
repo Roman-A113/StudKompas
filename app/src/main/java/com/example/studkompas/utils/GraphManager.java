@@ -144,7 +144,7 @@ public class GraphManager {
         saveGraphToTempFile(context);
     }
 
-    public static List<String> getUniqueNonEmptyNodeNames(String campusKey) {
+    public static List<String> getNodeNamesInCampus(String campusKey) {
         List<String> result = new ArrayList<>();
         Set<String> seen = new LinkedHashSet<>();
 

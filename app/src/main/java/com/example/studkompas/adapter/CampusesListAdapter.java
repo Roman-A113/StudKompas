@@ -16,11 +16,11 @@ import com.example.studkompas.ui.CampusMapActivity;
 
 import java.util.List;
 
-public class CampusListAdapter extends RecyclerView.Adapter<CampusListAdapter.ViewHolder> {
+public class CampusesListAdapter extends RecyclerView.Adapter<CampusesListAdapter.ViewHolder> {
     private final List<Campus> campusItems;
     private final Context context;
 
-    public CampusListAdapter(Context context, List<Campus> campusItems) {
+    public CampusesListAdapter(Context context, List<Campus> campusItems) {
         this.campusItems = campusItems;
         this.context = context;
     }

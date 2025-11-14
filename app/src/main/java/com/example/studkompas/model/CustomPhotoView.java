@@ -116,7 +116,8 @@ public class CustomPhotoView extends PhotoView {
 
             for (String neighborId : node.edges) {
                 GraphNode neighbor = campusGraph.get(neighborId);
-                if (neighbor == null || neighbor.location == null || neighbor.location.length < 2) continue;
+                if (neighbor == null || neighbor.location == null || neighbor.location.length < 2)
+                    continue;
 
                 float x2 = neighbor.location[0] * imageWidth;
                 float y2 = neighbor.location[1] * imageHeight;

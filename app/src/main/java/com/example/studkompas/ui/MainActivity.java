@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.studkompas.R;
-import com.example.studkompas.adapter.CampusListAdapter;
+import com.example.studkompas.adapter.CampusesListAdapter;
 import com.example.studkompas.model.Campus;
 import com.example.studkompas.utils.GraphManager;
 
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
         RecyclerView recyclerView = findViewById(R.id.recyclerViewBuildings);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        CampusListAdapter adapter = new CampusListAdapter(this, Campuses);
+        CampusesListAdapter adapter = new CampusesListAdapter(this, Campuses);
         recyclerView.setAdapter(adapter);
 
         findViewById(R.id.buttonHelp).setOnClickListener(v -> startActivity(new Intent(MainActivity.this, HelpActivity.class)));

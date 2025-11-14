@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     android:background="#ffffff">
 
-
     <com.example.studkompas.model.CustomPhotoView
         android:id="@+id/imageViewCampusMap"
         android:layout_width="match_parent"
@@ -85,8 +84,7 @@
         android:layout_marginEnd="8dp"
         android:background="@color/white"
         android:elevation="4dp"
-        android:orientation="vertical">
-    </LinearLayout>
+        android:orientation="vertical"></LinearLayout>
 
     <LinearLayout
         android:id="@+id/routeInputPanel"
@@ -133,7 +131,6 @@
                 android:id="@+id/editTextEnd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@null"
                 android:inputType="text"
                 android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -149,9 +146,8 @@
 
     </LinearLayout>
 
-    <!-- Добавьте это ПЕРЕД закрывающим </RelativeLayout> -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewLocations"
+        android:id="@+id/LocationsList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/routeInputPanel"

@@ -5,64 +5,42 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.TypedValue;
+import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.studkompas.R;
-import com.example.studkompas.adapter.LocationAdapter;
+import com.example.studkompas.adapter.LocationsListAdapter;
 import com.example.studkompas.model.Campus;
 import com.example.studkompas.model.CustomPhotoView;
 import com.example.studkompas.utils.GraphEditorController;
 import com.example.studkompas.utils.GraphManager;
 
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
-import android.view.View;
-import android.view.animation.DecelerateInterpolator;
-import android.widget.EditText;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import java.util.ArrayList;
-import java.util.List;
 
 public class CampusMapActivity extends AppCompatActivity {
     private CustomPhotoView photoView;
     private Campus selectedCampus;
     private GraphEditorController editorController;
 
-
-    private RecyclerView recyclerViewLocations;
-    private LocationAdapter locationAdapter;
-    private View mapView;
-    private boolean isRouteMode = false;
-    private EditText currentFocusedEditText = null;
+    private RecyclerView locationsList;
+    private LocationsListAdapter locationAdapter;
+    private boolean isLocationsListDisplays = false;
+    private EditText currentFocusedInputField = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_campus_map);
-
-        recyclerViewLocations = findViewById(R.id.recyclerViewLocations);
-        setupLocationList();
-
-        EditText editTextStart = findViewById(R.id.editTextStart);
-        EditText editTextEnd = findViewById(R.id.editTextEnd);
-
-        mapView = findViewById(R.id.imageViewCampusMap);
-
-        View.OnFocusChangeListener focusListener = (v, hasFocus) -> {
-            if (hasFocus) {
-                currentFocusedEditText = (EditText) v;
-                enterRouteInputMode();
-            }
-        };
-
-        editTextStart.setOnFocusChangeListener(focusListener);
-        editTextEnd.setOnFocusChangeListener(focusListener);
 
         photoView = findViewById(R.id.imageViewCampusMap);
         photoView.setMaximumScale(10.0f);
@@ -72,9 +50,62 @@ public class CampusMapActivity extends AppCompatActivity {
 
         createFloorButtons();
         switchToFloor(1);
+        setupLocationsListAdapter();
+        setupFocusChangeListenerToInputFields();
     }
 
+    private void setupFocusChangeListenerToInputFields() {
+        View.OnFocusChangeListener focusListener = (v, hasFocus) -> {
+            if (hasFocus) {
+                currentFocusedInputField = (EditText) v;
+                showLocationsList();
+            }
+        };
 
+        findViewById(R.id.editTextStart).setOnFocusChangeListener(focusListener);
+        findViewById(R.id.editTextEnd).setOnFocusChangeListener(focusListener);
+    }
+
+    private void setupLocationsListAdapter() {
+        locationsList = findViewById(R.id.LocationsList);
+        locationAdapter = new LocationsListAdapter(locationName -> {
+            if (currentFocusedInputField != null) {
+                currentFocusedInputField.setText(locationName);
+            }
+            hideLocationsList();
+        });
+
+        locationsList.setAdapter(locationAdapter);
+        locationsList.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    private void showLocationsList() {
+        if (isLocationsListDisplays)
+            return;
+        isLocationsListDisplays = true;
+
+        findViewById(R.id.imageViewCampusMap).animate().alpha(0f).setDuration(300).setInterpolator(new DecelerateInterpolator()).start();
+        findViewById(R.id.editor_controls).animate().alpha(0f).setDuration(300).start();
+        findViewById(R.id.floorPanel).animate().alpha(0f).setDuration(300).start();
+
+        locationsList.setVisibility(View.VISIBLE);
+
+        List<String> locationNames = GraphManager.getNodeNamesInCampus(selectedCampus.Id);
+        locationAdapter.updateList(locationNames);
+    }
+
+    public void hideLocationsList() {
+        if (!isLocationsListDisplays)
+            return;
+        isLocationsListDisplays = false;
+
+        findViewById(R.id.imageViewCampusMap).animate().alpha(1f).setDuration(300).start();
+        findViewById(R.id.editor_controls).animate().alpha(1f).setDuration(300).start();
+        findViewById(R.id.floorPanel).animate().alpha(1f).setDuration(300).start();
+
+        locationsList.setVisibility(View.GONE);
+        currentFocusedInputField.clearFocus();
+    }
 
     private void switchToFloor(int floorNumber) {
         String currentFloorStr = String.valueOf(floorNumber);
@@ -133,48 +164,6 @@ public class CampusMapActivity extends AppCompatActivity {
 
         button.setOnClickListener(v -> switchToFloor(floorNumber));
         return button;
-    }
-
-    private void setupLocationList() {
-        locationAdapter = new LocationAdapter(locationName -> {
-            if (currentFocusedEditText != null) {
-                currentFocusedEditText.setText(locationName);
-            }
-            exitRouteInputMode();
-        });
-
-        recyclerViewLocations.setAdapter(locationAdapter);
-        recyclerViewLocations.setLayoutManager(new LinearLayoutManager(this));
-    }
-    private void enterRouteInputMode() {
-        if (isRouteMode)
-            return;
-        isRouteMode = true;
-
-        mapView.animate().alpha(0f).setDuration(300).setInterpolator(new DecelerateInterpolator()).start();
-        findViewById(R.id.editor_controls).animate().alpha(0f).setDuration(300).start();
-        findViewById(R.id.floorPanel).animate().alpha(0f).setDuration(300).start();
-
-        recyclerViewLocations.setVisibility(View.VISIBLE);
-        loadLocationsIntoList();
-    }
-
-    public void exitRouteInputMode() {
-        if (!isRouteMode)
-            return;
-        isRouteMode = false;
-
-        mapView.animate().alpha(1f).setDuration(200).start();
-        findViewById(R.id.editor_controls).animate().alpha(1f).setDuration(200).start();
-        findViewById(R.id.floorPanel).animate().alpha(1f).setDuration(200).start();
-
-        recyclerViewLocations.setVisibility(View.GONE);
-        currentFocusedEditText.clearFocus();
-    }
-
-    private void loadLocationsIntoList() {
-        List<String> locationNames = GraphManager.getUniqueNonEmptyNodeNames(selectedCampus.Id);
-        locationAdapter.updateList(locationNames);
     }
 }
 

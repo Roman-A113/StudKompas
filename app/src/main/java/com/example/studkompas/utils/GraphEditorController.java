@@ -24,6 +24,7 @@ public class GraphEditorController {
     private String currentFloor = "1";
     private String selectedNodeId = null;
     private EditMode currentMode = null;
+
     public GraphEditorController(Activity activity, CustomPhotoView photoView, String campusId) {
         this.activity = activity;
         this.photoView = photoView;

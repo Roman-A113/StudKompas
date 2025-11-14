@@ -6,24 +6,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.studkompas.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.ViewHolder> {
+public class LocationsListAdapter extends RecyclerView.Adapter<LocationsListAdapter.ViewHolder> {
+    private final LocationsItemListener listener;
     private List<String> locations = new ArrayList<>();
-    private LocationItemListener listener;
 
-    public LocationAdapter(LocationItemListener listener) {
+    public LocationsListAdapter(LocationsItemListener listener) {
         this.listener = listener;
     }
 
     public void updateList(List<String> newLocations) {
         this.locations = newLocations;
-        notifyDataSetChanged();
     }
 
     @NonNull
@@ -52,6 +53,7 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.ViewHo
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textView;
+
         ViewHolder(View itemView) {
             super(itemView);
             textView = itemView.findViewById(R.id.textLocationName);
