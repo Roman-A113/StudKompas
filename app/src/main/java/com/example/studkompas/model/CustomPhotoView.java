@@ -74,32 +74,21 @@ public class CustomPhotoView extends PhotoView {
         int imageWidth = drawable.getIntrinsicWidth();
         int imageHeight = drawable.getIntrinsicHeight();
 
-        // Получаем матрицу, которая преобразует координаты ИЗОБРАЖЕНИЯ → в координаты ЭКРАНА
         Matrix imageMatrix = getImageMatrix();
         if (imageMatrix.isIdentity()) {
-            // Если матрица тождественная — можно рисовать напрямую
             drawGraphInImageCoords(canvas, imageWidth, imageHeight);
         } else {
-            // Сохраняем текущее состояние canvas
             canvas.save();
-
-            // Применяем ту же трансформацию, что и к изображению
             canvas.concat(imageMatrix);
-
-            // Теперь рисуем в координатах ИСХОДНОГО изображения
             drawGraphInImageCoords(canvas, imageWidth, imageHeight);
-
-            // Восстанавливаем canvas
             canvas.restore();
         }
     }
 
     private void drawGraphInImageCoords(Canvas canvas, int imageWidth, int imageHeight) {
-        // Рисуем узлы
         for (GraphNode node : campusGraph.values()) {
             if (node.location == null || node.location.length < 2) continue;
 
-            // node.location — это относительные координаты (0.0–1.0)
             float cx = node.location[0] * imageWidth;
             float cy = node.location[1] * imageHeight;
 
@@ -107,7 +96,6 @@ public class CustomPhotoView extends PhotoView {
             drawNodeName(canvas, node, cx, cy);
         }
 
-        // Рисуем рёбра
         for (GraphNode node : campusGraph.values()) {
             if (node.location == null || node.location.length < 2) continue;
 
