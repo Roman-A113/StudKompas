@@ -22,6 +22,7 @@ import com.example.studkompas.adapter.FloorButtonsListAdapter;
 import com.example.studkompas.adapter.LocationsListAdapter;
 import com.example.studkompas.model.Campus;
 import com.example.studkompas.model.CustomPhotoView;
+import com.example.studkompas.model.ShowUiTransitionListener;
 import com.example.studkompas.utils.GraphEditorController;
 import com.example.studkompas.utils.GraphManager;
 
@@ -149,11 +150,15 @@ public class CampusMapActivity extends AppCompatActivity {
         constraints.connect(R.id.LocationsList, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
         constraints.connect(R.id.LocationsList, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
 
+
         Transition transition = new ChangeBounds().setDuration(150).setInterpolator(new DecelerateInterpolator());
+        transition.addListener(new ShowUiTransitionListener(() -> {
+            locationsList.setVisibility(View.VISIBLE);
+        }));
+
         TransitionManager.beginDelayedTransition(rootLayout, transition);
         constraints.applyTo(rootLayout);
 
-        locationsList.setVisibility(View.VISIBLE);
         List<String> locationNames = GraphManager.getNodeNamesInCampus(selectedCampus.Id);
         locationAdapter.updateList(locationNames);
     }
@@ -164,6 +169,8 @@ public class CampusMapActivity extends AppCompatActivity {
 
         locationsList.setVisibility(View.GONE);
         hideKeyboard();
+        currentFocusedInputField.clearFocus();
+        currentFocusedInputField = null;
 
         ConstraintSet constraints = new ConstraintSet();
         constraints.clone(rootLayout);
@@ -183,36 +190,13 @@ public class CampusMapActivity extends AppCompatActivity {
         constraints.setVisibility(R.id.LocationsList, ConstraintSet.GONE);
 
         Transition transition = new ChangeBounds().setDuration(150).setInterpolator(new DecelerateInterpolator());
-        transition.addListener(new Transition.TransitionListener() {
-            @Override
-            public void onTransitionStart(Transition transition) {
-            }
-
-            @Override
-            public void onTransitionEnd(Transition transition) {
-                showMainUI();
-                showBothInputFields();
-            }
-
-            @Override
-            public void onTransitionCancel(Transition transition) {
-                onTransitionEnd(transition);
-            }
-
-            @Override
-            public void onTransitionPause(Transition transition) {
-            }
-
-            @Override
-            public void onTransitionResume(Transition transition) {
-            }
-        });
+        transition.addListener(new ShowUiTransitionListener(() -> {
+            showMainUI();
+            showBothInputFields();
+        }));
 
         TransitionManager.beginDelayedTransition(rootLayout, transition);
         constraints.applyTo(rootLayout);
-
-        currentFocusedInputField.clearFocus();
-        currentFocusedInputField = null;
     }
 
     private void hideMainUI() {

@@ -88,7 +88,7 @@
         android:layout_marginEnd="8dp"
         android:background="@color/white"
         android:elevation="4dp"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@id/routeInputPanel"
         app:layout_constraintEnd_toEndOf="parent"
