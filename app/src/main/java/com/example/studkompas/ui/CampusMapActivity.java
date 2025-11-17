@@ -26,6 +26,7 @@ import com.example.studkompas.model.ShowUiTransitionListener;
 import com.example.studkompas.utils.GraphEditorController;
 import com.example.studkompas.utils.GraphManager;
 
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -48,6 +49,7 @@ public class CampusMapActivity extends AppCompatActivity {
     private boolean isLocationsListDisplays = false;
     private EditText currentFocusedInputField = null;
 
+    private boolean isDeveloperMode = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +70,11 @@ public class CampusMapActivity extends AppCompatActivity {
         if (selectedCampus == null) {
             throw new RuntimeException("selectedCampus cannot be null");
         }
-        editorController = new GraphEditorController(this, photoView, selectedCampus.Id);
+
+        if(isDeveloperMode){
+            editorControls.setVisibility(View.VISIBLE);
+            editorController = new GraphEditorController(this, photoView, selectedCampus.Id);
+        }
 
         setupFloorButtonsListAdapter();
         switchToFloor(1);
@@ -86,7 +92,8 @@ public class CampusMapActivity extends AppCompatActivity {
         photoView.loadGraphForCampus(selectedCampus.Id, currentFloorStr);
         photoView.postDelayed(() -> photoView.setScale(2.0f, true), 200);
 
-        editorController.setCurrentFloor(currentFloorStr);
+        if(editorController != null)
+            editorController.setCurrentFloor(currentFloorStr);
     }
 
     private void setupFocusChangeListenerToInputFields() {
@@ -152,9 +159,7 @@ public class CampusMapActivity extends AppCompatActivity {
 
 
         Transition transition = new ChangeBounds().setDuration(150).setInterpolator(new DecelerateInterpolator());
-        transition.addListener(new ShowUiTransitionListener(() -> {
-            locationsList.setVisibility(View.VISIBLE);
-        }));
+        transition.addListener(new ShowUiTransitionListener(() -> locationsList.setVisibility(View.VISIBLE)));
 
         TransitionManager.beginDelayedTransition(rootLayout, transition);
         constraints.applyTo(rootLayout);
@@ -201,16 +206,18 @@ public class CampusMapActivity extends AppCompatActivity {
 
     private void hideMainUI() {
         photoView.setVisibility(View.GONE);
-        editorControls.setVisibility(View.GONE);
         floorPanel.setVisibility(View.GONE);
         makePathButton.setVisibility(View.GONE);
+        if(isDeveloperMode)
+            editorControls.setVisibility(View.GONE);
     }
 
     private void showMainUI() {
         photoView.setVisibility(View.VISIBLE);
-        editorControls.setVisibility(View.VISIBLE);
         floorPanel.setVisibility(View.VISIBLE);
         makePathButton.setVisibility(View.VISIBLE);
+        if(isDeveloperMode)
+            editorControls.setVisibility(View.VISIBLE);
     }
 
     private void hideOppositeInputField() {

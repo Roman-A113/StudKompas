@@ -106,21 +106,18 @@ public class GraphEditorController {
         if (drawable == null)
             return;
 
-        float pixelX = x;
-        float pixelY = y;
-
         if (currentMode == null)
             return;
 
         switch (currentMode) {
             case ADD_NODE:
-                handleAddNodeModeTap(pixelX, pixelY);
+                handleAddNodeModeTap(x, y);
                 break;
             case ADD_EDGE:
-                handleEdgeModeTap(pixelX, pixelY);
+                handleEdgeModeTap(x, y);
                 break;
             case MOVE_NODE:
-                handleMoveNodeTap(pixelX, pixelY);
+                handleMoveNodeTap(x, y);
                 break;
         }
     }
