@@ -10,7 +10,6 @@ import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -37,6 +36,13 @@ import java.util.TreeSet;
 
 public class CampusMapActivity extends AppCompatActivity {
     private CustomPhotoView photoView;
+    private View editorControls;
+    private View floorPanel;
+    private View inputLayoutStart;
+    private View inputLayoutEnd;
+    private ConstraintLayout rootLayout;
+    private Button makePathButton;
+
     private Campus selectedCampus;
     private GraphEditorController editorController;
 
@@ -45,15 +51,26 @@ public class CampusMapActivity extends AppCompatActivity {
     private boolean isLocationsListDisplays = false;
     private EditText currentFocusedInputField = null;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_campus_map);
 
+        editorControls = findViewById(R.id.editor_controls);
+        floorPanel = findViewById(R.id.floorPanel);
+        inputLayoutStart = findViewById(R.id.inputLayoutStart);
+        inputLayoutEnd = findViewById(R.id.inputLayoutEnd);
+        rootLayout = findViewById(R.id.mainConstraintLayout);
+        makePathButton = findViewById(R.id.MakePathButton);
+
         photoView = findViewById(R.id.imageViewCampusMap);
         photoView.setMaximumScale(10.0f);
 
         selectedCampus = (Campus) getIntent().getSerializableExtra("campus");
+        if (selectedCampus == null) {
+            throw new RuntimeException("selectedCampus cannot be null");
+        }
         editorController = new GraphEditorController(this, photoView, selectedCampus.Id);
 
         createFloorButtons();
@@ -88,23 +105,15 @@ public class CampusMapActivity extends AppCompatActivity {
     }
 
     private void showLocationsList() {
-        if (isLocationsListDisplays) return;
+        if (isLocationsListDisplays)
+            return;
         isLocationsListDisplays = true;
 
-        findViewById(R.id.imageViewCampusMap).setVisibility(View.GONE);
-        findViewById(R.id.editor_controls).setVisibility(View.GONE);
-        findViewById(R.id.floorPanel).setVisibility(View.GONE);
-        findViewById(R.id.MakePathButton).setVisibility(View.GONE);
+        hideMainUI();
+        hideOppositeInputField();
 
-        if(currentFocusedInputField == findViewById(R.id.editTextStart)){
-            findViewById(R.id.inputLayoutEnd).setVisibility(View.GONE);
-        }else{
-            findViewById(R.id.inputLayoutStart).setVisibility(View.GONE);
-        }
-
-        ConstraintLayout root = findViewById(R.id.mainConstraintLayout);
         ConstraintSet constraints = new ConstraintSet();
-        constraints.clone(root);
+        constraints.clone(rootLayout);
 
         constraints.clear(R.id.routeInputPanel, ConstraintSet.TOP);
         constraints.clear(R.id.routeInputPanel, ConstraintSet.BOTTOM);
@@ -119,12 +128,9 @@ public class CampusMapActivity extends AppCompatActivity {
         constraints.connect(R.id.LocationsList, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
         constraints.connect(R.id.LocationsList, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
 
-        Transition transition = new ChangeBounds();
-        transition.setDuration(150);
-        transition.setInterpolator(new DecelerateInterpolator());
-
-        TransitionManager.beginDelayedTransition(root, transition);
-        constraints.applyTo(root);
+        Transition transition = new ChangeBounds().setDuration(150).setInterpolator(new DecelerateInterpolator());
+        TransitionManager.beginDelayedTransition(rootLayout, transition);
+        constraints.applyTo(rootLayout);
 
         locationsList.setVisibility(View.VISIBLE);
         List<String> locationNames = GraphManager.getNodeNamesInCampus(selectedCampus.Id);
@@ -136,17 +142,10 @@ public class CampusMapActivity extends AppCompatActivity {
         isLocationsListDisplays = false;
 
         locationsList.setVisibility(View.GONE);
+        hideKeyboard();
 
-        if (currentFocusedInputField != null) {
-            currentFocusedInputField.clearFocus();
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(currentFocusedInputField.getWindowToken(), 0);
-            currentFocusedInputField = null;
-        }
-
-        ConstraintLayout root = findViewById(R.id.mainConstraintLayout);
         ConstraintSet constraints = new ConstraintSet();
-        constraints.clone(root);
+        constraints.clone(rootLayout);
 
         constraints.clear(R.id.routeInputPanel, ConstraintSet.TOP);
         constraints.clear(R.id.routeInputPanel, ConstraintSet.BOTTOM);
@@ -162,24 +161,16 @@ public class CampusMapActivity extends AppCompatActivity {
         constraints.connect(R.id.LocationsList, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
         constraints.setVisibility(R.id.LocationsList, ConstraintSet.GONE);
 
-
-        Transition transition = new ChangeBounds();
-        transition.setDuration(150);
-        transition.setInterpolator(new DecelerateInterpolator());
-
+        Transition transition = new ChangeBounds().setDuration(150).setInterpolator(new DecelerateInterpolator());
         transition.addListener(new Transition.TransitionListener() {
             @Override
-            public void onTransitionStart(Transition transition) {}
+            public void onTransitionStart(Transition transition) {
+            }
 
             @Override
             public void onTransitionEnd(Transition transition) {
-                findViewById(R.id.imageViewCampusMap).setVisibility(View.VISIBLE);
-                findViewById(R.id.editor_controls).setVisibility(View.VISIBLE);
-                findViewById(R.id.floorPanel).setVisibility(View.VISIBLE);
-                findViewById(R.id.inputLayoutStart).setVisibility(View.VISIBLE);
-                findViewById(R.id.inputLayoutEnd).setVisibility(View.VISIBLE);
-                findViewById(R.id.MakePathButton).setVisibility(View.VISIBLE);
-
+                showMainUI();
+                showBothInputFields();
             }
 
             @Override
@@ -188,14 +179,53 @@ public class CampusMapActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onTransitionPause(Transition transition) {}
+            public void onTransitionPause(Transition transition) {
+            }
 
             @Override
-            public void onTransitionResume(Transition transition) {}
+            public void onTransitionResume(Transition transition) {
+            }
         });
 
-        TransitionManager.beginDelayedTransition(root, transition);
-        constraints.applyTo(root);
+        TransitionManager.beginDelayedTransition(rootLayout, transition);
+        constraints.applyTo(rootLayout);
+
+        currentFocusedInputField.clearFocus();
+        currentFocusedInputField = null;
+    }
+
+    private void hideMainUI() {
+        photoView.setVisibility(View.GONE);
+        editorControls.setVisibility(View.GONE);
+        floorPanel.setVisibility(View.GONE);
+        makePathButton.setVisibility(View.GONE);
+    }
+
+    private void showMainUI() {
+        photoView.setVisibility(View.VISIBLE);
+        editorControls.setVisibility(View.VISIBLE);
+        floorPanel.setVisibility(View.VISIBLE);
+        makePathButton.setVisibility(View.VISIBLE);
+    }
+
+    private void hideOppositeInputField() {
+        if (currentFocusedInputField == findViewById(R.id.editTextStart)) {
+            inputLayoutEnd.setVisibility(View.GONE);
+        } else {
+            inputLayoutStart.setVisibility(View.GONE);
+        }
+    }
+
+    private void showBothInputFields() {
+        inputLayoutStart.setVisibility(View.VISIBLE);
+        inputLayoutEnd.setVisibility(View.VISIBLE);
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(currentFocusedInputField.getWindowToken(), 0);
+        }
     }
 
     private void switchToFloor(int floorNumber) {

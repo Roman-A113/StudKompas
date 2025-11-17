@@ -1,5 +1,3 @@
-// com/example/studkompas/adapter/LocationAdapter.java
-
 package com.example.studkompas.adapter;
 
 import android.view.LayoutInflater;
@@ -16,10 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LocationsListAdapter extends RecyclerView.Adapter<LocationsListAdapter.ViewHolder> {
-    private final LocationsItemListener listener;
-    private List<String> locations = new ArrayList<>();
 
-    public LocationsListAdapter(LocationsItemListener listener) {
+    private final OnLocationsSelectedListener listener;
+    private List<String> locations = new ArrayList<>();
+    public LocationsListAdapter(OnLocationsSelectedListener listener) {
         this.listener = listener;
     }
 
@@ -49,6 +47,10 @@ public class LocationsListAdapter extends RecyclerView.Adapter<LocationsListAdap
     @Override
     public int getItemCount() {
         return locations.size();
+    }
+
+    public interface OnLocationsSelectedListener {
+        void onLocationSelected(String locationName);
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
