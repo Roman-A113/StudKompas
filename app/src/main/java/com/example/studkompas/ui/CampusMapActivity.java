@@ -1,35 +1,31 @@
 package com.example.studkompas.ui;
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.transition.ChangeBounds;
 import android.transition.Transition;
 import android.transition.TransitionManager;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.studkompas.R;
+import com.example.studkompas.adapter.FloorButtonsListAdapter;
 import com.example.studkompas.adapter.LocationsListAdapter;
 import com.example.studkompas.model.Campus;
 import com.example.studkompas.model.CustomPhotoView;
 import com.example.studkompas.utils.GraphEditorController;
 import com.example.studkompas.utils.GraphManager;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -73,10 +69,23 @@ public class CampusMapActivity extends AppCompatActivity {
         }
         editorController = new GraphEditorController(this, photoView, selectedCampus.Id);
 
-        createFloorButtons();
+        setupFloorButtonsListAdapter();
         switchToFloor(1);
         setupLocationsListAdapter();
         setupFocusChangeListenerToInputFields();
+    }
+
+    private void switchToFloor(int floorNumber) {
+        String currentFloorStr = String.valueOf(floorNumber);
+        Integer drawableRes = selectedCampus.FloorNumberToDrawable.get(floorNumber);
+        if (drawableRes == null) {
+            throw new RuntimeException("drawableRes cannot be null");
+        }
+        photoView.setImageResource(drawableRes);
+        photoView.loadGraphForCampus(selectedCampus.Id, currentFloorStr);
+        photoView.postDelayed(() -> photoView.setScale(2.0f, true), 200);
+
+        editorController.setCurrentFloor(currentFloorStr);
     }
 
     private void setupFocusChangeListenerToInputFields() {
@@ -90,6 +99,18 @@ public class CampusMapActivity extends AppCompatActivity {
         findViewById(R.id.editTextStart).setOnFocusChangeListener(focusListener);
         findViewById(R.id.editTextEnd).setOnFocusChangeListener(focusListener);
     }
+
+    private void setupFloorButtonsListAdapter() {
+        Set<Integer> sortedFloors = new TreeSet<>(selectedCampus.FloorNumberToDrawable.keySet());
+        List<Integer> floorList = new ArrayList<>(sortedFloors);
+
+        RecyclerView floorPanel = findViewById(R.id.floorPanel);
+        floorPanel.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+
+        FloorButtonsListAdapter floorAdapter = new FloorButtonsListAdapter(floorList, this::switchToFloor);
+        floorPanel.setAdapter(floorAdapter);
+    }
+
 
     private void setupLocationsListAdapter() {
         locationsList = findViewById(R.id.LocationsList);
@@ -227,65 +248,4 @@ public class CampusMapActivity extends AppCompatActivity {
             imm.hideSoftInputFromWindow(currentFocusedInputField.getWindowToken(), 0);
         }
     }
-
-    private void switchToFloor(int floorNumber) {
-        String currentFloorStr = String.valueOf(floorNumber);
-        Integer drawableRes = selectedCampus.FloorNumberToDrawable.get(floorNumber);
-        if (drawableRes == null) {
-            throw new RuntimeException("drawableRes is null");
-        }
-        photoView.setImageResource(drawableRes);
-        photoView.loadGraphForCampus(selectedCampus.Id, currentFloorStr);
-        photoView.postDelayed(() -> photoView.setScale(2.0f, true), 200);
-
-        editorController.setCurrentFloor(currentFloorStr);
-    }
-
-    private void createFloorButtons() {
-        LinearLayout floorButtonsContainer = findViewById(R.id.floorPanel);
-        floorButtonsContainer.removeAllViews();
-        Set<Integer> sortedFloors = new TreeSet<>(selectedCampus.FloorNumberToDrawable.keySet());
-
-        for (Integer floorNumber : sortedFloors) {
-            Button floorButton = createFloorButton(floorNumber);
-            floorButtonsContainer.addView(floorButton);
-        }
-    }
-
-    private Button createFloorButton(int floorNumber) {
-        Button button = new Button(this);
-        button.setText(String.valueOf(floorNumber));
-
-        Resources resources = getResources();
-        float density = resources.getDisplayMetrics().density;
-
-        int sizeDp = 48;
-        int heightDp = 52;
-        int marginDp = 5;
-        int paddingDp = 0;
-        float cornerRadiusDp = 8f;
-
-        int widthPx = (int) (sizeDp * density + 0.5f);
-        int heightPx = (int) (heightDp * density + 0.5f);
-        int marginPx = (int) (marginDp * density + 0.5f);
-        int paddingPx = (int) (paddingDp * density + 0.5f);
-        float cornerRadiusPx = cornerRadiusDp * density;
-
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(widthPx, heightPx);
-        params.setMargins(marginPx, marginPx, marginPx, marginPx);
-        button.setLayoutParams(params);
-        button.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
-
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(ContextCompat.getColor(this, R.color.purple));
-        bg.setCornerRadius(cornerRadiusPx);
-        button.setBackground(bg);
-        button.setTextColor(Color.WHITE);
-        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-
-        button.setOnClickListener(v -> switchToFloor(floorNumber));
-        return button;
-    }
 }
-
-

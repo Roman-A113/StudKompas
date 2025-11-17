@@ -17,6 +17,7 @@ public class LocationsListAdapter extends RecyclerView.Adapter<LocationsListAdap
 
     private final OnLocationsSelectedListener listener;
     private List<String> locations = new ArrayList<>();
+
     public LocationsListAdapter(OnLocationsSelectedListener listener) {
         this.listener = listener;
     }
@@ -29,7 +30,7 @@ public class LocationsListAdapter extends RecyclerView.Adapter<LocationsListAdap
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_location, parent, false);
+                .inflate(R.layout.item_select_location_button, parent, false);
         return new ViewHolder(view);
     }
 

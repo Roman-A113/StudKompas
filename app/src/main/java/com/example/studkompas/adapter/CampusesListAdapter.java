@@ -28,7 +28,7 @@ public class CampusesListAdapter extends RecyclerView.Adapter<CampusesListAdapte
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.campus_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_campus_button, parent, false);
         return new ViewHolder(view);
     }
 
