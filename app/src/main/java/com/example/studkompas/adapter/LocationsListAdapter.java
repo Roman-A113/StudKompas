@@ -9,21 +9,21 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.studkompas.R;
+import com.example.studkompas.model.GraphNode;
+import com.example.studkompas.utils.GraphManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class LocationsListAdapter extends RecyclerView.Adapter<LocationsListAdapter.ViewHolder> {
-
     private final OnLocationsSelectedListener listener;
-    private List<String> locations = new ArrayList<>();
+    private List<GraphNode> nodes;
 
     public LocationsListAdapter(OnLocationsSelectedListener listener) {
         this.listener = listener;
     }
 
-    public void updateList(List<String> newLocations) {
-        this.locations = newLocations;
+    public void updateList(List<GraphNode> newNodes) {
+        this.nodes = newNodes;
     }
 
     @NonNull
@@ -36,22 +36,22 @@ public class LocationsListAdapter extends RecyclerView.Adapter<LocationsListAdap
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        String name = locations.get(position);
-        holder.textView.setText(name);
+        GraphNode node = nodes.get(position);
+        holder.textView.setText(node.name);
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onLocationSelected(name);
+                listener.onLocationSelected(node);
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return locations.size();
+        return nodes.size();
     }
 
     public interface OnLocationsSelectedListener {
-        void onLocationSelected(String locationName);
+        void onLocationSelected(GraphNode node);
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

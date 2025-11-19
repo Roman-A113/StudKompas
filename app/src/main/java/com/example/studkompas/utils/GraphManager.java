@@ -3,6 +3,7 @@ package com.example.studkompas.utils;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.studkompas.model.Campus;
 import com.example.studkompas.model.GraphNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -19,10 +20,13 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 public class GraphManager {
@@ -144,10 +148,8 @@ public class GraphManager {
         saveGraphToTempFile(context);
     }
 
-    public static List<String> getNodeNamesInCampus(String campusKey) {
-        List<String> result = new ArrayList<>();
-        Set<String> seen = new LinkedHashSet<>();
-
+    public static List<GraphNode> getNodesInCampus(String campusKey) {
+        List<GraphNode> result = new ArrayList<>();
         Map<String, Map<String, GraphNode>> campusGraphs = Graphs.get(campusKey);
 
         for (Map<String, GraphNode> floorGraph : campusGraphs.values()) {
@@ -155,19 +157,53 @@ public class GraphManager {
                 continue;
 
             for (GraphNode node : floorGraph.values()) {
-                String name = node.name;
-                if (name == null)
+                String name = node.name.trim();
+                if (name.isEmpty())
                     continue;
-
-                String trimmed = name.trim();
-                if (trimmed.isEmpty()) continue;
-
-                if (seen.add(trimmed)) {
-                    result.add(trimmed);
-                }
+                result.add(node);
             }
         }
 
         return result;
+    }
+
+    public static List<GraphNode> getPath(Campus campus, String floor, GraphNode startNode, GraphNode endNode) {
+        Map<String, GraphNode> floorGraph = Graphs.get(campus.Id).get(floor);
+
+        Map<String, String> parent = new HashMap<>();
+        Queue<String> queue = new LinkedList<>();
+        Set<String> visited = new HashSet<>();
+
+        queue.offer(startNode.id);
+        visited.add(startNode.id);
+        parent.put(startNode.id, null);
+
+        while (!queue.isEmpty()) {
+            String currentId = queue.poll();
+
+            if (currentId.equals(endNode.id)) {
+                List<GraphNode> path = new ArrayList<>();
+                String id = currentId;
+                while (id != null) {
+                    path.add(floorGraph.get(id));
+                    id = parent.get(id);
+                }
+                Collections.reverse(path);
+                return path;
+            }
+
+            GraphNode currentNode = floorGraph.get(currentId);
+
+            for (String neighborId : currentNode.edges) {
+                if (!visited.contains(neighborId)) {
+                    visited.add(neighborId);
+                    parent.put(neighborId, currentId);
+                    queue.offer(neighborId);
+                }
+            }
+        }
+
+        String message = String.format("путь между вершинами %s и %s не найден", startNode.name, endNode.name);
+        throw new RuntimeException(message);
     }
 }

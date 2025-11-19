@@ -10,6 +10,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -22,10 +23,10 @@ import com.example.studkompas.adapter.FloorButtonsListAdapter;
 import com.example.studkompas.adapter.LocationsListAdapter;
 import com.example.studkompas.model.Campus;
 import com.example.studkompas.model.CustomPhotoView;
+import com.example.studkompas.model.GraphNode;
 import com.example.studkompas.model.ShowUiTransitionListener;
 import com.example.studkompas.utils.GraphEditorController;
 import com.example.studkompas.utils.GraphManager;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class CampusMapActivity extends AppCompatActivity {
+    private final boolean isDeveloperMode = false;
     private CustomPhotoView photoView;
     private View editorControls;
     private View floorPanel;
@@ -40,16 +42,16 @@ public class CampusMapActivity extends AppCompatActivity {
     private View inputLayoutEnd;
     private ConstraintLayout rootLayout;
     private Button makePathButton;
-
-    private Campus selectedCampus;
     private GraphEditorController editorController;
-
     private RecyclerView locationsList;
     private LocationsListAdapter locationAdapter;
     private boolean isLocationsListDisplays = false;
     private EditText currentFocusedInputField = null;
 
-    private boolean isDeveloperMode = true;
+    private Campus selectedCampus;
+    private String selectedFloorStr;
+    private GraphNode selectedStartNode;
+    private GraphNode selectedEndNode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,30 +73,31 @@ public class CampusMapActivity extends AppCompatActivity {
             throw new RuntimeException("selectedCampus cannot be null");
         }
 
-        if(isDeveloperMode){
+        if (isDeveloperMode) {
             editorControls.setVisibility(View.VISIBLE);
             editorController = new GraphEditorController(this, photoView, selectedCampus.Id);
+        }else{
+            photoView.setGraphVisible(false);
         }
 
         setupFloorButtonsListAdapter();
-        switchToFloor(1);
         setupLocationsListAdapter();
         setupFocusChangeListenerToInputFields();
+        setupMakePathButton();
     }
 
-    private void switchToFloor(int floorNumber) {
-        String currentFloorStr = String.valueOf(floorNumber);
-        Integer drawableRes = selectedCampus.FloorNumberToDrawable.get(floorNumber);
-        if (drawableRes == null) {
-            throw new RuntimeException("drawableRes cannot be null");
-        }
-        photoView.setImageResource(drawableRes);
-        photoView.loadGraphForCampus(selectedCampus.Id, currentFloorStr);
-        photoView.postDelayed(() -> photoView.setScale(2.0f, true), 200);
+    private void setupMakePathButton() {
+        makePathButton.setOnClickListener(v -> {
+            if (selectedStartNode == null || selectedEndNode == null) {
+                Toast.makeText(this, "Выберите стартовую и конечную точку", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-        if(editorController != null)
-            editorController.setCurrentFloor(currentFloorStr);
+            List<GraphNode> path = GraphManager.getPath(selectedCampus, selectedFloorStr, selectedStartNode, selectedEndNode);
+            photoView.updatePath(path);
+        });
     }
+
 
     private void setupFocusChangeListenerToInputFields() {
         View.OnFocusChangeListener focusListener = (v, hasFocus) -> {
@@ -117,14 +120,35 @@ public class CampusMapActivity extends AppCompatActivity {
 
         FloorButtonsListAdapter floorAdapter = new FloorButtonsListAdapter(floorList, this::switchToFloor);
         floorPanel.setAdapter(floorAdapter);
+        switchToFloor(1);
+    }
+
+    private void switchToFloor(int floorNumber) {
+        selectedFloorStr = String.valueOf(floorNumber);
+        Integer drawableRes = selectedCampus.FloorNumberToDrawable.get(floorNumber);
+        if (drawableRes == null) {
+            throw new RuntimeException("drawableRes cannot be null");
+        }
+        photoView.setImageResource(drawableRes);
+        photoView.loadGraphForCampus(selectedCampus.Id, selectedFloorStr);
+        photoView.postDelayed(() -> photoView.setScale(2.0f, true), 200);
+
+        if (editorController != null)
+            editorController.setCurrentFloor(selectedFloorStr);
     }
 
 
     private void setupLocationsListAdapter() {
         locationsList = findViewById(R.id.LocationsList);
-        locationAdapter = new LocationsListAdapter(locationName -> {
+        locationAdapter = new LocationsListAdapter(node -> {
             if (currentFocusedInputField != null) {
-                currentFocusedInputField.setText(locationName);
+                currentFocusedInputField.setText(node.name);
+            }
+
+            if (currentFocusedInputField.getId() == R.id.editTextStart) {
+                selectedStartNode = node;
+            } else if (currentFocusedInputField.getId() == R.id.editTextEnd) {
+                selectedEndNode = node;
             }
             hideLocationsList();
         });
@@ -164,7 +188,7 @@ public class CampusMapActivity extends AppCompatActivity {
         TransitionManager.beginDelayedTransition(rootLayout, transition);
         constraints.applyTo(rootLayout);
 
-        List<String> locationNames = GraphManager.getNodeNamesInCampus(selectedCampus.Id);
+        List<GraphNode> locationNames = GraphManager.getNodesInCampus(selectedCampus.Id);
         locationAdapter.updateList(locationNames);
     }
 
@@ -208,7 +232,7 @@ public class CampusMapActivity extends AppCompatActivity {
         photoView.setVisibility(View.GONE);
         floorPanel.setVisibility(View.GONE);
         makePathButton.setVisibility(View.GONE);
-        if(isDeveloperMode)
+        if (isDeveloperMode)
             editorControls.setVisibility(View.GONE);
     }
 
@@ -216,7 +240,7 @@ public class CampusMapActivity extends AppCompatActivity {
         photoView.setVisibility(View.VISIBLE);
         floorPanel.setVisibility(View.VISIBLE);
         makePathButton.setVisibility(View.VISIBLE);
-        if(isDeveloperMode)
+        if (isDeveloperMode)
             editorControls.setVisibility(View.VISIBLE);
     }
 

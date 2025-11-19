@@ -13,13 +13,17 @@ import androidx.annotation.NonNull;
 import com.example.studkompas.utils.GraphManager;
 import com.github.chrisbanes.photoview.PhotoView;
 
+import java.util.List;
 import java.util.Map;
 
 public class CustomPhotoView extends PhotoView {
     private Paint nodePaint;
     private Paint edgePaint;
+    private Paint pathPaint;
+
     private Map<String, GraphNode> campusGraph;
     private boolean isGraphVisible = true;
+    private List<GraphNode> currentPath;
 
     public CustomPhotoView(Context context) {
         super(context);
@@ -51,6 +55,12 @@ public class CustomPhotoView extends PhotoView {
         edgePaint.setStyle(Paint.Style.STROKE);
         edgePaint.setStrokeWidth(20f);
         edgePaint.setAntiAlias(true);
+
+        pathPaint = new Paint();
+        pathPaint.setColor(Color.GREEN);
+        pathPaint.setStyle(Paint.Style.STROKE);
+        pathPaint.setStrokeWidth(30f);
+        pathPaint.setAntiAlias(true);
     }
 
     public void loadGraphForCampus(String campusKey, String floor) {
@@ -66,7 +76,6 @@ public class CustomPhotoView extends PhotoView {
     @Override
     protected void dispatchDraw(@NonNull Canvas canvas) {
         super.dispatchDraw(canvas);
-        if (!isGraphVisible) return;
 
         Drawable drawable = getDrawable();
         if (drawable == null) return;
@@ -75,12 +84,20 @@ public class CustomPhotoView extends PhotoView {
         int imageHeight = drawable.getIntrinsicHeight();
 
         Matrix imageMatrix = getImageMatrix();
-        if (imageMatrix.isIdentity()) {
-            drawGraphInImageCoords(canvas, imageWidth, imageHeight);
-        } else {
+        boolean hasMatrix = !imageMatrix.isIdentity();
+
+        if (hasMatrix) {
             canvas.save();
             canvas.concat(imageMatrix);
+        }
+
+        drawCurrentPath(canvas, imageWidth, imageHeight);
+
+        if (isGraphVisible && campusGraph != null) {
             drawGraphInImageCoords(canvas, imageWidth, imageHeight);
+        }
+
+        if (hasMatrix) {
             canvas.restore();
         }
     }
@@ -112,6 +129,28 @@ public class CustomPhotoView extends PhotoView {
 
                 canvas.drawLine(x1, y1, x2, y2, edgePaint);
             }
+        }
+    }
+
+    public void updatePath(List<GraphNode> path) {
+        this.currentPath = path;
+        invalidate();
+    }
+
+
+    private void drawCurrentPath(Canvas canvas, int imageWidth, int imageHeight) {
+        if (currentPath == null || currentPath.size() < 2) return;
+
+        for (int i = 0; i < currentPath.size() - 1; i++) {
+            GraphNode a = currentPath.get(i);
+            GraphNode b = currentPath.get(i + 1);
+
+            float x1 = a.location[0] * imageWidth;
+            float y1 = a.location[1] * imageHeight;
+            float x2 = b.location[0] * imageWidth;
+            float y2 = b.location[1] * imageHeight;
+
+            canvas.drawLine(x1, y1, x2, y2, pathPaint);
         }
     }
 }
