@@ -109,12 +109,18 @@ public class GraphManager {
 
     public static void addNode(Context context, String campusKey, String floor, float x, float y, String name) {
         Graphs.putIfAbsent(campusKey, new HashMap<>());
-        Map<String, GraphNode> campusMap = Graphs.get(campusKey).get(floor);
+        Graphs.get(campusKey).putIfAbsent(floor, new HashMap<>());
 
-        int nextId = campusMap.size() + 1;
-        String idStr = String.valueOf(nextId);
-        GraphNode newNode = new GraphNode(idStr, name, new float[]{x, y});
-        campusMap.put(idStr, newNode);
+        int totalNodeCount = 0;
+        for (Map<String, GraphNode> floorMap : Graphs.get(campusKey).values()) {
+            totalNodeCount += floorMap.size();
+        }
+
+        String newId = String.valueOf(totalNodeCount + 1);
+
+        GraphNode newNode = new GraphNode(newId, name, new float[]{x, y});
+        Graphs.get(campusKey).get(floor).put(newId, newNode);
+
         saveGraphToTempFile(context);
     }
 

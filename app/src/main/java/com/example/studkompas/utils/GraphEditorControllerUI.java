@@ -13,7 +13,7 @@ import androidx.core.content.ContextCompat;
 import com.example.studkompas.R;
 import com.example.studkompas.model.CustomPhotoView;
 
-public class GraphEditorController {
+public class GraphEditorControllerUI {
     private final Activity activity;
     private final CustomPhotoView photoView;
     private final String campusId;
@@ -25,7 +25,7 @@ public class GraphEditorController {
     private String selectedNodeId = null;
     private EditMode currentMode = null;
 
-    public GraphEditorController(Activity activity, CustomPhotoView photoView, String campusId) {
+    public GraphEditorControllerUI(Activity activity, CustomPhotoView photoView, String campusId) {
         this.activity = activity;
         this.photoView = photoView;
         this.campusId = campusId;

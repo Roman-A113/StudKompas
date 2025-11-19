@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.studkompas.R;
 import com.example.studkompas.model.GraphNode;
-import com.example.studkompas.utils.GraphManager;
 
 import java.util.List;
 

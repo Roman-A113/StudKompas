@@ -25,7 +25,7 @@ import com.example.studkompas.model.Campus;
 import com.example.studkompas.model.CustomPhotoView;
 import com.example.studkompas.model.GraphNode;
 import com.example.studkompas.model.ShowUiTransitionListener;
-import com.example.studkompas.utils.GraphEditorController;
+import com.example.studkompas.utils.GraphEditorControllerUI;
 import com.example.studkompas.utils.GraphManager;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class CampusMapActivity extends AppCompatActivity {
-    private final boolean isDeveloperMode = false;
+    private final boolean isDeveloperMode = true;
     private CustomPhotoView photoView;
     private View editorControls;
     private View floorPanel;
@@ -42,7 +42,7 @@ public class CampusMapActivity extends AppCompatActivity {
     private View inputLayoutEnd;
     private ConstraintLayout rootLayout;
     private Button makePathButton;
-    private GraphEditorController editorController;
+    private GraphEditorControllerUI editorController;
     private RecyclerView locationsList;
     private LocationsListAdapter locationAdapter;
     private boolean isLocationsListDisplays = false;
@@ -75,8 +75,8 @@ public class CampusMapActivity extends AppCompatActivity {
 
         if (isDeveloperMode) {
             editorControls.setVisibility(View.VISIBLE);
-            editorController = new GraphEditorController(this, photoView, selectedCampus.Id);
-        }else{
+            editorController = new GraphEditorControllerUI(this, photoView, selectedCampus.Id);
+        } else {
             photoView.setGraphVisible(false);
         }
 
