@@ -20,6 +20,7 @@ public class GraphEditorControllerUI {
     Button buttonAddNode;
     Button buttonAddEdge;
     Button buttonMoveNode;
+    Button buttonRenameNode;
     Button buttonToggleGraph;
     private String currentFloor = "1";
     private String selectedNodeId = null;
@@ -40,41 +41,14 @@ public class GraphEditorControllerUI {
         buttonAddNode = activity.findViewById(R.id.btn_add_node);
         buttonAddEdge = activity.findViewById(R.id.btn_add_edge);
         buttonMoveNode = activity.findViewById(R.id.btn_move_node);
+        buttonRenameNode = activity.findViewById(R.id.btn_rename_node);
         buttonToggleGraph = activity.findViewById(R.id.btn_toggle_graph);
 
         resetColors();
-        buttonAddNode.setOnClickListener(v -> {
-            if (currentMode == EditMode.HIDE_GRAPH) {
-                Toast.makeText(activity, "Граф скрыт, рисовать нельзя", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            Toast.makeText(activity, "Режим добавления вершин", Toast.LENGTH_SHORT).show();
-            resetColors();
-            currentMode = EditMode.ADD_NODE;
-            buttonAddNode.setBackgroundColor(ContextCompat.getColor(activity, R.color.red));
-        });
-
-        buttonAddEdge.setOnClickListener(v -> {
-            if (currentMode == EditMode.HIDE_GRAPH) {
-                Toast.makeText(activity, "Граф скрыт, рисовать нельзя", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            Toast.makeText(activity, "Режим добавления ребер", Toast.LENGTH_SHORT).show();
-            resetColors();
-            currentMode = EditMode.ADD_EDGE;
-            buttonAddEdge.setBackgroundColor(ContextCompat.getColor(activity, R.color.red));
-        });
-
-        buttonMoveNode.setOnClickListener(v -> {
-            if (currentMode == EditMode.HIDE_GRAPH) {
-                Toast.makeText(activity, "Граф скрыт, рисовать нельзя", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            Toast.makeText(activity, "Режим перемещения вершин", Toast.LENGTH_SHORT).show();
-            resetColors();
-            currentMode = EditMode.MOVE_NODE;
-            buttonMoveNode.setBackgroundColor(ContextCompat.getColor(activity, R.color.red));
-        });
+        buttonAddNode.setOnClickListener(v -> setMode(EditMode.ADD_NODE, "Режим добавления вершин", buttonAddNode));
+        buttonAddEdge.setOnClickListener(v -> setMode(EditMode.ADD_EDGE, "Режим добавления ребер", buttonAddEdge));
+        buttonMoveNode.setOnClickListener(v -> setMode(EditMode.MOVE_NODE, "Режим перемещения вершин", buttonMoveNode));
+        buttonRenameNode.setOnClickListener(v -> setMode(EditMode.RENAME_NODE, "Режим переименования вершин", buttonRenameNode));
 
         buttonToggleGraph.setOnClickListener(v -> {
             resetColors();
@@ -93,12 +67,24 @@ public class GraphEditorControllerUI {
         photoView.setOnPhotoTapListener((view, x, y) -> HandlePhotoTap(x, y));
     }
 
+    private void setMode(EditMode mode, String toastMessage, Button activeButton) {
+        if (currentMode == EditMode.HIDE_GRAPH) {
+            Toast.makeText(activity, "Граф скрыт, рисовать нельзя", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Toast.makeText(activity, toastMessage, Toast.LENGTH_SHORT).show();
+        resetColors();
+        currentMode = mode;
+        activeButton.setBackgroundColor(ContextCompat.getColor(activity, R.color.red));
+    }
+
     private void resetColors() {
         int greyColor = ContextCompat.getColor(activity, R.color.grey);
         buttonAddNode.setBackgroundColor(greyColor);
         buttonAddEdge.setBackgroundColor(greyColor);
         buttonMoveNode.setBackgroundColor(greyColor);
         buttonToggleGraph.setBackgroundColor(greyColor);
+        buttonRenameNode.setBackgroundColor(greyColor);
     }
 
     private void HandlePhotoTap(float x, float y) {
@@ -119,6 +105,8 @@ public class GraphEditorControllerUI {
             case MOVE_NODE:
                 handleMoveNodeTap(x, y);
                 break;
+            case RENAME_NODE:
+                handleRenameNodeTap(x, y);
         }
     }
 
@@ -178,10 +166,41 @@ public class GraphEditorControllerUI {
         selectedNodeId = null;
     }
 
+    private void handleRenameNodeTap(float pixelX, float pixelY) {
+        String nodeId = GraphManager.findNodeAt(pixelX, pixelY, campusId, currentFloor);
+        if (nodeId == null) {
+            Toast.makeText(activity, "Вершина не найдена", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String currentName = GraphManager.getNodeName(campusId, currentFloor, nodeId);
+        if (currentName == null) currentName = "";
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("Переименовать вершину");
+
+        EditText input = new EditText(activity);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setText(currentName);
+        input.setSelection(input.getText().length()); // курсор в конец
+        builder.setView(input);
+
+        builder.setPositiveButton("Сохранить", (dialog, which) -> {
+            String newName = input.getText().toString().trim();
+            GraphManager.renameNode(activity, campusId, currentFloor, nodeId, newName);
+            photoView.invalidate();
+            Toast.makeText(activity, "Вершина переименована", Toast.LENGTH_SHORT).show();
+        });
+
+        builder.setNegativeButton("Отмена", null);
+        builder.show();
+    }
+
     private enum EditMode {
         ADD_NODE,
         ADD_EDGE,
         MOVE_NODE,
+        RENAME_NODE,
         HIDE_GRAPH
     }
 }

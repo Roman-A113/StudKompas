@@ -94,7 +94,7 @@ public class GraphManager {
         Map<String, GraphNode> campusGraph = Graphs.get(campusKey).get(floor);
         if (campusGraph == null) return null;
 
-        final float TOL = 0.02f;
+        final float TOL = 0.005f;
 
         for (GraphNode node : campusGraph.values()) {
             if (node.location == null || node.location.length < 2) continue;
@@ -152,6 +152,23 @@ public class GraphManager {
         node.location[1] = y;
 
         saveGraphToTempFile(context);
+    }
+
+    public static String getNodeName(String campusId, String floor, String nodeId) {
+        Map<String, GraphNode> floorGraph = Graphs.get(campusId).get(floor);
+        if (floorGraph == null) return null;
+        GraphNode node = floorGraph.get(nodeId);
+        return node != null ? node.name : null;
+    }
+
+    public static void renameNode(Context context, String campusId, String floor, String nodeId, String newName) {
+        Map<String, GraphNode> floorGraph = Graphs.get(campusId).get(floor);
+        if (floorGraph == null) return;
+        GraphNode node = floorGraph.get(nodeId);
+        if (node != null) {
+            node.name = newName;
+            saveGraphToTempFile(context);
+        }
     }
 
     public static List<GraphNode> getNodesInCampus(String campusKey) {

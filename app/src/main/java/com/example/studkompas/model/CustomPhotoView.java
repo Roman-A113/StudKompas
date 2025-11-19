@@ -59,7 +59,7 @@ public class CustomPhotoView extends PhotoView {
         pathPaint = new Paint();
         pathPaint.setColor(Color.GREEN);
         pathPaint.setStyle(Paint.Style.STROKE);
-        pathPaint.setStrokeWidth(30f);
+        pathPaint.setStrokeWidth(50f);
         pathPaint.setAntiAlias(true);
     }
 
