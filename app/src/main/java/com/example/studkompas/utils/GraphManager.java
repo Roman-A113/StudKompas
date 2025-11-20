@@ -1,6 +1,5 @@
 package com.example.studkompas.utils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
@@ -125,8 +124,13 @@ public class GraphManager {
     }
 
     public static void addEdge(Context context, GraphNode node1, GraphNode node2) {
-        node1.edges.add(node2.id);
-        node2.edges.add(node1.id);
+        if (node1.floor.equals(node2.floor)) {
+            node1.edges.add(node2.id);
+            node2.edges.add(node1.id);
+        } else {
+            node1.interFloorEdges.put(node2.id, node2.floor);
+            node2.interFloorEdges.put(node1.id, node1.floor);
+        }
         saveGraphToTempFile(context);
     }
 
@@ -169,9 +173,19 @@ public class GraphManager {
         return result;
     }
 
-    public static List<GraphNode> getPath(Campus campus, String floor, GraphNode startNode, GraphNode endNode) {
-        Map<String, GraphNode> floorGraph = Graphs.get(campus.Id).get(floor);
+    public static Map<String, List<List<GraphNode>>> getPath(Campus campus, GraphNode startNode, GraphNode endNode) {
+        String campusId = campus.Id;
+        Map<String, Map<String, GraphNode>> campusGraphs = Graphs.get(campusId);
+        if (campusGraphs == null) {
+            throw new RuntimeException("Кампус не загружен: " + campusId);
+        }
 
+        Map<String, GraphNode> allNodes = new HashMap<>();
+        for (Map<String, GraphNode> floorGraph : campusGraphs.values()) {
+            allNodes.putAll(floorGraph);
+        }
+
+        // === BFS: как раньше ===
         Map<String, String> parent = new HashMap<>();
         Queue<String> queue = new LinkedList<>();
         Set<String> visited = new HashSet<>();
@@ -182,22 +196,57 @@ public class GraphManager {
 
         while (!queue.isEmpty()) {
             String currentId = queue.poll();
-
             if (currentId.equals(endNode.id)) {
-                List<GraphNode> path = new ArrayList<>();
+                // Восстанавливаем полный путь
+                List<GraphNode> fullPath = new ArrayList<>();
                 String id = currentId;
                 while (id != null) {
-                    path.add(floorGraph.get(id));
+                    fullPath.add(allNodes.get(id));
                     id = parent.get(id);
                 }
-                Collections.reverse(path);
-                return path;
+                Collections.reverse(fullPath);
+
+                // === Разбиваем на сегменты по этажам ===
+                Map<String, List<List<GraphNode>>> result = new HashMap<>();
+
+                if (fullPath.isEmpty()) return result;
+
+                List<GraphNode> currentSegment = new ArrayList<>();
+                String currentFloor = fullPath.get(0).floor;
+                currentSegment.add(fullPath.get(0));
+
+                for (int i = 1; i < fullPath.size(); i++) {
+                    GraphNode node = fullPath.get(i);
+                    if (node.floor.equals(currentFloor)) {
+                        // Продолжаем текущий сегмент
+                        currentSegment.add(node);
+                    } else {
+                        // Завершаем текущий сегмент
+                        result.computeIfAbsent(currentFloor, k -> new ArrayList<>()).add(new ArrayList<>(currentSegment));
+                        // Начинаем новый
+                        currentSegment = new ArrayList<>();
+                        currentFloor = node.floor;
+                        currentSegment.add(node);
+                    }
+                }
+                // Добавляем последний сегмент
+                result.computeIfAbsent(currentFloor, k -> new ArrayList<>()).add(new ArrayList<>(currentSegment));
+
+                return result;
             }
 
-            GraphNode currentNode = floorGraph.get(currentId);
-
+            GraphNode currentNode = allNodes.get(currentId);
+            // Обычные рёбра
             for (String neighborId : currentNode.edges) {
-                if (!visited.contains(neighborId)) {
+                if (!visited.contains(neighborId) && allNodes.containsKey(neighborId)) {
+                    visited.add(neighborId);
+                    parent.put(neighborId, currentId);
+                    queue.offer(neighborId);
+                }
+            }
+            // Межэтажные рёбра
+            for (String neighborId : currentNode.interFloorEdges.keySet()) {
+                if (!visited.contains(neighborId) && allNodes.containsKey(neighborId)) {
                     visited.add(neighborId);
                     parent.put(neighborId, currentId);
                     queue.offer(neighborId);
@@ -205,12 +254,8 @@ public class GraphManager {
             }
         }
 
-        String message = String.format("путь между вершинами %s и %s не найден", startNode.name, endNode.name);
-        throw new RuntimeException(message);
-    }
-
-    public static void addInterFloorEdge(Activity activity, String campusId, GraphNode selectedNode, GraphNode tappedNode) {
-
-
+        throw new RuntimeException(
+                String.format("Путь между вершинами %s и %s не найден", startNode.name, endNode.name)
+        );
     }
 }

@@ -147,14 +147,7 @@ public class GraphEditorControllerUI {
                 Toast.makeText(activity, "Выберите другой узел", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            if (selectedNode.floor.equals(currentFloor)) {
-                GraphManager.addEdge(activity, selectedNode, tappedNode);
-            } else {
-                GraphManager.addInterFloorEdge(activity, campusId, selectedNode, tappedNode);
-                Toast.makeText(activity, "Межэтажное ребро добавлено", Toast.LENGTH_SHORT).show();
-            }
-
+            GraphManager.addEdge(activity, selectedNode, tappedNode);
             photoView.invalidate();
             selectedNode = null;
             buttonAddEdge.setText("ребра");

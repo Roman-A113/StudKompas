@@ -30,11 +30,12 @@ import com.example.studkompas.utils.GraphManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class CampusMapActivity extends AppCompatActivity {
-    private final boolean isDeveloperMode = true;
+    private final boolean isDeveloperMode = false;
     private CustomPhotoView photoView;
     private View editorControls;
     private View floorPanel;
@@ -52,6 +53,8 @@ public class CampusMapActivity extends AppCompatActivity {
     private String selectedFloorStr;
     private GraphNode selectedStartNode;
     private GraphNode selectedEndNode;
+
+    private Map<String, List<List<GraphNode>>> pathSegments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,8 +96,8 @@ public class CampusMapActivity extends AppCompatActivity {
                 return;
             }
 
-            List<GraphNode> path = GraphManager.getPath(selectedCampus, selectedFloorStr, selectedStartNode, selectedEndNode);
-            photoView.updatePath(path);
+            pathSegments = GraphManager.getPath(selectedCampus, selectedStartNode, selectedEndNode);
+            photoView.updatePath(pathSegments);
         });
     }
 

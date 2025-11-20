@@ -22,8 +22,9 @@ public class CustomPhotoView extends PhotoView {
     private Paint pathPaint;
 
     private Map<String, GraphNode> campusGraph;
+    private String currentFloor;
     private boolean isGraphVisible = true;
-    private List<GraphNode> currentPath;
+    private Map<String, List<List<GraphNode>>> pathSegments;
 
     public CustomPhotoView(Context context) {
         super(context);
@@ -65,6 +66,7 @@ public class CustomPhotoView extends PhotoView {
 
     public void loadGraphForCampus(String campusKey, String floor) {
         campusGraph = GraphManager.Graphs.get(campusKey).get(floor);
+        currentFloor = floor;
         invalidate();
     }
 
@@ -132,25 +134,34 @@ public class CustomPhotoView extends PhotoView {
         }
     }
 
-    public void updatePath(List<GraphNode> path) {
-        this.currentPath = path;
+    public void updatePath(Map<String, List<List<GraphNode>>> pathSegments) {
+        this.pathSegments = pathSegments;
         invalidate();
     }
 
 
     private void drawCurrentPath(Canvas canvas, int imageWidth, int imageHeight) {
-        if (currentPath == null || currentPath.size() < 2) return;
+        if (pathSegments == null || currentFloor == null) return;
 
-        for (int i = 0; i < currentPath.size() - 1; i++) {
-            GraphNode a = currentPath.get(i);
-            GraphNode b = currentPath.get(i + 1);
+        List<List<GraphNode>> floorSegments = pathSegments.get(currentFloor);
+        if (floorSegments == null || floorSegments.isEmpty()) return;
 
-            float x1 = a.location[0] * imageWidth;
-            float y1 = a.location[1] * imageHeight;
-            float x2 = b.location[0] * imageWidth;
-            float y2 = b.location[1] * imageHeight;
+        for (List<GraphNode> segment : floorSegments) {
+            if (segment.size() < 2) continue;
 
-            canvas.drawLine(x1, y1, x2, y2, pathPaint);
+            for (int i = 0; i < segment.size() - 1; i++) {
+                GraphNode a = segment.get(i);
+                GraphNode b = segment.get(i + 1);
+
+                if (a.location == null || b.location == null) continue;
+
+                float x1 = a.location[0] * imageWidth;
+                float y1 = a.location[1] * imageHeight;
+                float x2 = b.location[0] * imageWidth;
+                float y2 = b.location[1] * imageHeight;
+
+                canvas.drawLine(x1, y1, x2, y2, pathPaint);
+            }
         }
     }
 }
