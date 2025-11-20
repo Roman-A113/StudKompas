@@ -11,12 +11,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
 import com.example.studkompas.R;
-import com.example.studkompas.model.CustomPhotoView;
 import com.example.studkompas.model.GraphNode;
+import com.example.studkompas.ui.FloorMapView;
 
 public class GraphEditorControllerUI {
     private final Activity activity;
-    private final CustomPhotoView photoView;
+    private final FloorMapView photoView;
     private final String campusId;
 
     Button buttonAddNode;
@@ -29,7 +29,7 @@ public class GraphEditorControllerUI {
     private GraphNode selectedNode;
 
 
-    public GraphEditorControllerUI(Activity activity, CustomPhotoView photoView, String campusId) {
+    public GraphEditorControllerUI(Activity activity, FloorMapView photoView, String campusId) {
         this.activity = activity;
         this.photoView = photoView;
         this.campusId = campusId;

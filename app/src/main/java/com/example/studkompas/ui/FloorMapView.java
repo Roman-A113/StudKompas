@@ -1,4 +1,4 @@
-package com.example.studkompas.model;
+package com.example.studkompas.ui;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -10,28 +10,27 @@ import android.util.AttributeSet;
 
 import androidx.annotation.NonNull;
 
-import com.example.studkompas.utils.GraphManager;
+import com.example.studkompas.model.GraphNode;
 import com.github.chrisbanes.photoview.PhotoView;
 
 import java.util.List;
 import java.util.Map;
 
-public class CustomPhotoView extends PhotoView {
+public class FloorMapView extends PhotoView {
     private Paint nodePaint;
     private Paint edgePaint;
     private Paint pathPaint;
 
-    private Map<String, GraphNode> campusGraph;
-    private String currentFloor;
+    private Map<String, GraphNode> floorGraph;
+    private List<List<GraphNode>> floorPathSegments;
     private boolean isGraphVisible = true;
-    private Map<String, List<List<GraphNode>>> pathSegments;
 
-    public CustomPhotoView(Context context) {
+    public FloorMapView(Context context) {
         super(context);
         init();
     }
 
-    public CustomPhotoView(Context context, AttributeSet attrs) {
+    public FloorMapView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
@@ -43,6 +42,51 @@ public class CustomPhotoView extends PhotoView {
         textPaint.setAntiAlias(true);
         textPaint.setTextAlign(Paint.Align.CENTER);
         canvas.drawText(node.name, cx, cy - 40, textPaint);
+    }
+
+    public void updatePath(List<List<GraphNode>> pathSegments) {
+        this.floorPathSegments = pathSegments;
+        invalidate();
+    }
+
+    public void loadFloorGraphForCampus(Map<String, GraphNode> floorGraph) {
+        this.floorGraph = floorGraph;
+        invalidate();
+    }
+
+    public void setGraphVisible(boolean visible) {
+        this.isGraphVisible = visible;
+        invalidate();
+    }
+
+    @Override
+    protected void dispatchDraw(@NonNull Canvas canvas) {
+        super.dispatchDraw(canvas);
+
+        Drawable drawable = getDrawable();
+        if (drawable == null)
+            return;
+
+        int imageWidth = drawable.getIntrinsicWidth();
+        int imageHeight = drawable.getIntrinsicHeight();
+
+        Matrix imageMatrix = getImageMatrix();
+        boolean hasMatrix = !imageMatrix.isIdentity();
+
+        if (hasMatrix) {
+            canvas.save();
+            canvas.concat(imageMatrix);
+        }
+
+        drawFloorSegmentsPath(canvas, imageWidth, imageHeight);
+
+        if (isGraphVisible && floorGraph != null) {
+            drawWholeGraph(canvas, imageWidth, imageHeight);
+        }
+
+        if (hasMatrix) {
+            canvas.restore();
+        }
     }
 
     private void init() {
@@ -64,48 +108,8 @@ public class CustomPhotoView extends PhotoView {
         pathPaint.setAntiAlias(true);
     }
 
-    public void loadGraphForCampus(String campusKey, String floor) {
-        campusGraph = GraphManager.Graphs.get(campusKey).get(floor);
-        currentFloor = floor;
-        invalidate();
-    }
-
-    public void setGraphVisible(boolean visible) {
-        this.isGraphVisible = visible;
-        invalidate();
-    }
-
-    @Override
-    protected void dispatchDraw(@NonNull Canvas canvas) {
-        super.dispatchDraw(canvas);
-
-        Drawable drawable = getDrawable();
-        if (drawable == null) return;
-
-        int imageWidth = drawable.getIntrinsicWidth();
-        int imageHeight = drawable.getIntrinsicHeight();
-
-        Matrix imageMatrix = getImageMatrix();
-        boolean hasMatrix = !imageMatrix.isIdentity();
-
-        if (hasMatrix) {
-            canvas.save();
-            canvas.concat(imageMatrix);
-        }
-
-        drawCurrentPath(canvas, imageWidth, imageHeight);
-
-        if (isGraphVisible && campusGraph != null) {
-            drawGraphInImageCoords(canvas, imageWidth, imageHeight);
-        }
-
-        if (hasMatrix) {
-            canvas.restore();
-        }
-    }
-
-    private void drawGraphInImageCoords(Canvas canvas, int imageWidth, int imageHeight) {
-        for (GraphNode node : campusGraph.values()) {
+    private void drawWholeGraph(Canvas canvas, int imageWidth, int imageHeight) {
+        for (GraphNode node : floorGraph.values()) {
             if (node.location == null || node.location.length < 2) continue;
 
             float cx = node.location[0] * imageWidth;
@@ -115,14 +119,14 @@ public class CustomPhotoView extends PhotoView {
             drawNodeName(canvas, node, cx, cy);
         }
 
-        for (GraphNode node : campusGraph.values()) {
+        for (GraphNode node : floorGraph.values()) {
             if (node.location == null || node.location.length < 2) continue;
 
             float x1 = node.location[0] * imageWidth;
             float y1 = node.location[1] * imageHeight;
 
             for (String neighborId : node.edges) {
-                GraphNode neighbor = campusGraph.get(neighborId);
+                GraphNode neighbor = floorGraph.get(neighborId);
                 if (neighbor == null || neighbor.location == null || neighbor.location.length < 2)
                     continue;
 
@@ -134,19 +138,12 @@ public class CustomPhotoView extends PhotoView {
         }
     }
 
-    public void updatePath(Map<String, List<List<GraphNode>>> pathSegments) {
-        this.pathSegments = pathSegments;
-        invalidate();
-    }
 
+    private void drawFloorSegmentsPath(Canvas canvas, int imageWidth, int imageHeight) {
+        if (floorPathSegments == null || floorPathSegments.isEmpty())
+            return;
 
-    private void drawCurrentPath(Canvas canvas, int imageWidth, int imageHeight) {
-        if (pathSegments == null || currentFloor == null) return;
-
-        List<List<GraphNode>> floorSegments = pathSegments.get(currentFloor);
-        if (floorSegments == null || floorSegments.isEmpty()) return;
-
-        for (List<GraphNode> segment : floorSegments) {
+        for (List<GraphNode> segment : floorPathSegments) {
             if (segment.size() < 2) continue;
 
             for (int i = 0; i < segment.size() - 1; i++) {

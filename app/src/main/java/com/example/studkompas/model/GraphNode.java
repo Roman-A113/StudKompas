@@ -7,8 +7,8 @@ import java.util.Map;
 
 public class GraphNode {
     public final String id;
+    public final String floor;
     public String name;
-    public String floor;
     public float[] location;
     public List<String> edges = new ArrayList<>();
     public Map<String, String> interFloorEdges = new HashMap<>();

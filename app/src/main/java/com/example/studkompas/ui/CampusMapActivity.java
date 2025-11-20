@@ -22,7 +22,6 @@ import com.example.studkompas.R;
 import com.example.studkompas.adapter.FloorButtonsListAdapter;
 import com.example.studkompas.adapter.LocationsListAdapter;
 import com.example.studkompas.model.Campus;
-import com.example.studkompas.model.CustomPhotoView;
 import com.example.studkompas.model.GraphNode;
 import com.example.studkompas.model.ShowUiTransitionListener;
 import com.example.studkompas.utils.GraphEditorControllerUI;
@@ -31,12 +30,13 @@ import com.example.studkompas.utils.GraphManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class CampusMapActivity extends AppCompatActivity {
     private final boolean isDeveloperMode = false;
-    private CustomPhotoView photoView;
+    private FloorMapView floorMapView;
     private View editorControls;
     private View floorPanel;
     private View inputLayoutStart;
@@ -50,7 +50,7 @@ public class CampusMapActivity extends AppCompatActivity {
     private EditText currentFocusedInputField = null;
 
     private Campus selectedCampus;
-    private String selectedFloorStr;
+    private String selectedFloor;
     private GraphNode selectedStartNode;
     private GraphNode selectedEndNode;
 
@@ -68,8 +68,8 @@ public class CampusMapActivity extends AppCompatActivity {
         rootLayout = findViewById(R.id.mainConstraintLayout);
         makePathButton = findViewById(R.id.MakePathButton);
 
-        photoView = findViewById(R.id.imageViewCampusMap);
-        photoView.setMaximumScale(10.0f);
+        floorMapView = findViewById(R.id.floor_map_view);
+        floorMapView.setMaximumScale(10.0f);
 
         selectedCampus = (Campus) getIntent().getSerializableExtra("campus");
         if (selectedCampus == null) {
@@ -78,9 +78,9 @@ public class CampusMapActivity extends AppCompatActivity {
 
         if (isDeveloperMode) {
             editorControls.setVisibility(View.VISIBLE);
-            editorController = new GraphEditorControllerUI(this, photoView, selectedCampus.Id);
+            editorController = new GraphEditorControllerUI(this, floorMapView, selectedCampus.Id);
         } else {
-            photoView.setGraphVisible(false);
+            floorMapView.setGraphVisible(false);
         }
 
         setupFloorButtonsListAdapter();
@@ -95,9 +95,8 @@ public class CampusMapActivity extends AppCompatActivity {
                 Toast.makeText(this, "Выберите стартовую и конечную точку", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             pathSegments = GraphManager.getPath(selectedCampus, selectedStartNode, selectedEndNode);
-            photoView.updatePath(pathSegments);
+            floorMapView.updatePath(pathSegments.get(selectedFloor));
         });
     }
 
@@ -127,27 +126,27 @@ public class CampusMapActivity extends AppCompatActivity {
     }
 
     private void switchToFloor(int floorNumber) {
-        selectedFloorStr = String.valueOf(floorNumber);
+        selectedFloor = String.valueOf(floorNumber);
         Integer drawableRes = selectedCampus.FloorNumberToDrawable.get(floorNumber);
         if (drawableRes == null) {
             throw new RuntimeException("drawableRes cannot be null");
         }
-        photoView.setImageResource(drawableRes);
-        photoView.loadGraphForCampus(selectedCampus.Id, selectedFloorStr);
-        photoView.postDelayed(() -> photoView.setScale(2.0f, true), 200);
+        floorMapView.setImageResource(drawableRes);
+        Map<String, GraphNode> floorGraph = Objects.requireNonNull(GraphManager.Graphs.get(selectedCampus.Id)).get(selectedFloor);
+        floorMapView.loadFloorGraphForCampus(floorGraph);
+        if (pathSegments != null) {
+            floorMapView.updatePath(pathSegments.get(selectedFloor));
+        }
+        floorMapView.postDelayed(() -> floorMapView.setScale(2.0f, true), 200);
 
         if (editorController != null)
-            editorController.setCurrentFloor(selectedFloorStr);
+            editorController.setCurrentFloor(selectedFloor);
     }
-
 
     private void setupLocationsListAdapter() {
         locationsList = findViewById(R.id.LocationsList);
         locationAdapter = new LocationsListAdapter(node -> {
-            if (currentFocusedInputField != null) {
-                currentFocusedInputField.setText(node.name);
-            }
-
+            currentFocusedInputField.setText(node.name);
             if (currentFocusedInputField.getId() == R.id.editTextStart) {
                 selectedStartNode = node;
             } else if (currentFocusedInputField.getId() == R.id.editTextEnd) {
@@ -196,7 +195,8 @@ public class CampusMapActivity extends AppCompatActivity {
     }
 
     public void hideLocationsList() {
-        if (!isLocationsListDisplays) return;
+        if (!isLocationsListDisplays)
+            return;
         isLocationsListDisplays = false;
 
         locationsList.setVisibility(View.GONE);
@@ -232,7 +232,7 @@ public class CampusMapActivity extends AppCompatActivity {
     }
 
     private void hideMainUI() {
-        photoView.setVisibility(View.GONE);
+        floorMapView.setVisibility(View.GONE);
         floorPanel.setVisibility(View.GONE);
         makePathButton.setVisibility(View.GONE);
         if (isDeveloperMode)
@@ -240,7 +240,7 @@ public class CampusMapActivity extends AppCompatActivity {
     }
 
     private void showMainUI() {
-        photoView.setVisibility(View.VISIBLE);
+        floorMapView.setVisibility(View.VISIBLE);
         floorPanel.setVisibility(View.VISIBLE);
         makePathButton.setVisibility(View.VISIBLE);
         if (isDeveloperMode)

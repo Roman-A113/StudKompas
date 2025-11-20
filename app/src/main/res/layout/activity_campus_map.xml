@@ -6,8 +6,8 @@
     android:layout_height="match_parent"
     android:background="#ffffff">
 
-    <com.example.studkompas.model.CustomPhotoView
-        android:id="@+id/imageViewCampusMap"
+    <com.example.studkompas.ui.FloorMapView
+        android:id="@+id/floor_map_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:src="@drawable/guk_1"
