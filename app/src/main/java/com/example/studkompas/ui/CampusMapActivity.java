@@ -34,7 +34,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class CampusMapActivity extends AppCompatActivity {
-    private final boolean isDeveloperMode = false;
+    private final boolean isDeveloperMode = true;
     private CustomPhotoView photoView;
     private View editorControls;
     private View floorPanel;

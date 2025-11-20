@@ -12,19 +12,22 @@ import androidx.core.content.ContextCompat;
 
 import com.example.studkompas.R;
 import com.example.studkompas.model.CustomPhotoView;
+import com.example.studkompas.model.GraphNode;
 
 public class GraphEditorControllerUI {
     private final Activity activity;
     private final CustomPhotoView photoView;
     private final String campusId;
+
     Button buttonAddNode;
     Button buttonAddEdge;
     Button buttonMoveNode;
     Button buttonRenameNode;
     Button buttonToggleGraph;
     private String currentFloor = "1";
-    private String selectedNodeId = null;
-    private EditMode currentMode = null;
+    private EditMode currentMode;
+    private GraphNode selectedNode;
+
 
     public GraphEditorControllerUI(Activity activity, CustomPhotoView photoView, String campusId) {
         this.activity = activity;
@@ -130,51 +133,63 @@ public class GraphEditorControllerUI {
     }
 
     private void handleEdgeModeTap(float pixelX, float pixelY) {
-        String tappedNodeId = GraphManager.findNodeAt(pixelX, pixelY, campusId, currentFloor);
-        if (tappedNodeId == null) {
+        GraphNode tappedNode = GraphManager.findNodeAt(pixelX, pixelY, campusId, currentFloor);
+        if (tappedNode == null) {
             Toast.makeText(activity, "Узел не найден", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (selectedNodeId == null) {
-            selectedNodeId = tappedNodeId;
-            buttonAddEdge.setText("вершина: " + tappedNodeId);
-        } else if (!selectedNodeId.equals(tappedNodeId)) {
-            GraphManager.addEdge(activity, campusId, currentFloor, selectedNodeId, tappedNodeId);
+        if (selectedNode == null) {
+            selectedNode = tappedNode;
+            buttonAddEdge.setText("вершина: " + tappedNode.id);
+        } else {
+            if (selectedNode.id.equals(tappedNode.id)) {
+                Toast.makeText(activity, "Выберите другой узел", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (selectedNode.floor.equals(currentFloor)) {
+                GraphManager.addEdge(activity, selectedNode, tappedNode);
+            } else {
+                GraphManager.addInterFloorEdge(activity, campusId, selectedNode, tappedNode);
+                Toast.makeText(activity, "Межэтажное ребро добавлено", Toast.LENGTH_SHORT).show();
+            }
+
             photoView.invalidate();
-            selectedNodeId = null;
+            selectedNode = null;
             buttonAddEdge.setText("ребра");
         }
     }
 
     private void handleMoveNodeTap(float pixelX, float pixelY) {
-        String nodeId = GraphManager.findNodeAt(pixelX, pixelY, campusId, currentFloor);
-        if (selectedNodeId == null) {
-            if (nodeId == null) {
+        GraphNode node = GraphManager.findNodeAt(pixelX, pixelY, campusId, currentFloor);
+        if (selectedNode == null) {
+            if (node == null) {
                 Toast.makeText(activity, "Вершина не найдена", Toast.LENGTH_SHORT).show();
                 return;
             }
-            buttonMoveNode.setText("вершина: " + nodeId);
-            selectedNodeId = nodeId;
+            buttonMoveNode.setText("вершина: " + node.id);
+            selectedNode = node;
             return;
         }
 
-        GraphManager.updateNodePosition(activity, campusId, currentFloor, selectedNodeId, pixelX, pixelY);
+        GraphManager.updateNodePosition(activity, selectedNode, pixelX, pixelY);
         photoView.invalidate();
-        Toast.makeText(activity, "Вершина " + selectedNodeId + " перемещена", Toast.LENGTH_SHORT).show();
+        Toast.makeText(activity, "Вершина " + selectedNode.id + " перемещена", Toast.LENGTH_SHORT).show();
         buttonMoveNode.setText("переместить");
-        selectedNodeId = null;
+        selectedNode = null;
     }
 
     private void handleRenameNodeTap(float pixelX, float pixelY) {
-        String nodeId = GraphManager.findNodeAt(pixelX, pixelY, campusId, currentFloor);
-        if (nodeId == null) {
+        GraphNode node = GraphManager.findNodeAt(pixelX, pixelY, campusId, currentFloor);
+        if (node == null) {
             Toast.makeText(activity, "Вершина не найдена", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String currentName = GraphManager.getNodeName(campusId, currentFloor, nodeId);
-        if (currentName == null) currentName = "";
+        String currentName = node.name;
+        if (currentName == null)
+            currentName = "";
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Переименовать вершину");
@@ -182,12 +197,12 @@ public class GraphEditorControllerUI {
         EditText input = new EditText(activity);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         input.setText(currentName);
-        input.setSelection(input.getText().length()); // курсор в конец
+        input.setSelection(input.getText().length());
         builder.setView(input);
 
         builder.setPositiveButton("Сохранить", (dialog, which) -> {
             String newName = input.getText().toString().trim();
-            GraphManager.renameNode(activity, campusId, currentFloor, nodeId, newName);
+            GraphManager.renameNode(activity, node, newName);
             photoView.invalidate();
             Toast.makeText(activity, "Вершина переименована", Toast.LENGTH_SHORT).show();
         });

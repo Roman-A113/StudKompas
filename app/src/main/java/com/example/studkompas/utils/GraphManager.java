@@ -1,5 +1,6 @@
 package com.example.studkompas.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
@@ -90,7 +91,7 @@ public class GraphManager {
         }
     }
 
-    public static String findNodeAt(float relX, float relY, String campusKey, String floor) {
+    public static GraphNode findNodeAt(float relX, float relY, String campusKey, String floor) {
         Map<String, GraphNode> campusGraph = Graphs.get(campusKey).get(floor);
         if (campusGraph == null) return null;
 
@@ -101,7 +102,7 @@ public class GraphManager {
             float dx = node.location[0] - relX;
             float dy = node.location[1] - relY;
             if (Math.abs(dx) <= TOL && Math.abs(dy) <= TOL) {
-                return node.id;
+                return node;
             }
         }
         return null;
@@ -115,35 +116,23 @@ public class GraphManager {
         for (Map<String, GraphNode> floorMap : Graphs.get(campusKey).values()) {
             totalNodeCount += floorMap.size();
         }
-
         String newId = String.valueOf(totalNodeCount + 1);
 
-        GraphNode newNode = new GraphNode(newId, name, new float[]{x, y});
+        GraphNode newNode = new GraphNode(newId, name, floor, new float[]{x, y});
         Graphs.get(campusKey).get(floor).put(newId, newNode);
 
         saveGraphToTempFile(context);
     }
 
-    public static void addEdge(Context context, String campusKey, String floor, String nodeId1, String nodeId2) {
-        Map<String, GraphNode> campusMap = Graphs.get(campusKey).get(floor);
-
-        GraphNode node1 = campusMap.get(nodeId1);
-        GraphNode node2 = campusMap.get(nodeId2);
-
-        node1.edges.add(nodeId2);
-        node2.edges.add(nodeId1);
+    public static void addEdge(Context context, GraphNode node1, GraphNode node2) {
+        node1.edges.add(node2.id);
+        node2.edges.add(node1.id);
         saveGraphToTempFile(context);
     }
 
-    public static void updateNodePosition(Context context, String campusKey, String floor, String nodeId, float x, float y) {
-        Map<String, Map<String, GraphNode>> campusGraphs = Graphs.get(campusKey);
-        if (campusGraphs == null) return;
-
-        Map<String, GraphNode> floorGraph = campusGraphs.get(floor);
-        if (floorGraph == null) return;
-
-        GraphNode node = floorGraph.get(nodeId);
-        if (node == null) return;
+    public static void updateNodePosition(Context context, GraphNode node, float x, float y) {
+        if (node == null)
+            return;
 
         if (node.location == null || node.location.length < 2) {
             node.location = new float[2];
@@ -154,17 +143,7 @@ public class GraphManager {
         saveGraphToTempFile(context);
     }
 
-    public static String getNodeName(String campusId, String floor, String nodeId) {
-        Map<String, GraphNode> floorGraph = Graphs.get(campusId).get(floor);
-        if (floorGraph == null) return null;
-        GraphNode node = floorGraph.get(nodeId);
-        return node != null ? node.name : null;
-    }
-
-    public static void renameNode(Context context, String campusId, String floor, String nodeId, String newName) {
-        Map<String, GraphNode> floorGraph = Graphs.get(campusId).get(floor);
-        if (floorGraph == null) return;
-        GraphNode node = floorGraph.get(nodeId);
+    public static void renameNode(Context context, GraphNode node, String newName) {
         if (node != null) {
             node.name = newName;
             saveGraphToTempFile(context);
@@ -228,5 +207,10 @@ public class GraphManager {
 
         String message = String.format("путь между вершинами %s и %s не найден", startNode.name, endNode.name);
         throw new RuntimeException(message);
+    }
+
+    public static void addInterFloorEdge(Activity activity, String campusId, GraphNode selectedNode, GraphNode tappedNode) {
+
+
     }
 }
