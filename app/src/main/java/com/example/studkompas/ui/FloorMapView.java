@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 
@@ -140,25 +141,42 @@ public class FloorMapView extends PhotoView {
 
 
     private void drawFloorSegmentsPath(Canvas canvas, int imageWidth, int imageHeight) {
-        if (floorPathSegments == null || floorPathSegments.isEmpty())
-            return;
+        if (floorPathSegments == null || floorPathSegments.isEmpty()) return;
 
+        Path path = new Path();
         for (List<GraphNode> segment : floorPathSegments) {
-            if (segment.size() < 2) continue;
+            if (segment.size() < 2)
+                continue;
 
-            for (int i = 0; i < segment.size() - 1; i++) {
-                GraphNode a = segment.get(i);
-                GraphNode b = segment.get(i + 1);
+            path.reset();
+            GraphNode start = segment.get(0);
 
-                if (a.location == null || b.location == null) continue;
+            float startX = start.location[0] * imageWidth;
+            float startY = start.location[1] * imageHeight;
+            path.moveTo(startX, startY);
 
-                float x1 = a.location[0] * imageWidth;
-                float y1 = a.location[1] * imageHeight;
-                float x2 = b.location[0] * imageWidth;
-                float y2 = b.location[1] * imageHeight;
+            for (int i = 1; i < segment.size(); i++) {
+                GraphNode prev = segment.get(i - 1);
+                GraphNode curr = segment.get(i);
 
-                canvas.drawLine(x1, y1, x2, y2, pathPaint);
+                float prevX = prev.location[0] * imageWidth;
+                float prevY = prev.location[1] * imageHeight;
+
+                float x = curr.location[0] * imageWidth;
+                float y = curr.location[1] * imageHeight;
+
+                float midX = (prevX + x) / 2f;
+                float midY = (prevY + y) / 2f;
+
+                path.quadTo(prevX, prevY, midX, midY);
             }
+
+            GraphNode last = segment.get(segment.size() - 1);
+            float lastX = last.location[0] * imageWidth;
+            float lastY = last.location[1] * imageHeight;
+            path.lineTo(lastX, lastY);
+
+            canvas.drawPath(path, pathPaint);
         }
     }
 }
