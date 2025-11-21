@@ -127,7 +127,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:background="@drawable/rounded_purple_background"
+        android:background="@drawable/gradient_blue_purple_orange"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:padding="16dp"
