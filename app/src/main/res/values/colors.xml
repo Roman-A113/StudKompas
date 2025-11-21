@@ -8,6 +8,7 @@
     <color name="purple">#7E00E0</color>
     <color name="dark_purple">#6500B1</color>
     <color name="orange">#FF8C25</color>
-    <color name="light_blue">#000FE0</color>
+    <color name="light_orange">#FF9A40</color>
     <color name="blue">#010E89</color>
+    <color name="light_blue">#2196F3</color>
 </resources>

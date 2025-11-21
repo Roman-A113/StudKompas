@@ -8,6 +8,8 @@ import android.transition.TransitionManager;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -19,7 +21,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.studkompas.R;
-import com.example.studkompas.adapter.FloorButtonsListAdapter;
 import com.example.studkompas.adapter.LocationsListAdapter;
 import com.example.studkompas.model.Campus;
 import com.example.studkompas.model.GraphNode;
@@ -35,7 +36,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class CampusMapActivity extends AppCompatActivity {
-    private final boolean isDeveloperMode = true;
+    private final boolean isDeveloperMode = false;
     private FloorMapView floorMapView;
     private View editorControls;
     private View floorPanel;
@@ -62,7 +63,7 @@ public class CampusMapActivity extends AppCompatActivity {
         setContentView(R.layout.activity_campus_map);
 
         editorControls = findViewById(R.id.editor_controls);
-        floorPanel = findViewById(R.id.floorPanel);
+        floorPanel = findViewById(R.id.floorDropdownContainer);
         inputLayoutStart = findViewById(R.id.inputLayoutStart);
         inputLayoutEnd = findViewById(R.id.inputLayoutEnd);
         rootLayout = findViewById(R.id.mainConstraintLayout);
@@ -83,7 +84,7 @@ public class CampusMapActivity extends AppCompatActivity {
             floorMapView.setGraphVisible(false);
         }
 
-        setupFloorButtonsListAdapter();
+        setupFloorDropdown();
         setupLocationsListAdapter();
         setupFocusChangeListenerToInputFields();
         setupMakePathButton();
@@ -113,15 +114,29 @@ public class CampusMapActivity extends AppCompatActivity {
         findViewById(R.id.editTextEnd).setOnFocusChangeListener(focusListener);
     }
 
-    private void setupFloorButtonsListAdapter() {
+    private void setupFloorDropdown() {
         Set<Integer> sortedFloors = new TreeSet<>(selectedCampus.FloorNumberToDrawable.keySet());
         List<Integer> floorList = new ArrayList<>(sortedFloors);
 
-        RecyclerView floorPanel = findViewById(R.id.floorPanel);
-        floorPanel.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        String[] floorStrings = floorList.stream()
+                .map(String::valueOf)
+                .toArray(String[]::new);
 
-        FloorButtonsListAdapter floorAdapter = new FloorButtonsListAdapter(floorList, this::switchToFloor);
-        floorPanel.setAdapter(floorAdapter);
+        AutoCompleteTextView floorAutoComplete = findViewById(R.id.floorAutoComplete);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                R.layout.item_floor_dropdown,
+                floorStrings
+        );
+
+        floorAutoComplete.setAdapter(adapter);
+        floorAutoComplete.setText("1", false);
+        floorAutoComplete.setOnItemClickListener((parent, view, position, id) -> {
+            String selected = (String) parent.getItemAtPosition(position);
+            int floorNumber = Integer.parseInt(selected);
+            switchToFloor(floorNumber);
+        });
         switchToFloor(1);
     }
 
