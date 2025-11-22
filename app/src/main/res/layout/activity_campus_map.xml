@@ -13,8 +13,10 @@
         android:src="@drawable/guk_1"
         app:layout_constraintBottom_toTopOf="@id/routeInputPanel"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/editor_controls" />
+        app:layout_constraintTop_toBottomOf="@id/editor_controls"
+        app:layout_constraintVertical_bias="0.0" />
 
     <LinearLayout
         android:id="@+id/editor_controls"
@@ -109,14 +111,13 @@
         <AutoCompleteTextView
             android:id="@+id/floorAutoComplete"
             style="@style/Widget.Material3.AutoCompleteTextView.OutlinedBox"
-            android:layout_width="100dp"
+            android:layout_width="80dp"
             android:layout_height="wrap_content"
-            android:clickable="true"
             android:focusable="false"
             android:inputType="none"
             android:popupBackground="@android:color/white"
             android:text="1"
-            android:textColor="@color/grey"
+            android:textColor="@color/dark_grey"
             android:textSize="14sp" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -128,7 +129,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:background="#f5f5f5"
+        android:background="@color/white"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/routeInputPanel"
         app:layout_constraintEnd_toEndOf="parent"
@@ -155,11 +156,11 @@
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_white_background"
             android:hint="Откуда"
-            android:textColorHint="@color/grey"
             android:paddingStart="12dp"
             android:paddingTop="4dp"
             android:paddingEnd="12dp"
-            android:paddingBottom="6dp">
+            android:paddingBottom="6dp"
+            android:textColorHint="@color/grey">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTextStart"
@@ -167,8 +168,8 @@
                 android:layout_height="wrap_content"
                 android:background="@color/white"
                 android:inputType="text"
-                android:textColor="@color/grey"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:textColor="@color/dark_grey" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -178,11 +179,11 @@
             android:layout_marginTop="8dp"
             android:background="@drawable/rounded_white_background"
             android:hint="Куда"
-            android:textColorHint="@color/grey"
             android:paddingStart="12dp"
             android:paddingTop="4dp"
             android:paddingEnd="12dp"
-            android:paddingBottom="6dp">
+            android:paddingBottom="6dp"
+            android:textColorHint="@color/grey">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTextEnd"
@@ -190,8 +191,8 @@
                 android:layout_height="wrap_content"
                 android:background="@color/white"
                 android:inputType="text"
-                android:textColor="@color/grey"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:textColor="@color/dark_grey" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton

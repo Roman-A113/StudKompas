@@ -15,12 +15,11 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-
         <TextView
             android:id="@+id/textViewCampusName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="#2c3e50"
+            android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -29,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textColor="#5B5A5A"
+            android:textColor="@color/dark_grey"
             android:textSize="14sp" />
 
     </LinearLayout>
