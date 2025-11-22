@@ -131,6 +131,8 @@
         android:layout_marginBottom="8dp"
         android:background="@color/white"
         android:visibility="gone"
+        android:scrollbars="vertical"
+        android:scrollbarThumbVertical="@drawable/scroll_bar"
         app:layout_constraintBottom_toTopOf="@id/routeInputPanel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
