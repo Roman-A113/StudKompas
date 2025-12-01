@@ -24,6 +24,7 @@ import com.example.studkompas.R;
 import com.example.studkompas.adapter.LocationsListAdapter;
 import com.example.studkompas.model.Campus;
 import com.example.studkompas.model.GraphNode;
+import com.example.studkompas.model.PathWithTransition;
 import com.example.studkompas.model.ShowUiTransitionListener;
 import com.example.studkompas.utils.GraphEditorControllerUI;
 import com.example.studkompas.utils.GraphManager;
@@ -55,7 +56,7 @@ public class CampusMapActivity extends AppCompatActivity {
     private GraphNode selectedStartNode;
     private GraphNode selectedEndNode;
 
-    private Map<String, List<List<GraphNode>>> pathSegments;
+    private PathWithTransition pathWithTransition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +72,7 @@ public class CampusMapActivity extends AppCompatActivity {
 
         floorMapView = findViewById(R.id.floor_map_view);
         floorMapView.setMaximumScale(10.0f);
+
 
         selectedCampus = (Campus) getIntent().getSerializableExtra("campus");
         if (selectedCampus == null) {
@@ -96,8 +98,11 @@ public class CampusMapActivity extends AppCompatActivity {
                 Toast.makeText(this, "Выберите стартовую и конечную точку", Toast.LENGTH_SHORT).show();
                 return;
             }
-            pathSegments = GraphManager.getPath(selectedCampus, selectedStartNode, selectedEndNode);
-            floorMapView.updatePath(pathSegments.get(selectedFloor));
+
+            pathWithTransition = GraphManager.getPath(selectedCampus, selectedStartNode, selectedEndNode);
+            floorMapView.updatePath(pathWithTransition.segmentedPath.get(selectedFloor));
+            floorMapView.setFloor(selectedFloor);
+            floorMapView.setTransitionNodes(pathWithTransition.transitionNodes);
         });
     }
 
@@ -149,8 +154,9 @@ public class CampusMapActivity extends AppCompatActivity {
         floorMapView.setImageResource(drawableRes);
         Map<String, GraphNode> floorGraph = Objects.requireNonNull(GraphManager.Graphs.get(selectedCampus.Id)).get(selectedFloor);
         floorMapView.loadFloorGraphForCampus(floorGraph);
-        if (pathSegments != null) {
-            floorMapView.updatePath(pathSegments.get(selectedFloor));
+        floorMapView.setFloor(selectedFloor);
+        if (pathWithTransition != null) {
+            floorMapView.updatePath(pathWithTransition.segmentedPath.get(selectedFloor));
         }
         floorMapView.postDelayed(() -> floorMapView.setScale(2.0f, true), 200);
 

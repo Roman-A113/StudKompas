@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.example.studkompas.model.Campus;
 import com.example.studkompas.model.GraphNode;
+import com.example.studkompas.model.PathWithTransition;
+import com.example.studkompas.model.TransitionPoint;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -173,7 +175,7 @@ public class GraphManager {
         return result;
     }
 
-    public static Map<String, List<List<GraphNode>>> getPath(Campus campus, GraphNode startNode, GraphNode endNode) {
+    public static PathWithTransition getPath(Campus campus, GraphNode startNode, GraphNode endNode) {
         String campusId = campus.Id;
         Map<String, Map<String, GraphNode>> campusGraphs = Graphs.get(campusId);
         if (campusGraphs == null) {
@@ -185,7 +187,6 @@ public class GraphManager {
             allNodes.putAll(floorGraph);
         }
 
-        // === BFS: как раньше ===
         Map<String, String> parent = new HashMap<>();
         Queue<String> queue = new LinkedList<>();
         Set<String> visited = new HashSet<>();
@@ -197,7 +198,6 @@ public class GraphManager {
         while (!queue.isEmpty()) {
             String currentId = queue.poll();
             if (currentId.equals(endNode.id)) {
-                // Восстанавливаем полный путь
                 List<GraphNode> fullPath = new ArrayList<>();
                 String id = currentId;
                 while (id != null) {
@@ -206,10 +206,11 @@ public class GraphManager {
                 }
                 Collections.reverse(fullPath);
 
-                // === Разбиваем на сегменты по этажам ===
-                Map<String, List<List<GraphNode>>> result = new HashMap<>();
+                Map<String, List<List<GraphNode>>> segmentedPath = new HashMap<>();
+                Set<TransitionPoint> transitionNodes = new HashSet<>();
 
-                if (fullPath.isEmpty()) return result;
+                if (fullPath.isEmpty())
+                    return new PathWithTransition(segmentedPath, new ArrayList<>(transitionNodes));
 
                 List<GraphNode> currentSegment = new ArrayList<>();
                 String currentFloor = fullPath.get(0).floor;
@@ -218,25 +219,24 @@ public class GraphManager {
                 for (int i = 1; i < fullPath.size(); i++) {
                     GraphNode node = fullPath.get(i);
                     if (node.floor.equals(currentFloor)) {
-                        // Продолжаем текущий сегмент
                         currentSegment.add(node);
                     } else {
-                        // Завершаем текущий сегмент
-                        result.computeIfAbsent(currentFloor, k -> new ArrayList<>()).add(new ArrayList<>(currentSegment));
-                        // Начинаем новый
+                        GraphNode previousNode = fullPath.get(i - 1);
+                        segmentedPath.computeIfAbsent(currentFloor, k -> new ArrayList<>()).add(new ArrayList<>(currentSegment));
+
+                        transitionNodes.add(new TransitionPoint(previousNode, node.floor, node));
+
                         currentSegment = new ArrayList<>();
                         currentFloor = node.floor;
                         currentSegment.add(node);
                     }
                 }
-                // Добавляем последний сегмент
-                result.computeIfAbsent(currentFloor, k -> new ArrayList<>()).add(new ArrayList<>(currentSegment));
+                segmentedPath.computeIfAbsent(currentFloor, k -> new ArrayList<>()).add(new ArrayList<>(currentSegment));
 
-                return result;
+                return new PathWithTransition(segmentedPath, new ArrayList<>(transitionNodes));
             }
 
             GraphNode currentNode = allNodes.get(currentId);
-            // Обычные рёбра
             for (String neighborId : currentNode.edges) {
                 if (!visited.contains(neighborId) && allNodes.containsKey(neighborId)) {
                     visited.add(neighborId);
@@ -244,7 +244,7 @@ public class GraphManager {
                     queue.offer(neighborId);
                 }
             }
-            // Межэтажные рёбра
+
             for (String neighborId : currentNode.interFloorEdges.keySet()) {
                 if (!visited.contains(neighborId) && allNodes.containsKey(neighborId)) {
                     visited.add(neighborId);
