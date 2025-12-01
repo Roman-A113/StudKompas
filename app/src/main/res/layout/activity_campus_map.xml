@@ -23,76 +23,104 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <Button
-            android:id="@+id/btn_add_node"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_margin="2dp"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
-            android:text="вершины"
-            android:textSize="12sp" />
 
-        <Button
-            android:id="@+id/btn_add_edge"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_margin="2dp"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
-            android:text="ребра"
-            android:textSize="12sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btn_move_node"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_margin="2dp"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
-            android:text="переместить"
-            android:textSize="12sp" />
+            <Button
+                android:id="@+id/btn_add_node"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_margin="2dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="вершины"
+                android:textSize="12sp" />
 
-        <Button
-            android:id="@+id/btn_rename_node"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_margin="2dp"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
-            android:text="переименовать"
-            android:textSize="12sp" />
+            <Button
+                android:id="@+id/btn_add_edge"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_margin="2dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="ребра"
+                android:textSize="12sp" />
 
-        <Button
-            android:id="@+id/btn_toggle_graph"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_margin="2dp"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
-            android:text="скрыть граф"
-            android:textSize="12sp" />
+            <Button
+                android:id="@+id/btn_move_node"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_margin="2dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="переместить"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_rename_node"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_margin="2dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="переименовать"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btn_toggle_graph"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_margin="2dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="скрыть граф"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btn_full_graph"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_margin="2dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="полный граф"
+                android:textSize="12sp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

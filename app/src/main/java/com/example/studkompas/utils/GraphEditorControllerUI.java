@@ -14,16 +14,20 @@ import com.example.studkompas.R;
 import com.example.studkompas.model.GraphNode;
 import com.example.studkompas.ui.FloorMapView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GraphEditorControllerUI {
     private final Activity activity;
     private final FloorMapView photoView;
     private final String campusId;
-
+    private final List<GraphNode> selectedNodesForFullGraph = new ArrayList<>();
     Button buttonAddNode;
     Button buttonAddEdge;
     Button buttonMoveNode;
     Button buttonRenameNode;
     Button buttonToggleGraph;
+    Button buttonFullGraph;
     private String currentFloor = "1";
     private EditMode currentMode;
     private GraphNode selectedNode;
@@ -46,12 +50,53 @@ public class GraphEditorControllerUI {
         buttonMoveNode = activity.findViewById(R.id.btn_move_node);
         buttonRenameNode = activity.findViewById(R.id.btn_rename_node);
         buttonToggleGraph = activity.findViewById(R.id.btn_toggle_graph);
+        buttonFullGraph = activity.findViewById(R.id.btn_full_graph);
 
         resetColors();
         buttonAddNode.setOnClickListener(v -> setMode(EditMode.ADD_NODE, "Режим добавления вершин", buttonAddNode));
         buttonAddEdge.setOnClickListener(v -> setMode(EditMode.ADD_EDGE, "Режим добавления ребер", buttonAddEdge));
         buttonMoveNode.setOnClickListener(v -> setMode(EditMode.MOVE_NODE, "Режим перемещения вершин", buttonMoveNode));
         buttonRenameNode.setOnClickListener(v -> setMode(EditMode.RENAME_NODE, "Режим переименования вершин", buttonRenameNode));
+        buttonFullGraph.setOnClickListener(v -> {
+            if (currentMode == EditMode.HIDE_GRAPH) {
+                Toast.makeText(activity, "Граф скрыт, рисовать нельзя", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (currentMode != EditMode.FULL_GRAPH) {
+                resetColors();
+                currentMode = EditMode.FULL_GRAPH;
+                selectedNodesForFullGraph.clear();
+                buttonFullGraph.setText("Построить");
+                buttonFullGraph.setBackgroundColor(ContextCompat.getColor(activity, R.color.red));
+                Toast.makeText(activity, "Выберите вершины для полного графа", Toast.LENGTH_SHORT).show();
+            } else {
+                if (selectedNodesForFullGraph.size() < 2) {
+                    Toast.makeText(activity, "Выберите хотя бы 2 вершины", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                int edgeCount = 0;
+                for (int i = 0; i < selectedNodesForFullGraph.size(); i++) {
+                    for (int j = i + 1; j < selectedNodesForFullGraph.size(); j++) {
+                        GraphNode a = selectedNodesForFullGraph.get(i);
+                        GraphNode b = selectedNodesForFullGraph.get(j);
+                        if (!a.edges.contains(b.id) && !b.edges.contains(a.id)) {
+                            GraphManager.addEdge(activity, a, b);
+                            edgeCount++;
+                        }
+                    }
+                }
+
+                photoView.invalidate();
+                Toast.makeText(activity, "Добавлено " + edgeCount + " рёбер", Toast.LENGTH_SHORT).show();
+
+                selectedNodesForFullGraph.clear();
+                currentMode = null;
+                buttonFullGraph.setText("полный граф");
+                resetColors();
+            }
+        });
+
 
         buttonToggleGraph.setOnClickListener(v -> {
             resetColors();
@@ -88,6 +133,7 @@ public class GraphEditorControllerUI {
         buttonMoveNode.setBackgroundColor(greyColor);
         buttonToggleGraph.setBackgroundColor(greyColor);
         buttonRenameNode.setBackgroundColor(greyColor);
+        buttonFullGraph.setBackgroundColor(greyColor);
     }
 
     private void HandlePhotoTap(float x, float y) {
@@ -110,7 +156,28 @@ public class GraphEditorControllerUI {
                 break;
             case RENAME_NODE:
                 handleRenameNodeTap(x, y);
+            case FULL_GRAPH:
+                handleMakeFullGraphTap(x, y);
         }
+    }
+
+    private void handleMakeFullGraphTap(float x, float y) {
+        GraphNode tappedNode = GraphManager.findNodeAt(x, y, campusId, currentFloor);
+        if (tappedNode == null) {
+            Toast.makeText(activity, "Выберите вершину на карте", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        boolean alreadySelected = selectedNodesForFullGraph.stream()
+                .anyMatch(node -> node.id.equals(tappedNode.id));
+
+        if (alreadySelected) {
+            Toast.makeText(activity, "Вершина уже выбрана", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        selectedNodesForFullGraph.add(tappedNode);
+        Toast.makeText(activity, "Выбрано: " + tappedNode.name + " (" + selectedNodesForFullGraph.size() + ")", Toast.LENGTH_SHORT).show();
     }
 
     private void handleAddNodeModeTap(float pixelX, float pixelY) {
@@ -209,6 +276,7 @@ public class GraphEditorControllerUI {
         ADD_EDGE,
         MOVE_NODE,
         RENAME_NODE,
-        HIDE_GRAPH
+        HIDE_GRAPH,
+        FULL_GRAPH
     }
 }
