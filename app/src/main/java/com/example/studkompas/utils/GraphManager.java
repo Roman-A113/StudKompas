@@ -1,5 +1,6 @@
 package com.example.studkompas.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
@@ -113,14 +114,41 @@ public class GraphManager {
         Graphs.putIfAbsent(campusKey, new HashMap<>());
         Graphs.get(campusKey).putIfAbsent(floor, new HashMap<>());
 
-        int totalNodeCount = 0;
+        int maxId = 0;
         for (Map<String, GraphNode> floorMap : Graphs.get(campusKey).values()) {
-            totalNodeCount += floorMap.size();
+            for (String id : floorMap.keySet()) {
+                int numericId = Integer.parseInt(id);
+                if (numericId > maxId) {
+                    maxId = numericId;
+                }
+            }
         }
-        String newId = String.valueOf(totalNodeCount + 1);
+
+        String newId = String.valueOf(maxId + 1);
 
         GraphNode newNode = new GraphNode(newId, name, floor, new float[]{x, y});
         Graphs.get(campusKey).get(floor).put(newId, newNode);
+
+        saveGraphToTempFile(context);
+    }
+
+    public static void deleteNode(Context context, String campusId, String floor, GraphNode node) {
+        Map<String, Map<String, GraphNode>> campusGraph = Graphs.get(campusId);
+        if (campusGraph == null)
+            return;
+
+        Map<String, GraphNode> floorGraph = campusGraph.get(floor);
+        if (floorGraph == null)
+            return;
+
+        floorGraph.remove(node.id);
+
+        for (Map<String, GraphNode> otherFloor : campusGraph.values()) {
+            for (GraphNode to : otherFloor.values()) {
+                to.edges.remove(node.id);
+                to.interFloorEdges.remove(node.id);
+            }
+        }
 
         saveGraphToTempFile(context);
     }

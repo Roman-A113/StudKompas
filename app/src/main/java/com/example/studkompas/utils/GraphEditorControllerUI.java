@@ -25,9 +25,11 @@ public class GraphEditorControllerUI {
     Button buttonAddNode;
     Button buttonAddEdge;
     Button buttonMoveNode;
+    Button buttonDeleteNode;
     Button buttonRenameNode;
     Button buttonToggleGraph;
     Button buttonFullGraph;
+
     private String currentFloor = "1";
     private EditMode currentMode;
     private GraphNode selectedNode;
@@ -49,6 +51,7 @@ public class GraphEditorControllerUI {
         buttonAddEdge = activity.findViewById(R.id.btn_add_edge);
         buttonMoveNode = activity.findViewById(R.id.btn_move_node);
         buttonRenameNode = activity.findViewById(R.id.btn_rename_node);
+        buttonDeleteNode = activity.findViewById(R.id.btn_remove_node);
         buttonToggleGraph = activity.findViewById(R.id.btn_toggle_graph);
         buttonFullGraph = activity.findViewById(R.id.btn_full_graph);
 
@@ -56,6 +59,7 @@ public class GraphEditorControllerUI {
         buttonAddNode.setOnClickListener(v -> setMode(EditMode.ADD_NODE, "Режим добавления вершин", buttonAddNode));
         buttonAddEdge.setOnClickListener(v -> setMode(EditMode.ADD_EDGE, "Режим добавления ребер", buttonAddEdge));
         buttonMoveNode.setOnClickListener(v -> setMode(EditMode.MOVE_NODE, "Режим перемещения вершин", buttonMoveNode));
+        buttonDeleteNode.setOnClickListener(v -> setMode(EditMode.DELETE_NODE, "Режим удаления вершин", buttonDeleteNode));
         buttonRenameNode.setOnClickListener(v -> setMode(EditMode.RENAME_NODE, "Режим переименования вершин", buttonRenameNode));
         buttonFullGraph.setOnClickListener(v -> {
             if (currentMode == EditMode.HIDE_GRAPH) {
@@ -131,6 +135,7 @@ public class GraphEditorControllerUI {
         buttonAddNode.setBackgroundColor(greyColor);
         buttonAddEdge.setBackgroundColor(greyColor);
         buttonMoveNode.setBackgroundColor(greyColor);
+        buttonDeleteNode.setBackgroundColor(greyColor);
         buttonToggleGraph.setBackgroundColor(greyColor);
         buttonRenameNode.setBackgroundColor(greyColor);
         buttonFullGraph.setBackgroundColor(greyColor);
@@ -154,11 +159,26 @@ public class GraphEditorControllerUI {
             case MOVE_NODE:
                 handleMoveNodeTap(x, y);
                 break;
+            case DELETE_NODE:
+                handleDeleteNodeTap(x, y);
+                break;
             case RENAME_NODE:
                 handleRenameNodeTap(x, y);
+                break;
             case FULL_GRAPH:
                 handleMakeFullGraphTap(x, y);
         }
+    }
+
+    private void handleDeleteNodeTap(float x, float y) {
+        GraphNode node = GraphManager.findNodeAt(x, y, campusId, currentFloor);
+        if (node == null) {
+            Toast.makeText(activity, "Вершина не найдена", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        GraphManager.deleteNode(activity, campusId, currentFloor, node);
+        photoView.invalidate();
     }
 
     private void handleMakeFullGraphTap(float x, float y) {
@@ -275,6 +295,7 @@ public class GraphEditorControllerUI {
         ADD_NODE,
         ADD_EDGE,
         MOVE_NODE,
+        DELETE_NODE,
         RENAME_NODE,
         HIDE_GRAPH,
         FULL_GRAPH
