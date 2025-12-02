@@ -11,11 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.studkompas.R;
 import com.example.studkompas.model.GraphNode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LocationsListAdapter extends RecyclerView.Adapter<LocationsListAdapter.ViewHolder> {
     private final OnLocationsSelectedListener listener;
     private List<GraphNode> nodes;
+    private List<GraphNode> filteredNodes;
 
     public LocationsListAdapter(OnLocationsSelectedListener listener) {
         this.listener = listener;
@@ -23,6 +25,22 @@ public class LocationsListAdapter extends RecyclerView.Adapter<LocationsListAdap
 
     public void updateList(List<GraphNode> newNodes) {
         this.nodes = newNodes;
+        this.filteredNodes = new ArrayList<>(newNodes);;
+    }
+
+    public void filter(String query) {
+        filteredNodes.clear();
+        if (query.isEmpty()) {
+            filteredNodes.addAll(nodes);
+        } else {
+            String lowerQuery = query.toLowerCase().trim();
+            for (GraphNode node : nodes) {
+                if (node.name != null && node.name.toLowerCase().contains(lowerQuery)) {
+                    filteredNodes.add(node);
+                }
+            }
+        }
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -35,7 +53,7 @@ public class LocationsListAdapter extends RecyclerView.Adapter<LocationsListAdap
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        GraphNode node = nodes.get(position);
+        GraphNode node = filteredNodes.get(position);
         holder.textView.setText(node.name);
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
@@ -46,7 +64,7 @@ public class LocationsListAdapter extends RecyclerView.Adapter<LocationsListAdap
 
     @Override
     public int getItemCount() {
-        return nodes.size();
+        return filteredNodes.size();
     }
 
     public interface OnLocationsSelectedListener {

@@ -2,6 +2,8 @@ package com.example.studkompas.ui;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.transition.ChangeBounds;
 import android.transition.Transition;
 import android.transition.TransitionManager;
@@ -178,6 +180,25 @@ public class CampusMapActivity extends AppCompatActivity {
 
         locationsList.setAdapter(locationAdapter);
         locationsList.setLayoutManager(new LinearLayoutManager(this));
+
+        TextWatcher filterWatcher = new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                locationAdapter.filter(s.toString());
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        };
+
+        EditText editTextStart = findViewById(R.id.editTextStart);
+        EditText editTextEnd = findViewById(R.id.editTextEnd);
+
+        editTextStart.addTextChangedListener(filterWatcher);
+        editTextEnd.addTextChangedListener(filterWatcher);
     }
 
     private void showLocationsList() {
