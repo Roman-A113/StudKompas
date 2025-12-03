@@ -45,6 +45,7 @@ public class CampusMapActivity extends AppCompatActivity {
     private View floorPanel;
     private View inputLayoutStart;
     private View inputLayoutEnd;
+    private AutoCompleteTextView floorAutoComplete;
     private ConstraintLayout rootLayout;
     private Button makePathButton;
     private GraphEditorControllerUI editorController;
@@ -69,6 +70,7 @@ public class CampusMapActivity extends AppCompatActivity {
         floorPanel = findViewById(R.id.floorDropdownContainer);
         inputLayoutStart = findViewById(R.id.inputLayoutStart);
         inputLayoutEnd = findViewById(R.id.inputLayoutEnd);
+        floorAutoComplete = findViewById(R.id.floorAutoComplete);
         rootLayout = findViewById(R.id.mainConstraintLayout);
         makePathButton = findViewById(R.id.MakePathButton);
 
@@ -102,6 +104,7 @@ public class CampusMapActivity extends AppCompatActivity {
             }
 
             pathWithTransition = GraphManager.getPath(selectedCampus, selectedStartNode, selectedEndNode);
+            switchToFloor(Integer.parseInt(selectedStartNode.floor));
             floorMapView.updatePath(pathWithTransition.segmentedPath.get(selectedFloor));
             floorMapView.setFloor(selectedFloor);
             floorMapView.setTransitionNodes(pathWithTransition.transitionNodes);
@@ -129,8 +132,6 @@ public class CampusMapActivity extends AppCompatActivity {
                 .map(String::valueOf)
                 .toArray(String[]::new);
 
-        AutoCompleteTextView floorAutoComplete = findViewById(R.id.floorAutoComplete);
-
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
                 R.layout.item_floor_dropdown,
@@ -157,6 +158,7 @@ public class CampusMapActivity extends AppCompatActivity {
         Map<String, GraphNode> floorGraph = Objects.requireNonNull(GraphManager.Graphs.get(selectedCampus.Id)).get(selectedFloor);
         floorMapView.loadFloorGraphForCampus(floorGraph);
         floorMapView.setFloor(selectedFloor);
+        floorAutoComplete.setText(String.valueOf(floorNumber), false);
         if (pathWithTransition != null) {
             floorMapView.updatePath(pathWithTransition.segmentedPath.get(selectedFloor));
         }
