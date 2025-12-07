@@ -156,16 +156,16 @@ public class FloorMapView extends PhotoView {
     private void drawTransitionIndicators(Canvas canvas, int imageWidth, int imageHeight) {
         if (transitionNodes == null || transitionNodes.isEmpty()) return;
 
-        // === Настройки текста ===
+
         Paint textPaint = new Paint();
         textPaint.setAntiAlias(true);
         textPaint.setColor(Color.BLUE);
-        textPaint.setTextSize(80f); // немного уменьшил для компактности
-        textPaint.setTextAlign(Paint.Align.LEFT); // теперь текст выравнивается по левому краю
+        textPaint.setTextSize(80f);
+        textPaint.setTextAlign(Paint.Align.LEFT);
         textPaint.setStyle(Paint.Style.FILL);
         textPaint.setFakeBoldText(true);
 
-        // === Настройки стрелки ===
+
         Paint arrowPaint = new Paint();
         arrowPaint.setAntiAlias(true);
         arrowPaint.setColor(Color.BLUE);
@@ -174,13 +174,13 @@ public class FloorMapView extends PhotoView {
         arrowPaint.setStrokeJoin(Paint.Join.ROUND);
         arrowPaint.setStrokeCap(Paint.Cap.ROUND);
 
-        // === Фон и рамка ===
+
         Paint bgPaint = new Paint();
-        bgPaint.setColor(Color.WHITE); // белый фон
+        bgPaint.setColor(Color.WHITE);
         bgPaint.setStyle(Paint.Style.FILL);
 
         Paint borderPaint = new Paint();
-        borderPaint.setColor(Color.GRAY); // серая обводка для контраста
+        borderPaint.setColor(Color.GRAY);
         borderPaint.setStyle(Paint.Style.STROKE);
         borderPaint.setStrokeWidth(3f);
         borderPaint.setAntiAlias(true);
@@ -192,50 +192,47 @@ public class FloorMapView extends PhotoView {
             float cx = tp.fromNode.location[0] * imageWidth;
             float cy = tp.fromNode.location[1] * imageHeight;
 
-            // Позиция блока — справа от узла
             float blockX = cx - 60;
-            float blockY = cy - 60; // верхний левый угол блока
+            float blockY = cy - 60;
 
             String floorLabel = tp.targetFloor;
             float textWidth = textPaint.measureText(floorLabel);
             float textHeight = -textPaint.ascent() + textPaint.descent();
 
-            // Ширина стрелки (высота + наконечник)
+
             float arrowWidth = 30f;
             float arrowHeight = 100f;
             float padding = 20f;
 
-            // Общие размеры блока
+
             float totalWidth = textWidth + arrowWidth + padding * 3;
             float totalHeight = Math.max(textHeight, arrowHeight) + padding * 2;
 
-            // Координаты фона
-            float left = blockX;
-            float top = blockY;
+
             float right = blockX + totalWidth;
             float bottom = blockY + totalHeight;
 
-            // === 1. Фон ===
-            canvas.drawRect(left, top, right, bottom, bgPaint);
 
-            // === 2. Граница ===
-            canvas.drawRect(left, top, right, bottom, borderPaint);
+            canvas.drawRect(blockX, blockY, right, bottom, bgPaint);
 
-            // === 3. Цифра (слева внутри блока) ===
-            float textX = left + padding;
-            float textY = top + padding + textHeight; // baseline
+
+            canvas.drawRect(blockX, blockY, right, bottom, borderPaint);
+
+
+            float textX = blockX + padding;
+            float textY = blockY + padding + textHeight;
             canvas.drawText(floorLabel, textX, textY, textPaint);
 
-            // === 4. Стрелка (справа от цифры) ===
+
             float arrowStartX = textX + textWidth + padding;
-            float arrowCenterY = top + totalHeight / 2;
+            float arrowCenterY = blockY + totalHeight / 2;
 
             Path arrow = new Path();
-            // Ствол стрелки (вверх)
+
             arrow.moveTo(arrowStartX, arrowCenterY);
             arrow.lineTo(arrowStartX, arrowCenterY - arrowHeight / 2);
 
-            // Наконечник
+
             float headSize = 15f;
             arrow.lineTo(arrowStartX - headSize, arrowCenterY - arrowHeight / 2 + headSize);
             arrow.moveTo(arrowStartX, arrowCenterY - arrowHeight / 2);

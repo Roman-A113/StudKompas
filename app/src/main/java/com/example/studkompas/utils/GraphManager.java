@@ -1,8 +1,6 @@
 package com.example.studkompas.utils;
 
-import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 
 import com.example.studkompas.model.Campus;
 import com.example.studkompas.model.GraphNode;
@@ -18,7 +16,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -33,12 +30,19 @@ import java.util.Queue;
 import java.util.Set;
 
 public class GraphManager {
-    private static final String TAG = "GraphManager";
-    private static final String GRAPH_FILENAME = "graph.json";
-    public static Map<String, Map<String, Map<String, GraphNode>>> Graphs = new HashMap<>();
+    private final Campus campus;
+    private final String fileName;
+    private final Context context;
+    public Map<String, Map<String, GraphNode>> CampusGraph;
 
-    public static void loadGraphFromAssets(Context context) {
-        try (InputStream is = context.getAssets().open("graph.json");
+    public GraphManager(Context context, Campus campus) {
+        this.context = context;
+        this.campus = campus;
+        this.fileName = campus.Id + ".json";
+    }
+
+    public void loadCampusGraphFromAssets() {
+        try (InputStream is = context.getAssets().open(fileName);
              BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
 
             StringBuilder sb = new StringBuilder();
@@ -47,59 +51,37 @@ public class GraphManager {
                 sb.append(line);
             }
 
-            Type type = new TypeToken<Map<String, Map<String, Map<String, GraphNode>>>>() {
+            Type type = new TypeToken<Map<String, Map<String, GraphNode>>>() {
             }.getType();
-            Graphs = new Gson().fromJson(sb.toString(), type);
-
-            if (Graphs == null) {
-                Graphs = new HashMap<>();
-            }
+            CampusGraph = new Gson().fromJson(sb.toString(), type);
 
         } catch (Exception e) {
-            Log.e(TAG, "Ошибка при загрузке graph.json из assets", e);
-            Graphs = new HashMap<>();
+            throw new RuntimeException(String.format("Ошибка при загрузке файла %s из assets", fileName), e);
         }
     }
 
-    public static void saveGraphToTempFile(Context context) {
-        File file = new File(context.getFilesDir(), GRAPH_FILENAME);
+    public void saveCampusGraphToTempFile() {
+        File file = new File(context.getFilesDir(), fileName);
         try (FileOutputStream fos = new FileOutputStream(file);
              OutputStreamWriter writer = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            writer.write(gson.toJson(Graphs));
+            writer.write(gson.toJson(CampusGraph));
             writer.flush();
         } catch (IOException e) {
-            Log.e(TAG, "Ошибка сохранения graph.json", e);
+            throw new RuntimeException(String.format("Ошибка при сохранении графа у корпуса %s в temp-файл", campus.Id), e);
         }
     }
 
-    public static void copyAssetGraphToTempFile(Context context) {
-        try {
-            InputStream inputStream = context.getAssets().open("graph.json");
-            File outFile = new File(context.getFilesDir(), "graph.json");
-            OutputStream outputStream = new FileOutputStream(outFile);
-
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = inputStream.read(buffer)) > 0) {
-                outputStream.write(buffer, 0, length);
-            }
-
-            outputStream.flush();
-            outputStream.close();
-            inputStream.close();
-        } catch (IOException e) {
-            throw new RuntimeException("Не удалось скопировать graph.json из assets", e);
-        }
-    }
-
-    public static GraphNode findNodeAt(float relX, float relY, String campusKey, String floor) {
-        Map<String, GraphNode> campusGraph = Graphs.get(campusKey).get(floor);
-        if (campusGraph == null) return null;
+    public GraphNode findNodeAt(float relX, float relY, String floor) {
+        Map<String, GraphNode> floorGraph = CampusGraph.get(floor);
 
         final float TOL = 0.005f;
 
-        for (GraphNode node : campusGraph.values()) {
+        if (floorGraph == null) {
+            throw new RuntimeException(String.format("Граф этажа %s у корпуса %s не может быть null", floor, campus.Id));
+        }
+
+        for (GraphNode node : floorGraph.values()) {
             if (node.location == null || node.location.length < 2) continue;
             float dx = node.location[0] - relX;
             float dy = node.location[1] - relY;
@@ -110,12 +92,9 @@ public class GraphManager {
         return null;
     }
 
-    public static void addNode(Context context, String campusKey, String floor, float x, float y, String name) {
-        Graphs.putIfAbsent(campusKey, new HashMap<>());
-        Graphs.get(campusKey).putIfAbsent(floor, new HashMap<>());
-
+    public void addNode(String floor, float x, float y, String name) {
         int maxId = 0;
-        for (Map<String, GraphNode> floorMap : Graphs.get(campusKey).values()) {
+        for (Map<String, GraphNode> floorMap : CampusGraph.values()) {
             for (String id : floorMap.keySet()) {
                 int numericId = Integer.parseInt(id);
                 if (numericId > maxId) {
@@ -127,33 +106,34 @@ public class GraphManager {
         String newId = String.valueOf(maxId + 1);
 
         GraphNode newNode = new GraphNode(newId, name, floor, new float[]{x, y});
-        Graphs.get(campusKey).get(floor).put(newId, newNode);
 
-        saveGraphToTempFile(context);
+        Map<String, GraphNode> floorGraph = CampusGraph.get(floor);
+        if (floorGraph == null) {
+            throw new RuntimeException(String.format("Граф этажа %s у корпуса %s не может быть null", floor, campus.Id));
+        }
+        floorGraph.put(newId, newNode);
+
+        saveCampusGraphToTempFile();
     }
 
-    public static void deleteNode(Context context, String campusId, String floor, GraphNode node) {
-        Map<String, Map<String, GraphNode>> campusGraph = Graphs.get(campusId);
-        if (campusGraph == null)
-            return;
-
-        Map<String, GraphNode> floorGraph = campusGraph.get(floor);
+    public void deleteNode(String floor, GraphNode node) {
+        Map<String, GraphNode> floorGraph = CampusGraph.get(floor);
         if (floorGraph == null)
             return;
 
         floorGraph.remove(node.id);
 
-        for (Map<String, GraphNode> otherFloor : campusGraph.values()) {
+        for (Map<String, GraphNode> otherFloor : CampusGraph.values()) {
             for (GraphNode to : otherFloor.values()) {
                 to.edges.remove(node.id);
                 to.interFloorEdges.remove(node.id);
             }
         }
 
-        saveGraphToTempFile(context);
+        saveCampusGraphToTempFile();
     }
 
-    public static void addEdge(Context context, GraphNode node1, GraphNode node2) {
+    public void addEdge(GraphNode node1, GraphNode node2) {
         if (node1.floor.equals(node2.floor)) {
             node1.edges.add(node2.id);
             node2.edges.add(node1.id);
@@ -161,10 +141,10 @@ public class GraphManager {
             node1.interFloorEdges.put(node2.id, node2.floor);
             node2.interFloorEdges.put(node1.id, node1.floor);
         }
-        saveGraphToTempFile(context);
+        saveCampusGraphToTempFile();
     }
 
-    public static void updateNodePosition(Context context, GraphNode node, float x, float y) {
+    public void updateNodePosition(GraphNode node, float x, float y) {
         if (node == null)
             return;
 
@@ -174,21 +154,20 @@ public class GraphManager {
         node.location[0] = x;
         node.location[1] = y;
 
-        saveGraphToTempFile(context);
+        saveCampusGraphToTempFile();
     }
 
-    public static void renameNode(Context context, GraphNode node, String newName) {
+    public void renameNode(GraphNode node, String newName) {
         if (node != null) {
             node.name = newName;
-            saveGraphToTempFile(context);
+            saveCampusGraphToTempFile();
         }
     }
 
-    public static List<GraphNode> getNodesInCampus(String campusKey) {
+    public List<GraphNode> getNodesInCampus() {
         List<GraphNode> result = new ArrayList<>();
-        Map<String, Map<String, GraphNode>> campusGraphs = Graphs.get(campusKey);
 
-        for (Map<String, GraphNode> floorGraph : campusGraphs.values()) {
+        for (Map<String, GraphNode> floorGraph : CampusGraph.values()) {
             if (floorGraph == null)
                 continue;
 
@@ -203,15 +182,9 @@ public class GraphManager {
         return result;
     }
 
-    public static PathWithTransition getPath(Campus campus, GraphNode startNode, GraphNode endNode) {
-        String campusId = campus.Id;
-        Map<String, Map<String, GraphNode>> campusGraphs = Graphs.get(campusId);
-        if (campusGraphs == null) {
-            throw new RuntimeException("Кампус не загружен: " + campusId);
-        }
-
+    public PathWithTransition getPath(GraphNode startNode, GraphNode endNode) {
         Map<String, GraphNode> allNodes = new HashMap<>();
-        for (Map<String, GraphNode> floorGraph : campusGraphs.values()) {
+        for (Map<String, GraphNode> floorGraph : CampusGraph.values()) {
             allNodes.putAll(floorGraph);
         }
 
@@ -225,6 +198,10 @@ public class GraphManager {
 
         while (!queue.isEmpty()) {
             String currentId = queue.poll();
+            if (currentId == null) {
+                throw new RuntimeException(String.format("id у вершины не может быть null в корпусе %s", campus.Id));
+            }
+
             if (currentId.equals(endNode.id)) {
                 List<GraphNode> fullPath = new ArrayList<>();
                 String id = currentId;
@@ -265,6 +242,10 @@ public class GraphManager {
             }
 
             GraphNode currentNode = allNodes.get(currentId);
+            if (currentNode == null) {
+                throw new RuntimeException(String.format("вершина не может быть null у корпуса %s", campus.Id));
+            }
+
             for (String neighborId : currentNode.edges) {
                 if (!visited.contains(neighborId) && allNodes.containsKey(neighborId)) {
                     visited.add(neighborId);

@@ -34,7 +34,6 @@ import com.example.studkompas.utils.GraphManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -61,6 +60,8 @@ public class CampusMapActivity extends AppCompatActivity {
 
     private PathWithTransition pathWithTransition;
 
+    private GraphManager graphManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,9 +84,13 @@ public class CampusMapActivity extends AppCompatActivity {
             throw new RuntimeException("selectedCampus cannot be null");
         }
 
+        graphManager = new GraphManager(this, selectedCampus);
+        graphManager.loadCampusGraphFromAssets();
+        graphManager.saveCampusGraphToTempFile();
+
         if (isDeveloperMode) {
             editorControls.setVisibility(View.VISIBLE);
-            editorController = new GraphEditorControllerUI(this, floorMapView, selectedCampus.Id);
+            editorController = new GraphEditorControllerUI(this, floorMapView, graphManager);
         } else {
             floorMapView.setGraphVisible(false);
         }
@@ -103,7 +108,7 @@ public class CampusMapActivity extends AppCompatActivity {
                 return;
             }
 
-            pathWithTransition = GraphManager.getPath(selectedCampus, selectedStartNode, selectedEndNode);
+            pathWithTransition = graphManager.getPath(selectedStartNode, selectedEndNode);
             switchToFloor(Integer.parseInt(selectedStartNode.floor));
             floorMapView.updatePath(pathWithTransition.segmentedPath.get(selectedFloor));
             floorMapView.setFloor(selectedFloor);
@@ -155,7 +160,11 @@ public class CampusMapActivity extends AppCompatActivity {
             throw new RuntimeException("drawableRes cannot be null");
         }
         floorMapView.setImageResource(drawableRes);
-        Map<String, GraphNode> floorGraph = Objects.requireNonNull(GraphManager.Graphs.get(selectedCampus.Id)).get(selectedFloor);
+        Map<String, GraphNode> floorGraph = graphManager.CampusGraph.get(selectedFloor);
+        if (floorGraph == null) {
+            throw new RuntimeException(String.format("Граф этажа %s у корпуса %s не может быть null", selectedFloor, selectedCampus.Id));
+        }
+
         floorMapView.loadFloorGraphForCampus(floorGraph);
         floorMapView.setFloor(selectedFloor);
         floorAutoComplete.setText(String.valueOf(floorNumber), false);
@@ -190,10 +199,12 @@ public class CampusMapActivity extends AppCompatActivity {
             }
 
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
         };
 
         EditText editTextStart = findViewById(R.id.editTextStart);
@@ -234,7 +245,7 @@ public class CampusMapActivity extends AppCompatActivity {
         TransitionManager.beginDelayedTransition(rootLayout, transition);
         constraints.applyTo(rootLayout);
 
-        List<GraphNode> locationNames = GraphManager.getNodesInCampus(selectedCampus.Id);
+        List<GraphNode> locationNames = graphManager.getNodesInCampus();
         locationAdapter.updateList(locationNames);
     }
 

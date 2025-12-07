@@ -20,8 +20,8 @@ import java.util.List;
 public class GraphEditorControllerUI {
     private final Activity activity;
     private final FloorMapView photoView;
-    private final String campusId;
     private final List<GraphNode> selectedNodesForFullGraph = new ArrayList<>();
+    private final GraphManager graphManager;
     Button buttonAddNode;
     Button buttonAddEdge;
     Button buttonMoveNode;
@@ -29,16 +29,15 @@ public class GraphEditorControllerUI {
     Button buttonRenameNode;
     Button buttonToggleGraph;
     Button buttonFullGraph;
-
     private String currentFloor = "1";
     private EditMode currentMode;
     private GraphNode selectedNode;
 
 
-    public GraphEditorControllerUI(Activity activity, FloorMapView photoView, String campusId) {
+    public GraphEditorControllerUI(Activity activity, FloorMapView photoView, GraphManager graphManager) {
         this.activity = activity;
         this.photoView = photoView;
-        this.campusId = campusId;
+        this.graphManager = graphManager;
         setup();
     }
 
@@ -56,11 +55,17 @@ public class GraphEditorControllerUI {
         buttonFullGraph = activity.findViewById(R.id.btn_full_graph);
 
         resetColors();
+        assert buttonAddNode != null;
         buttonAddNode.setOnClickListener(v -> setMode(EditMode.ADD_NODE, "Режим добавления вершин", buttonAddNode));
+        assert buttonAddEdge != null;
         buttonAddEdge.setOnClickListener(v -> setMode(EditMode.ADD_EDGE, "Режим добавления ребер", buttonAddEdge));
+        assert buttonMoveNode != null;
         buttonMoveNode.setOnClickListener(v -> setMode(EditMode.MOVE_NODE, "Режим перемещения вершин", buttonMoveNode));
+        assert buttonDeleteNode != null;
         buttonDeleteNode.setOnClickListener(v -> setMode(EditMode.DELETE_NODE, "Режим удаления вершин", buttonDeleteNode));
+        assert buttonRenameNode != null;
         buttonRenameNode.setOnClickListener(v -> setMode(EditMode.RENAME_NODE, "Режим переименования вершин", buttonRenameNode));
+        assert buttonFullGraph != null;
         buttonFullGraph.setOnClickListener(v -> {
             if (currentMode == EditMode.HIDE_GRAPH) {
                 Toast.makeText(activity, "Граф скрыт, рисовать нельзя", Toast.LENGTH_SHORT).show();
@@ -85,7 +90,7 @@ public class GraphEditorControllerUI {
                         GraphNode a = selectedNodesForFullGraph.get(i);
                         GraphNode b = selectedNodesForFullGraph.get(j);
                         if (!a.edges.contains(b.id) && !b.edges.contains(a.id)) {
-                            GraphManager.addEdge(activity, a, b);
+                            graphManager.addEdge(a, b);
                             edgeCount++;
                         }
                     }
@@ -102,6 +107,7 @@ public class GraphEditorControllerUI {
         });
 
 
+        assert buttonToggleGraph != null;
         buttonToggleGraph.setOnClickListener(v -> {
             resetColors();
             if (currentMode != EditMode.HIDE_GRAPH) {
@@ -171,18 +177,18 @@ public class GraphEditorControllerUI {
     }
 
     private void handleDeleteNodeTap(float x, float y) {
-        GraphNode node = GraphManager.findNodeAt(x, y, campusId, currentFloor);
+        GraphNode node = graphManager.findNodeAt(x, y, currentFloor);
         if (node == null) {
             Toast.makeText(activity, "Вершина не найдена", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        GraphManager.deleteNode(activity, campusId, currentFloor, node);
+        graphManager.deleteNode(currentFloor, node);
         photoView.invalidate();
     }
 
     private void handleMakeFullGraphTap(float x, float y) {
-        GraphNode tappedNode = GraphManager.findNodeAt(x, y, campusId, currentFloor);
+        GraphNode tappedNode = graphManager.findNodeAt(x, y, currentFloor);
         if (tappedNode == null) {
             Toast.makeText(activity, "Выберите вершину на карте", Toast.LENGTH_SHORT).show();
             return;
@@ -211,7 +217,7 @@ public class GraphEditorControllerUI {
 
         builder.setPositiveButton("Добавить", (dialog, which) -> {
             String nodeName = input.getText().toString().trim();
-            GraphManager.addNode(activity, campusId, currentFloor, pixelX, pixelY, nodeName);
+            graphManager.addNode(currentFloor, pixelX, pixelY, nodeName);
             photoView.invalidate();
         });
 
@@ -220,7 +226,7 @@ public class GraphEditorControllerUI {
     }
 
     private void handleEdgeModeTap(float pixelX, float pixelY) {
-        GraphNode tappedNode = GraphManager.findNodeAt(pixelX, pixelY, campusId, currentFloor);
+        GraphNode tappedNode = graphManager.findNodeAt(pixelX, pixelY, currentFloor);
         if (tappedNode == null) {
             Toast.makeText(activity, "Узел не найден", Toast.LENGTH_SHORT).show();
             return;
@@ -228,13 +234,13 @@ public class GraphEditorControllerUI {
 
         if (selectedNode == null) {
             selectedNode = tappedNode;
-            buttonAddEdge.setText("вершина: " + tappedNode.id);
+            buttonAddEdge.setText(String.format("вершина: %s", tappedNode.id));
         } else {
             if (selectedNode.id.equals(tappedNode.id)) {
                 Toast.makeText(activity, "Выберите другой узел", Toast.LENGTH_SHORT).show();
                 return;
             }
-            GraphManager.addEdge(activity, selectedNode, tappedNode);
+            graphManager.addEdge(selectedNode, tappedNode);
             photoView.invalidate();
             selectedNode = null;
             buttonAddEdge.setText("ребра");
@@ -242,18 +248,18 @@ public class GraphEditorControllerUI {
     }
 
     private void handleMoveNodeTap(float pixelX, float pixelY) {
-        GraphNode node = GraphManager.findNodeAt(pixelX, pixelY, campusId, currentFloor);
+        GraphNode node = graphManager.findNodeAt(pixelX, pixelY, currentFloor);
         if (selectedNode == null) {
             if (node == null) {
                 Toast.makeText(activity, "Вершина не найдена", Toast.LENGTH_SHORT).show();
                 return;
             }
-            buttonMoveNode.setText("вершина: " + node.id);
+            buttonMoveNode.setText(String.format("вершина: %s", node.id));
             selectedNode = node;
             return;
         }
 
-        GraphManager.updateNodePosition(activity, selectedNode, pixelX, pixelY);
+        graphManager.updateNodePosition(selectedNode, pixelX, pixelY);
         photoView.invalidate();
         Toast.makeText(activity, "Вершина " + selectedNode.id + " перемещена", Toast.LENGTH_SHORT).show();
         buttonMoveNode.setText("переместить");
@@ -261,7 +267,7 @@ public class GraphEditorControllerUI {
     }
 
     private void handleRenameNodeTap(float pixelX, float pixelY) {
-        GraphNode node = GraphManager.findNodeAt(pixelX, pixelY, campusId, currentFloor);
+        GraphNode node = graphManager.findNodeAt(pixelX, pixelY, currentFloor);
         if (node == null) {
             Toast.makeText(activity, "Вершина не найдена", Toast.LENGTH_SHORT).show();
             return;
@@ -282,7 +288,7 @@ public class GraphEditorControllerUI {
 
         builder.setPositiveButton("Сохранить", (dialog, which) -> {
             String newName = input.getText().toString().trim();
-            GraphManager.renameNode(activity, node, newName);
+            graphManager.renameNode(node, newName);
             photoView.invalidate();
             Toast.makeText(activity, "Вершина переименована", Toast.LENGTH_SHORT).show();
         });

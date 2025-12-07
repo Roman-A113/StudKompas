@@ -25,7 +25,7 @@ public class LocationsListAdapter extends RecyclerView.Adapter<LocationsListAdap
 
     public void updateList(List<GraphNode> newNodes) {
         this.nodes = newNodes;
-        this.filteredNodes = new ArrayList<>(newNodes);;
+        this.filteredNodes = new ArrayList<>(newNodes);
     }
 
     public void filter(String query) {
@@ -71,7 +71,7 @@ public class LocationsListAdapter extends RecyclerView.Adapter<LocationsListAdap
         void onLocationSelected(GraphNode node);
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textView;
 
         ViewHolder(View itemView) {
