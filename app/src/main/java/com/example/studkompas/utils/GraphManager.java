@@ -75,7 +75,7 @@ public class GraphManager {
     public GraphNode findNodeAt(float relX, float relY, String floor) {
         Map<String, GraphNode> floorGraph = CampusGraph.get(floor);
 
-        final float TOL = 0.005f;
+        final float TOL = 0.0015f;
 
         if (floorGraph == null) {
             throw new RuntimeException(String.format("Граф этажа %s у корпуса %s не может быть null", floor, campus.Id));

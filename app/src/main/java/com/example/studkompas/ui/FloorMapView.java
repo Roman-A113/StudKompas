@@ -129,7 +129,7 @@ public class FloorMapView extends PhotoView {
             float cx = node.location[0] * imageWidth;
             float cy = node.location[1] * imageHeight;
 
-            canvas.drawCircle(cx, cy, 40f, nodePaint);
+            canvas.drawCircle(cx, cy, 20f, nodePaint);
             drawNodeName(canvas, node, cx, cy);
         }
 
