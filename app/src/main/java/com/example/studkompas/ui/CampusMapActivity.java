@@ -108,7 +108,16 @@ public class CampusMapActivity extends AppCompatActivity {
                 return;
             }
 
-            pathWithTransition = graphManager.getPath(selectedStartNode, selectedEndNode);
+
+            if (selectedEndNode.name.equals("Туалет (М)")
+                    || selectedEndNode.name.equals("Туалет (Ж)")
+                    || selectedEndNode.name.equals("Автомат с кофе")
+                    || selectedEndNode.name.equals("Автомат с едой")) {
+                pathWithTransition = graphManager.getPathByTargetName(selectedStartNode, selectedEndNode.name);
+            } else {
+                pathWithTransition = graphManager.getPathBetweenTwoNodes(selectedStartNode, selectedEndNode);
+            }
+
             switchToFloor(Integer.parseInt(selectedStartNode.floor));
             floorMapView.updatePath(pathWithTransition.segmentedPath.get(selectedFloor));
             floorMapView.setFloor(selectedFloor);
@@ -245,8 +254,16 @@ public class CampusMapActivity extends AppCompatActivity {
         TransitionManager.beginDelayedTransition(rootLayout, transition);
         constraints.applyTo(rootLayout);
 
-        List<GraphNode> locationNames = graphManager.getNodesInCampus();
-        locationAdapter.updateList(locationNames);
+
+        List<GraphNode> locationNodes;
+        if (currentFocusedInputField.getId() == R.id.editTextStart) {
+            Set<String> excludedNames = Set.of("Туалет (М)", "Туалет (Ж)", "Автомат с кофе", "Автомат с едой");
+            locationNodes = graphManager.getNodesWithNamesInCampus(excludedNames);
+        } else {
+            locationNodes = graphManager.getNodesWithNamesInCampus(null);
+        }
+
+        locationAdapter.updateList(locationNodes);
     }
 
     public void hideLocationsList() {

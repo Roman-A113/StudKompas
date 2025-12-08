@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public class GraphManager {
     private final Campus campus;
@@ -164,107 +165,127 @@ public class GraphManager {
         }
     }
 
-    public List<GraphNode> getNodesInCampus() {
-        List<GraphNode> result = new ArrayList<>();
+    public List<GraphNode> getNodesWithNamesInCampus(Set<String> excludedNames) {
+        if (excludedNames == null) {
+            excludedNames = Collections.emptySet();
+        }
+
+        Map<String, GraphNode> uniqueByName = new HashMap<>();
 
         for (Map<String, GraphNode> floorGraph : CampusGraph.values()) {
-            if (floorGraph == null)
-                continue;
+            if (floorGraph == null) continue;
 
             for (GraphNode node : floorGraph.values()) {
                 String name = node.name.trim();
-                if (name.isEmpty())
+                if (name.isEmpty() || excludedNames.contains(name)) {
                     continue;
-                result.add(node);
+                }
+                uniqueByName.putIfAbsent(name, node);
             }
         }
 
+        return new ArrayList<>(uniqueByName.values());
+    }
+
+    private Map<String, GraphNode> getAllIdsToGraphNodes() {
+        Map<String, GraphNode> result = new HashMap<>();
+        for (Map<String, GraphNode> floorGraph : CampusGraph.values()) {
+            result.putAll(floorGraph);
+        }
         return result;
     }
 
-    public PathWithTransition getPath(GraphNode startNode, GraphNode endNode) {
-        Map<String, GraphNode> allNodes = new HashMap<>();
-        for (Map<String, GraphNode> floorGraph : CampusGraph.values()) {
-            allNodes.putAll(floorGraph);
-        }
+    public PathWithTransition getPathBetweenTwoNodes(GraphNode startNode, GraphNode endNode) {
+        Map<String, GraphNode> allNodes = getAllIdsToGraphNodes();
+        return bfsWithPredicate(startNode, allNodes, node -> node.id.equals(endNode.id));
+    }
 
+    public PathWithTransition getPathByTargetName(GraphNode startNode, String targetName) {
+        Map<String, GraphNode> allNodes = getAllIdsToGraphNodes();
+        return bfsWithPredicate(startNode, allNodes, node -> node.name.equals(targetName));
+    }
+
+    private PathWithTransition bfsWithPredicate(GraphNode startNode, Map<String, GraphNode> allNodes, Predicate<GraphNode> isTargetNode) {
+        Queue<GraphNode> queue = new LinkedList<>();
         Map<String, String> parent = new HashMap<>();
-        Queue<String> queue = new LinkedList<>();
         Set<String> visited = new HashSet<>();
 
-        queue.offer(startNode.id);
+        queue.offer(startNode);
         visited.add(startNode.id);
         parent.put(startNode.id, null);
 
         while (!queue.isEmpty()) {
-            String currentId = queue.poll();
-            if (currentId == null) {
-                throw new RuntimeException(String.format("id у вершины не может быть null в корпусе %s", campus.Id));
-            }
+            GraphNode currentNode = queue.poll();
+            assert currentNode != null;
 
-            if (currentId.equals(endNode.id)) {
-                List<GraphNode> fullPath = new ArrayList<>();
-                String id = currentId;
-                while (id != null) {
-                    fullPath.add(allNodes.get(id));
-                    id = parent.get(id);
-                }
-                Collections.reverse(fullPath);
-
-                Map<String, List<List<GraphNode>>> segmentedPath = new HashMap<>();
-                Set<TransitionPoint> transitionNodes = new HashSet<>();
-
-                if (fullPath.isEmpty())
-                    return new PathWithTransition(segmentedPath, new ArrayList<>(transitionNodes));
-
-                List<GraphNode> currentSegment = new ArrayList<>();
-                String currentFloor = fullPath.get(0).floor;
-                currentSegment.add(fullPath.get(0));
-
-                for (int i = 1; i < fullPath.size(); i++) {
-                    GraphNode node = fullPath.get(i);
-                    if (node.floor.equals(currentFloor)) {
-                        currentSegment.add(node);
-                    } else {
-                        GraphNode previousNode = fullPath.get(i - 1);
-                        segmentedPath.computeIfAbsent(currentFloor, k -> new ArrayList<>()).add(new ArrayList<>(currentSegment));
-
-                        transitionNodes.add(new TransitionPoint(previousNode, node.floor, node));
-
-                        currentSegment = new ArrayList<>();
-                        currentFloor = node.floor;
-                        currentSegment.add(node);
-                    }
-                }
-                segmentedPath.computeIfAbsent(currentFloor, k -> new ArrayList<>()).add(new ArrayList<>(currentSegment));
-
-                return new PathWithTransition(segmentedPath, new ArrayList<>(transitionNodes));
-            }
-
-            GraphNode currentNode = allNodes.get(currentId);
-            if (currentNode == null) {
-                throw new RuntimeException(String.format("вершина не может быть null у корпуса %s", campus.Id));
+            if (isTargetNode.test(currentNode)) {
+                return buildPathWithTransitions(currentNode, parent, allNodes);
             }
 
             for (String neighborId : currentNode.edges) {
                 if (!visited.contains(neighborId) && allNodes.containsKey(neighborId)) {
                     visited.add(neighborId);
-                    parent.put(neighborId, currentId);
-                    queue.offer(neighborId);
+                    parent.put(neighborId, currentNode.id);
+
+                    GraphNode neighborNode = allNodes.get(neighborId);
+                    queue.offer(neighborNode);
                 }
             }
 
             for (String neighborId : currentNode.interFloorEdges.keySet()) {
                 if (!visited.contains(neighborId) && allNodes.containsKey(neighborId)) {
                     visited.add(neighborId);
-                    parent.put(neighborId, currentId);
-                    queue.offer(neighborId);
+                    parent.put(neighborId, currentNode.id);
+
+                    GraphNode neighborNode = allNodes.get(neighborId);
+                    queue.offer(neighborNode);
                 }
             }
         }
-
         throw new RuntimeException(
-                String.format("Путь между вершинами %s и %s не найден", startNode.name, endNode.name)
+                String.format("Путь от вершины %s до targetNode не найден", startNode.name)
         );
+    }
+
+    private PathWithTransition buildPathWithTransitions(GraphNode endNode, Map<String, String> parent, Map<String, GraphNode> allNodes) {
+        List<GraphNode> fullPath = new ArrayList<>();
+        String id = endNode.id;
+        while (id != null) {
+            GraphNode node = allNodes.get(id);
+            if (node == null) {
+                throw new RuntimeException("Найден несуществующий узел с id: " + id);
+            }
+            fullPath.add(node);
+            id = parent.get(id);
+        }
+        Collections.reverse(fullPath);
+
+        Map<String, List<List<GraphNode>>> segmentedPath = new HashMap<>();
+        Set<TransitionPoint> transitionNodes = new HashSet<>();
+
+        if (fullPath.isEmpty()) {
+            return new PathWithTransition(segmentedPath, new ArrayList<>(transitionNodes));
+        }
+
+        List<GraphNode> currentSegment = new ArrayList<>();
+        String currentFloor = fullPath.get(0).floor;
+        currentSegment.add(fullPath.get(0));
+
+        for (int i = 1; i < fullPath.size(); i++) {
+            GraphNode node = fullPath.get(i);
+            if (node.floor.equals(currentFloor)) {
+                currentSegment.add(node);
+            } else {
+                GraphNode previousNode = fullPath.get(i - 1);
+                segmentedPath.computeIfAbsent(currentFloor, k -> new ArrayList<>()).add(new ArrayList<>(currentSegment));
+                transitionNodes.add(new TransitionPoint(previousNode, node.floor, node));
+                currentSegment = new ArrayList<>();
+                currentFloor = node.floor;
+                currentSegment.add(node);
+            }
+        }
+        segmentedPath.computeIfAbsent(currentFloor, k -> new ArrayList<>()).add(new ArrayList<>(currentSegment));
+
+        return new PathWithTransition(segmentedPath, new ArrayList<>(transitionNodes));
     }
 }
