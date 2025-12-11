@@ -247,7 +247,8 @@ public class GraphManager {
 
             for (String neighborId : currentNode.interFloorEdges.keySet()) {
                 GraphNode neighbor = allNodes.get(neighborId);
-                double weight = Math.abs(Integer.parseInt(neighbor.floor) - Integer.parseInt(currentNode.floor));
+                int floorDiff = Math.abs(Integer.parseInt(neighbor.floor) - Integer.parseInt(currentNode.floor));
+                double weight = Math.sqrt(floorDiff);
                 double newDist = currentDist + weight;
                 if (newDist < distances.getOrDefault(neighborId, Double.MAX_VALUE)) {
                     distances.put(neighborId, newDist);

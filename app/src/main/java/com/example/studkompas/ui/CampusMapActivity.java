@@ -30,6 +30,9 @@ import com.example.studkompas.model.PathWithTransition;
 import com.example.studkompas.model.ShowUiTransitionListener;
 import com.example.studkompas.utils.GraphEditorControllerUI;
 import com.example.studkompas.utils.GraphManager;
+import com.google.android.material.textfield.TextInputLayout;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,8 +45,8 @@ public class CampusMapActivity extends AppCompatActivity {
     private FloorMapView floorMapView;
     private View editorControls;
     private View floorPanel;
-    private View inputLayoutStart;
-    private View inputLayoutEnd;
+    private TextInputLayout inputLayoutStart;
+    private TextInputLayout inputLayoutEnd;
     private AutoCompleteTextView floorAutoComplete;
     private ConstraintLayout rootLayout;
     private Button makePathButton;
@@ -51,6 +54,8 @@ public class CampusMapActivity extends AppCompatActivity {
     private RecyclerView locationsList;
     private LocationsListAdapter locationAdapter;
     private boolean isLocationsListDisplays = false;
+
+    private TextInputLayout currentFocusedInputLayout = null;
     private EditText currentFocusedInputField = null;
 
     private Campus selectedCampus;
@@ -130,6 +135,12 @@ public class CampusMapActivity extends AppCompatActivity {
         View.OnFocusChangeListener focusListener = (v, hasFocus) -> {
             if (hasFocus) {
                 currentFocusedInputField = (EditText) v;
+                if(v.getId() == R.id.editTextStart){
+                    currentFocusedInputLayout = inputLayoutStart;
+                }
+                else if(v.getId() == R.id.editTextEnd){
+                    currentFocusedInputLayout = inputLayoutEnd;
+                }
                 showLocationsList();
             }
         };
@@ -231,6 +242,9 @@ public class CampusMapActivity extends AppCompatActivity {
         hideMainUI();
         hideOppositeInputField();
 
+        if (!currentFocusedInputField.getText().toString().trim().isEmpty())
+            currentFocusedInputLayout.setEndIconVisible(true);
+
         ConstraintSet constraints = new ConstraintSet();
         constraints.clone(rootLayout);
 
@@ -271,6 +285,9 @@ public class CampusMapActivity extends AppCompatActivity {
             return;
         isLocationsListDisplays = false;
 
+        currentFocusedInputLayout.setEndIconVisible(false);
+        currentFocusedInputLayout = null;
+
         locationsList.setVisibility(View.GONE);
         hideKeyboard();
         currentFocusedInputField.clearFocus();
@@ -278,6 +295,8 @@ public class CampusMapActivity extends AppCompatActivity {
 
         ConstraintSet constraints = new ConstraintSet();
         constraints.clone(rootLayout);
+
+
 
         constraints.clear(R.id.routeInputPanel, ConstraintSet.TOP);
         constraints.clear(R.id.routeInputPanel, ConstraintSet.BOTTOM);

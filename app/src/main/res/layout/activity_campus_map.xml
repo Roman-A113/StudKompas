@@ -210,7 +210,8 @@
             android:paddingTop="4dp"
             android:paddingEnd="12dp"
             android:paddingBottom="6dp"
-            android:textColorHint="@color/grey">
+            android:textColorHint="@color/grey"
+            app:endIconMode="clear_text">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTextStart"
@@ -233,7 +234,8 @@
             android:paddingTop="4dp"
             android:paddingEnd="12dp"
             android:paddingBottom="6dp"
-            android:textColorHint="@color/grey">
+            android:textColorHint="@color/grey"
+            app:endIconMode="clear_text">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTextEnd"
