@@ -19,14 +19,15 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -196,49 +197,62 @@ public class GraphManager {
     }
 
     public PathWithTransition getPathBetweenTwoNodes(GraphNode startNode, GraphNode endNode) {
-        Map<String, GraphNode> allNodes = getAllIdsToGraphNodes();
-        return bfsWithPredicate(startNode, allNodes, node -> node.id.equals(endNode.id));
+        return dijkstraWithPredicate(startNode, node -> node.id.equals(endNode.id));
     }
 
     public PathWithTransition getPathByTargetName(GraphNode startNode, String targetName) {
-        Map<String, GraphNode> allNodes = getAllIdsToGraphNodes();
-        return bfsWithPredicate(startNode, allNodes, node -> node.name.equals(targetName));
+        return dijkstraWithPredicate(startNode, node -> node.name.equals(targetName));
     }
 
-    private PathWithTransition bfsWithPredicate(GraphNode startNode, Map<String, GraphNode> allNodes, Predicate<GraphNode> isTargetNode) {
-        Queue<GraphNode> queue = new LinkedList<>();
-        Map<String, String> parent = new HashMap<>();
-        Set<String> visited = new HashSet<>();
+    private PathWithTransition dijkstraWithPredicate(GraphNode startNode, Predicate<GraphNode> isTargetNode) {
+        Map<String, GraphNode> allNodes = getAllIdsToGraphNodes();
 
-        queue.offer(startNode);
-        visited.add(startNode.id);
-        parent.put(startNode.id, null);
+        PriorityQueue<AbstractMap.SimpleEntry<String, Double>> priorityQueue =
+                new PriorityQueue<>(Comparator.comparingDouble(AbstractMap.SimpleEntry::getValue));
 
-        while (!queue.isEmpty()) {
-            GraphNode currentNode = queue.poll();
-            assert currentNode != null;
+        Map<String, Double> distances = new HashMap<>();
+        Map<String, String> parents = new HashMap<>();
+
+        distances.put(startNode.id, 0.0);
+        priorityQueue.offer(new AbstractMap.SimpleEntry<>(startNode.id, 0.0));
+        parents.put(startNode.id, null);
+
+        while (!priorityQueue.isEmpty()) {
+            AbstractMap.SimpleEntry<String, Double> current = priorityQueue.poll();
+            String currentId = current.getKey();
+            Double currentDist = current.getValue();
+            GraphNode currentNode = allNodes.get(currentId);
+
+            if (currentDist > distances.getOrDefault(currentId, Double.MAX_VALUE)) {
+                continue;
+            }
 
             if (isTargetNode.test(currentNode)) {
-                return buildPathWithTransitions(currentNode, parent, allNodes);
+                return buildPathWithTransitions(currentNode, parents, allNodes);
             }
 
             for (String neighborId : currentNode.edges) {
-                if (!visited.contains(neighborId) && allNodes.containsKey(neighborId)) {
-                    visited.add(neighborId);
-                    parent.put(neighborId, currentNode.id);
+                GraphNode neighbor = allNodes.get(neighborId);
+                double weight = Math.sqrt(
+                        Math.pow(currentNode.location[0] - neighbor.location[0], 2) +
+                        Math.pow(currentNode.location[1] - neighbor.location[1], 2));
 
-                    GraphNode neighborNode = allNodes.get(neighborId);
-                    queue.offer(neighborNode);
+                double newDist = currentDist + weight;
+                if (newDist < distances.getOrDefault(neighborId, Double.MAX_VALUE)) {
+                    distances.put(neighborId, newDist);
+                    parents.put(neighborId, currentId);
+                    priorityQueue.offer(new AbstractMap.SimpleEntry<>(neighborId, newDist));
                 }
             }
 
             for (String neighborId : currentNode.interFloorEdges.keySet()) {
-                if (!visited.contains(neighborId) && allNodes.containsKey(neighborId)) {
-                    visited.add(neighborId);
-                    parent.put(neighborId, currentNode.id);
-
-                    GraphNode neighborNode = allNodes.get(neighborId);
-                    queue.offer(neighborNode);
+                GraphNode neighbor = allNodes.get(neighborId);
+                double weight = Math.abs(Integer.parseInt(neighbor.floor) - Integer.parseInt(currentNode.floor));
+                double newDist = currentDist + weight;
+                if (newDist < distances.getOrDefault(neighborId, Double.MAX_VALUE)) {
+                    distances.put(neighborId, newDist);
+                    parents.put(neighborId, currentId);
+                    priorityQueue.offer(new AbstractMap.SimpleEntry<>(neighborId, newDist));
                 }
             }
         }
