@@ -272,10 +272,11 @@ public class CampusMapActivity extends AppCompatActivity {
 
         List<GraphNode> locationNodes;
         if (currentFocusedInputField.getId() == R.id.editTextStart) {
-            Set<String> excludedNames = Set.of("Туалет (М)", "Туалет (Ж)", "Автомат с кофе", "Автомат с едой");
+            Set<String> excludedNames = Set.of("Туалет (М)", "Туалет (Ж)", "Автомат с кофе", "Автомат с едой", "Лифт");
             locationNodes = graphManager.getNodesWithNamesInCampus(excludedNames);
         } else {
-            locationNodes = graphManager.getNodesWithNamesInCampus(null);
+            Set<String> excludedNames = Set.of("Лифт");
+            locationNodes = graphManager.getNodesWithNamesInCampus(excludedNames);
         }
 
         locationAdapter.updateList(locationNodes);
