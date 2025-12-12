@@ -251,7 +251,7 @@ public class GraphManager {
                     continue;
                 }
                 int floorDiff = Math.abs(Integer.parseInt(neighbor.floor) - Integer.parseInt(currentNode.floor));
-                double weight = currentNode.name.toLowerCase().trim().equals("лифт") ? 0 : Math.sqrt(floorDiff);
+                double weight = currentNode.name.toLowerCase().trim().equals("лифт") ? 0 : Math.sqrt(100 * floorDiff);
                 if(weight == 0){
                     int a = 1;
 
