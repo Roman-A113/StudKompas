@@ -196,15 +196,15 @@ public class GraphManager {
         return result;
     }
 
-    public PathWithTransition getPathBetweenTwoNodes(GraphNode startNode, GraphNode endNode) {
-        return dijkstraWithPredicate(startNode, node -> node.id.equals(endNode.id));
+    public PathWithTransition getPathBetweenTwoNodes(GraphNode startNode, GraphNode endNode, boolean ignoreElevators) {
+        return dijkstraWithPredicate(startNode, node -> node.id.equals(endNode.id), ignoreElevators);
     }
 
-    public PathWithTransition getPathByTargetName(GraphNode startNode, String targetName) {
-        return dijkstraWithPredicate(startNode, node -> node.name.equals(targetName));
+    public PathWithTransition getPathByTargetName(GraphNode startNode, String targetName, boolean ignoreElevators) {
+        return dijkstraWithPredicate(startNode, node -> node.name.equals(targetName), ignoreElevators);
     }
 
-    private PathWithTransition dijkstraWithPredicate(GraphNode startNode, Predicate<GraphNode> isTargetNode) {
+    private PathWithTransition dijkstraWithPredicate(GraphNode startNode, Predicate<GraphNode> isTargetNode, boolean ignoreElevators) {
         Map<String, GraphNode> allNodes = getAllIdsToGraphNodes();
 
         PriorityQueue<AbstractMap.SimpleEntry<String, Double>> priorityQueue =
@@ -247,8 +247,15 @@ public class GraphManager {
 
             for (String neighborId : currentNode.interFloorEdges.keySet()) {
                 GraphNode neighbor = allNodes.get(neighborId);
+                if (ignoreElevators && neighbor.name.toLowerCase().trim().equals("лифт")){
+                    continue;
+                }
                 int floorDiff = Math.abs(Integer.parseInt(neighbor.floor) - Integer.parseInt(currentNode.floor));
-                double weight = Math.sqrt(floorDiff);
+                double weight = currentNode.name.toLowerCase().trim().equals("лифт") ? 0 : Math.sqrt(floorDiff);
+                if(weight == 0){
+                    int a = 1;
+
+                }
                 double newDist = currentDist + weight;
                 if (newDist < distances.getOrDefault(neighborId, Double.MAX_VALUE)) {
                     distances.put(neighborId, newDist);

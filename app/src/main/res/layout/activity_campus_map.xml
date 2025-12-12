@@ -247,15 +247,37 @@
                 android:textColor="@color/dark_grey" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/MakePathButton"
-            android:layout_width="211dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:backgroundTint="#FFA500"
-            android:text="Маршрут"
-            android:textColor="#FFFFFF"
-            app:cornerRadius="12dp" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/flagElevator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Лифт"
+                android:textSize="18sp"
+                android:textColor="@color/white"
+                app:buttonTint="@color/orange"
+                android:paddingStart="4dp"
+                android:paddingEnd="12dp" />
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/MakePathButton"
+                android:layout_width="160dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:backgroundTint="#FFA500"
+                android:text="Маршрут"
+                android:textSize="18sp"
+                android:textColor="@color/white"
+                app:cornerRadius="12dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

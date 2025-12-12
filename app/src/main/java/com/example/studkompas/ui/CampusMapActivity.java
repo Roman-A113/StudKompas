@@ -13,6 +13,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -32,8 +33,6 @@ import com.example.studkompas.utils.GraphEditorControllerUI;
 import com.example.studkompas.utils.GraphManager;
 import com.google.android.material.textfield.TextInputLayout;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +49,7 @@ public class CampusMapActivity extends AppCompatActivity {
     private AutoCompleteTextView floorAutoComplete;
     private ConstraintLayout rootLayout;
     private Button makePathButton;
+    private CheckBox flagElevator;
     private GraphEditorControllerUI editorController;
     private RecyclerView locationsList;
     private LocationsListAdapter locationAdapter;
@@ -79,6 +79,7 @@ public class CampusMapActivity extends AppCompatActivity {
         floorAutoComplete = findViewById(R.id.floorAutoComplete);
         rootLayout = findViewById(R.id.mainConstraintLayout);
         makePathButton = findViewById(R.id.MakePathButton);
+        flagElevator = findViewById(R.id.flagElevator);
 
         floorMapView = findViewById(R.id.floor_map_view);
         floorMapView.setMaximumScale(10.0f);
@@ -118,9 +119,9 @@ public class CampusMapActivity extends AppCompatActivity {
                     || selectedEndNode.name.equals("Туалет (Ж)")
                     || selectedEndNode.name.equals("Автомат с кофе")
                     || selectedEndNode.name.equals("Автомат с едой")) {
-                pathWithTransition = graphManager.getPathByTargetName(selectedStartNode, selectedEndNode.name);
+                pathWithTransition = graphManager.getPathByTargetName(selectedStartNode, selectedEndNode.name, !flagElevator.isChecked());
             } else {
-                pathWithTransition = graphManager.getPathBetweenTwoNodes(selectedStartNode, selectedEndNode);
+                pathWithTransition = graphManager.getPathBetweenTwoNodes(selectedStartNode, selectedEndNode, !flagElevator.isChecked());
             }
 
             switchToFloor(Integer.parseInt(selectedStartNode.floor));
@@ -326,6 +327,7 @@ public class CampusMapActivity extends AppCompatActivity {
         floorMapView.setVisibility(View.GONE);
         floorPanel.setVisibility(View.GONE);
         makePathButton.setVisibility(View.GONE);
+        flagElevator.setVisibility(View.GONE);
         if (isDeveloperMode)
             editorControls.setVisibility(View.GONE);
     }
@@ -334,6 +336,7 @@ public class CampusMapActivity extends AppCompatActivity {
         floorMapView.setVisibility(View.VISIBLE);
         floorPanel.setVisibility(View.VISIBLE);
         makePathButton.setVisibility(View.VISIBLE);
+        flagElevator.setVisibility(View.VISIBLE);
         if (isDeveloperMode)
             editorControls.setVisibility(View.VISIBLE);
     }
