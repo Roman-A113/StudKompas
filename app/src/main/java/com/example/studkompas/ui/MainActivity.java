@@ -56,7 +56,12 @@ public class MainActivity extends AppCompatActivity {
         campuses.add(new Campus("Биологический", "bio", "ул. Куйбышева, 48", Map.of(
                 1, R.drawable.bio_1,
                 2, R.drawable.bio_2,
-                3, R.drawable.bio_3
+                3, R.drawable.bio_3,
+                4, R.drawable.bio_4,
+                5, R.drawable.bio_5,
+                6, R.drawable.bio_6,
+                7, R.drawable.bio_7,
+                8, R.drawable.bio_8
         )));
         return campuses;
     }
