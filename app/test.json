@@ -1,0 +1,26 @@
+{
+  "1": {
+    "1": {
+      "id": "1",
+      "floor": "1",
+      "name": "A",
+      "location": [
+        0.1,
+        0.1
+      ],
+      "edges": [],
+      "interFloorEdges": {}
+    },
+    "3": {
+      "id": "3",
+      "floor": "1",
+      "name": "C",
+      "location": [
+        0.9,
+        0.9
+      ],
+      "edges": [],
+      "interFloorEdges": {}
+    }
+  }
+}
