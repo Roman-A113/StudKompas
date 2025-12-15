@@ -235,7 +235,7 @@ public class GraphManager {
                 GraphNode neighbor = allNodes.get(neighborId);
                 double weight = Math.sqrt(
                         Math.pow(currentNode.location[0] - neighbor.location[0], 2) +
-                        Math.pow(currentNode.location[1] - neighbor.location[1], 2));
+                                Math.pow(currentNode.location[1] - neighbor.location[1], 2));
 
                 double newDist = currentDist + weight;
                 if (newDist < distances.getOrDefault(neighborId, Double.MAX_VALUE)) {
@@ -247,14 +247,13 @@ public class GraphManager {
 
             for (String neighborId : currentNode.interFloorEdges.keySet()) {
                 GraphNode neighbor = allNodes.get(neighborId);
-                if (ignoreElevators && neighbor.name.toLowerCase().trim().equals("лифт")){
+                if (ignoreElevators && neighbor.name.toLowerCase().trim().equals("лифт")) {
                     continue;
                 }
                 int floorDiff = Math.abs(Integer.parseInt(neighbor.floor) - Integer.parseInt(currentNode.floor));
                 double weight = currentNode.name.toLowerCase().trim().equals("лифт") ? 0 : Math.sqrt(100 * floorDiff);
-                if(weight == 0){
+                if (weight == 0) {
                     int a = 1;
-
                 }
                 double newDist = currentDist + weight;
                 if (newDist < distances.getOrDefault(neighborId, Double.MAX_VALUE)) {
@@ -265,7 +264,7 @@ public class GraphManager {
             }
         }
         throw new RuntimeException(
-                String.format("Путь от вершины %s до targetNode не найден", startNode.name)
+                String.format("Путь от вершины %s до конечной вершины не найден", startNode.name)
         );
     }
 

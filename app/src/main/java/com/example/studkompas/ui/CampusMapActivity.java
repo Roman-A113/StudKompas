@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.transition.ChangeBounds;
 import android.transition.Transition;
 import android.transition.TransitionManager;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
@@ -15,6 +16,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -49,6 +51,7 @@ public class CampusMapActivity extends AppCompatActivity {
     private AutoCompleteTextView floorAutoComplete;
     private ConstraintLayout rootLayout;
     private Button makePathButton;
+    private Button backButton;
     private CheckBox flagElevator;
     private GraphEditorControllerUI editorController;
     private RecyclerView locationsList;
@@ -79,6 +82,7 @@ public class CampusMapActivity extends AppCompatActivity {
         floorAutoComplete = findViewById(R.id.floorAutoComplete);
         rootLayout = findViewById(R.id.mainConstraintLayout);
         makePathButton = findViewById(R.id.MakePathButton);
+        backButton = findViewById(R.id.backButton);
         flagElevator = findViewById(R.id.flagElevator);
 
         floorMapView = findViewById(R.id.floor_map_view);
@@ -105,12 +109,21 @@ public class CampusMapActivity extends AppCompatActivity {
         setupLocationsListAdapter();
         setupFocusChangeListenerToInputFields();
         setupMakePathButton();
+        setupBackButton();
     }
 
     private void setupMakePathButton() {
         makePathButton.setOnClickListener(v -> {
-            if (selectedStartNode == null || selectedEndNode == null) {
+            if (selectedStartNode == null && selectedEndNode == null) {
                 Toast.makeText(this, "Выберите стартовую и конечную точку", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (selectedStartNode == null) {
+                Toast.makeText(this, "Выберите стартовую точку", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (selectedEndNode == null) {
+                Toast.makeText(this, "Выберите конечную точку", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -131,15 +144,19 @@ public class CampusMapActivity extends AppCompatActivity {
         });
     }
 
+    private void setupBackButton() {
+        backButton.setOnClickListener(v -> {
+            hideLocationsList();
+        });
+    }
 
     private void setupFocusChangeListenerToInputFields() {
         View.OnFocusChangeListener focusListener = (v, hasFocus) -> {
             if (hasFocus) {
                 currentFocusedInputField = (EditText) v;
-                if(v.getId() == R.id.editTextStart){
+                if (v.getId() == R.id.editTextStart) {
                     currentFocusedInputLayout = inputLayoutStart;
-                }
-                else if(v.getId() == R.id.editTextEnd){
+                } else if (v.getId() == R.id.editTextEnd) {
                     currentFocusedInputLayout = inputLayoutEnd;
                 }
                 showLocationsList();
@@ -216,6 +233,11 @@ public class CampusMapActivity extends AppCompatActivity {
         TextWatcher filterWatcher = new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
+                if (currentFocusedInputLayout == inputLayoutStart) {
+                    selectedStartNode = null;
+                } else if (currentFocusedInputLayout == inputLayoutEnd) {
+                    selectedEndNode = null;
+                }
                 locationAdapter.filter(s.toString());
             }
 
@@ -242,6 +264,12 @@ public class CampusMapActivity extends AppCompatActivity {
 
         hideMainUI();
         hideOppositeInputField();
+        backButton.setVisibility(View.VISIBLE);
+
+        LinearLayout layout = findViewById(R.id.inputFieldsWithBackButtonLayout);
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) layout.getLayoutParams();
+        params.width = LinearLayout.LayoutParams.MATCH_PARENT;
+        layout.setLayoutParams(params);
 
         if (!currentFocusedInputField.getText().toString().trim().isEmpty())
             currentFocusedInputLayout.setEndIconVisible(true);
@@ -291,6 +319,7 @@ public class CampusMapActivity extends AppCompatActivity {
         currentFocusedInputLayout = null;
 
         locationsList.setVisibility(View.GONE);
+        backButton.setVisibility(View.GONE);
         hideKeyboard();
         currentFocusedInputField.clearFocus();
         currentFocusedInputField = null;
@@ -298,7 +327,16 @@ public class CampusMapActivity extends AppCompatActivity {
         ConstraintSet constraints = new ConstraintSet();
         constraints.clone(rootLayout);
 
-
+        LinearLayout layout = findViewById(R.id.inputFieldsWithBackButtonLayout);
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) layout.getLayoutParams();
+        float dp = 305f;
+        int px = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dp,
+                getResources().getDisplayMetrics()
+        );
+        params.width = px;
+        layout.setLayoutParams(params);
 
         constraints.clear(R.id.routeInputPanel, ConstraintSet.TOP);
         constraints.clear(R.id.routeInputPanel, ConstraintSet.BOTTOM);

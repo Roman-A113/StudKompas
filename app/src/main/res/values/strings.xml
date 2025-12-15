@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">StudKompas</string>
+    <string name="app_name">StudCompass</string>
+    <string name="backArrow"><![CDATA[<--]]></string>
 </resources>

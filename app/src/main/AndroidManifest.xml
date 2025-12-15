@@ -24,8 +24,12 @@
             android:name=".ui.CampusMapActivity"
             android:exported="false" />
 
-        <activity android:name=".ui.HelpActivity" android:exported="false" />
-        <activity android:name=".ui.SettingsActivity" android:exported="false" />
+        <activity
+            android:name=".ui.HelpActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -178,9 +178,9 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:background="@color/white"
-        android:visibility="gone"
-        android:scrollbars="vertical"
         android:scrollbarThumbVertical="@drawable/scroll_bar"
+        android:scrollbars="vertical"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/routeInputPanel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -200,52 +200,86 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/inputLayoutStart"
+
+        <LinearLayout
+            android:id="@+id/inputFieldsWithBackButtonLayout"
             android:layout_width="305dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/rounded_white_background"
-            android:hint="Откуда"
-            android:paddingStart="12dp"
-            android:paddingTop="4dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="6dp"
-            android:textColorHint="@color/grey"
-            app:endIconMode="clear_text">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTextStart"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/backButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="4dp"
+                android:backgroundTint="@color/orange"
+                android:paddingStart="0dp"
+                android:paddingTop="0dp"
+                android:paddingEnd="0dp"
+                android:paddingBottom="0dp"
+                android:text="@string/backArrow"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:cornerRadius="10dp" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:inputType="text"
-                android:maxLines="1"
-                android:textColor="@color/dark_grey" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:orientation="vertical">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/inputLayoutEnd"
-            android:layout_width="305dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/rounded_white_background"
-            android:hint="Куда"
-            android:paddingStart="12dp"
-            android:paddingTop="4dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="6dp"
-            android:textColorHint="@color/grey"
-            app:endIconMode="clear_text">
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/inputLayoutStart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rounded_white_background"
+                    android:hint="Откуда"
+                    android:paddingStart="12dp"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="6dp"
+                    android:textColorHint="@color/grey"
+                    app:endIconMode="clear_text">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTextEnd"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:inputType="text"
-                android:maxLines="1"
-                android:textColor="@color/dark_grey" />
-        </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editTextStart"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/white"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:textColor="@color/dark_grey" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/inputLayoutEnd"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/rounded_white_background"
+                    android:hint="Куда"
+                    android:paddingStart="12dp"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="6dp"
+                    android:textColorHint="@color/grey"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editTextEnd"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/white"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:textColor="@color/dark_grey" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -258,12 +292,12 @@
                 android:id="@+id/flagElevator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Лифт"
-                android:textSize="18sp"
-                android:textColor="@color/white"
-                app:buttonTint="@color/orange"
                 android:paddingStart="4dp"
-                android:paddingEnd="12dp" />
+                android:paddingEnd="12dp"
+                android:text="Лифт"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                app:buttonTint="@color/orange" />
 
 
             <com.google.android.material.button.MaterialButton
@@ -273,8 +307,8 @@
                 android:layout_marginStart="12dp"
                 android:backgroundTint="#FFA500"
                 android:text="Маршрут"
-                android:textSize="18sp"
                 android:textColor="@color/white"
+                android:textSize="18sp"
                 app:cornerRadius="12dp" />
 
         </LinearLayout>
