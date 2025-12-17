@@ -12,6 +12,7 @@ import android.content.Context;
 import com.example.studkompas.model.Campus;
 import com.example.studkompas.model.GraphNode;
 import com.example.studkompas.model.PathWithTransition;
+import com.example.studkompas.utils.GraphMaker;
 import com.example.studkompas.utils.GraphManager;
 import com.example.studkompas.utils.GraphTestHelper;
 
@@ -39,7 +40,7 @@ public class GraphManagerTest {
 
     @Test
     public void testDijkstra_SimplePath() {
-        graphManager.CampusGraph = GraphTestHelper.createSimpleGraph();
+        graphManager.CampusGraph = GraphMaker.createSimpleGraph();
         GraphNode start = GraphTestHelper.getNodeById(graphManager.CampusGraph, "1");
         GraphNode end = GraphTestHelper.getNodeById(graphManager.CampusGraph, "3");
 
@@ -58,7 +59,7 @@ public class GraphManagerTest {
 
     @Test(expected = RuntimeException.class)
     public void testDijkstra_NoPath() {
-        graphManager.CampusGraph = GraphTestHelper.createSimpleGraph();
+        graphManager.CampusGraph = GraphMaker.createSimpleGraph();
         GraphNode isolated = GraphTestHelper.createIsolatedNode("4", "Изолированный", "1", 0.8f, 0.2f);
         graphManager.CampusGraph.get("1").put("4", isolated);
 
@@ -70,7 +71,7 @@ public class GraphManagerTest {
 
     @Test
     public void testDijkstra_ShortestPathSelection() {
-        graphManager.CampusGraph = GraphTestHelper.createShortestPathGraph();
+        graphManager.CampusGraph = GraphMaker.createShortestPathGraph();
         GraphNode A = GraphTestHelper.getNodeById(graphManager.CampusGraph, "1");
         GraphNode D = GraphTestHelper.getNodeById(graphManager.CampusGraph, "4");
 
@@ -87,7 +88,7 @@ public class GraphManagerTest {
 
     @Test
     public void testDijkstra_InterFloorEdges() {
-        graphManager.CampusGraph = GraphTestHelper.createMultiFloorGraph();
+        graphManager.CampusGraph = GraphMaker.createMultiFloorGraph();
         GraphNode lift1 = GraphTestHelper.getNodeById(graphManager.CampusGraph, "1");
         GraphNode room = GraphTestHelper.getNodeById(graphManager.CampusGraph, "3");
 
@@ -105,7 +106,7 @@ public class GraphManagerTest {
 
     @Test(expected = RuntimeException.class)
     public void testDijkstra_IgnoreElevators() {
-        graphManager.CampusGraph = GraphTestHelper.createElevatorOnlyGraph();
+        graphManager.CampusGraph = GraphMaker.createElevatorOnlyGraph();
         GraphNode start = GraphTestHelper.getNodeById(graphManager.CampusGraph, "1");
         GraphNode end = GraphTestHelper.getNodeById(graphManager.CampusGraph, "5");
 
@@ -115,7 +116,7 @@ public class GraphManagerTest {
 
     @Test
     public void testDijkstra_AllowElevators() {
-        graphManager.CampusGraph = GraphTestHelper.createElevatorOnlyGraph();
+        graphManager.CampusGraph = GraphMaker.createElevatorOnlyGraph();
         GraphNode start = GraphTestHelper.getNodeById(graphManager.CampusGraph, "1");
         GraphNode end = GraphTestHelper.getNodeById(graphManager.CampusGraph, "5");
 
@@ -129,7 +130,7 @@ public class GraphManagerTest {
 
     @Test
     public void testDijkstra_SameStartAndEnd() {
-        graphManager.CampusGraph = GraphTestHelper.createSingleNodeGraph();
+        graphManager.CampusGraph = GraphMaker.createSingleNodeGraph();
         GraphNode node = GraphTestHelper.getAllNodes(graphManager.CampusGraph).get(0);
 
         PathWithTransition path = graphManager.getPathBetweenTwoNodes(node, node, false);
@@ -142,7 +143,7 @@ public class GraphManagerTest {
 
     @Test
     public void testDijkstra_CircularGraph() {
-        graphManager.CampusGraph = GraphTestHelper.createCircularGraph();
+        graphManager.CampusGraph = GraphMaker.createCircularGraph();
         GraphNode A = GraphTestHelper.getNodeById(graphManager.CampusGraph, "1");
         GraphNode D = GraphTestHelper.getNodeById(graphManager.CampusGraph, "4");
 
@@ -161,7 +162,7 @@ public class GraphManagerTest {
 
     @Test
     public void testDijkstra_BoundaryCoordinates() {
-        graphManager.CampusGraph = GraphTestHelper.createBoundaryCoordinatesGraph();
+        graphManager.CampusGraph = GraphMaker.createBoundaryCoordinatesGraph();
         GraphNode corner1 = GraphTestHelper.getNodeById(graphManager.CampusGraph, "1");
         GraphNode corner2 = GraphTestHelper.getNodeById(graphManager.CampusGraph, "2");
 
@@ -175,7 +176,7 @@ public class GraphManagerTest {
 
     @Test
     public void testAddNode() {
-        graphManager.CampusGraph = GraphTestHelper.createSimpleGraph();
+        graphManager.CampusGraph = GraphMaker.createSimpleGraph();
         int initialCount = GraphTestHelper.countNodes(graphManager.CampusGraph);
 
         graphManager.addNode("1", 0.3f, 0.3f, "Новая вершина");
@@ -190,7 +191,7 @@ public class GraphManagerTest {
 
     @Test
     public void testDeleteNode() {
-        graphManager.CampusGraph = GraphTestHelper.createSimpleGraph();
+        graphManager.CampusGraph = GraphMaker.createSimpleGraph();
         int initialCount = GraphTestHelper.countNodes(graphManager.CampusGraph);
         GraphNode nodeToDelete = GraphTestHelper.getNodeById(graphManager.CampusGraph, "2");
 
@@ -210,7 +211,7 @@ public class GraphManagerTest {
 
     @Test
     public void testFindNodeAt() {
-        graphManager.CampusGraph = GraphTestHelper.createSimpleGraph();
+        graphManager.CampusGraph = GraphMaker.createSimpleGraph();
 
         GraphNode node = graphManager.findNodeAt(0.1f, 0.1f, "1");
         assertNotNull("Узел должен быть найден", node);

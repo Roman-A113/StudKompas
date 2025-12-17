@@ -42,7 +42,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class CampusMapActivity extends AppCompatActivity {
-    private final boolean isDeveloperMode = true;
+    private final boolean isDeveloperMode = false;
     private FloorMapView floorMapView;
     private View editorControls;
     private View floorPanel;
@@ -124,6 +124,10 @@ public class CampusMapActivity extends AppCompatActivity {
             }
             if (selectedEndNode == null) {
                 Toast.makeText(this, "Выберите конечную точку", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (selectedStartNode == selectedEndNode) {
+                Toast.makeText(this, "Вы уже здесь!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
