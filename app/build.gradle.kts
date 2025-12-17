@@ -41,9 +41,8 @@ dependencies {
     implementation("com.github.chrisbanes:PhotoView:2.0.0")
     implementation("com.google.code.gson:gson:2.10.1")
 
-    // Тестовые зависимости
     testImplementation(libs.junit)
-    testImplementation("org.mockito:mockito-core:4.11.0")  // Добавьте эту строку
+    testImplementation("org.mockito:mockito-core:4.11.0")
 
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

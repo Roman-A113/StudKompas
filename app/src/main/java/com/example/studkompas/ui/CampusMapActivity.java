@@ -126,6 +126,10 @@ public class CampusMapActivity extends AppCompatActivity {
                 Toast.makeText(this, "Выберите конечную точку", Toast.LENGTH_SHORT).show();
                 return;
             }
+            if (selectedStartNode == selectedEndNode) {
+                Toast.makeText(this, "Вы уже здесь!", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
 
             if (selectedEndNode.name.equals("Туалет (М)")
