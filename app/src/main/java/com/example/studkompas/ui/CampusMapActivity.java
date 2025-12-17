@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -48,10 +49,16 @@ public class CampusMapActivity extends AppCompatActivity {
     private View floorPanel;
     private TextInputLayout inputLayoutStart;
     private TextInputLayout inputLayoutEnd;
+    private EditText editTextStart;
+    private EditText editTextEnd;
     private AutoCompleteTextView floorAutoComplete;
     private ConstraintLayout rootLayout;
     private Button makePathButton;
     private Button backButton;
+    private LinearLayout routeSummaryLayout;
+    private TextView startTextView;
+    private TextView endTextView;
+    private Button finishPathButton;
     private CheckBox flagElevator;
     private GraphEditorControllerUI editorController;
     private RecyclerView locationsList;
@@ -75,13 +82,24 @@ public class CampusMapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_campus_map);
 
+        rootLayout = findViewById(R.id.mainConstraintLayout);
+
         editorControls = findViewById(R.id.editor_controls);
         floorPanel = findViewById(R.id.floorDropdownContainer);
+
         inputLayoutStart = findViewById(R.id.inputLayoutStart);
         inputLayoutEnd = findViewById(R.id.inputLayoutEnd);
+        editTextStart = findViewById(R.id.editTextStart);
+        editTextEnd = findViewById(R.id.editTextEnd);
+
+        routeSummaryLayout = findViewById(R.id.routeSummaryLayout);
+        startTextView = findViewById(R.id.startTextView);
+        endTextView = findViewById(R.id.endTextView);
+        finishPathButton = findViewById(R.id.finishPathButton);
+
         floorAutoComplete = findViewById(R.id.floorAutoComplete);
-        rootLayout = findViewById(R.id.mainConstraintLayout);
         makePathButton = findViewById(R.id.MakePathButton);
+
         backButton = findViewById(R.id.backButton);
         flagElevator = findViewById(R.id.flagElevator);
 
@@ -110,6 +128,29 @@ public class CampusMapActivity extends AppCompatActivity {
         setupFocusChangeListenerToInputFields();
         setupMakePathButton();
         setupBackButton();
+        setupFinishPathButton();
+    }
+
+    private void setupFinishPathButton(){
+        finishPathButton.setOnClickListener(v -> {
+            clearPath();
+            finishPathButton.setVisibility(View.GONE);
+            routeSummaryLayout.setVisibility(View.GONE);
+            showBothInputFields();
+            flagElevator.setChecked(false);
+            flagElevator.setVisibility(View.VISIBLE);
+            makePathButton.setVisibility(View.VISIBLE);
+            floorMapView.clearPath();
+            floorMapView.clearTransitionNodes();
+            switchToFloor(Integer.parseInt(selectedFloor));
+        });
+    }
+
+    private void clearPath() {
+        pathWithTransition = null;
+        editTextStart.setText("");
+        editTextEnd.setText("");
+        selectedStartNode = selectedEndNode = null;
     }
 
     private void setupMakePathButton() {
@@ -145,8 +186,18 @@ public class CampusMapActivity extends AppCompatActivity {
             floorMapView.updatePath(pathWithTransition.segmentedPath.get(selectedFloor));
             floorMapView.setFloor(selectedFloor);
             floorMapView.setTransitionNodes(pathWithTransition.transitionNodes);
+
+            hideBothInputFields();
+            flagElevator.setVisibility(View.GONE);
+            makePathButton.setVisibility(View.GONE);
+
+            startTextView.setText(selectedStartNode.name);
+            endTextView.setText(selectedEndNode.name);
+            routeSummaryLayout.setVisibility(View.VISIBLE);
+            finishPathButton.setVisibility(View.VISIBLE);
         });
     }
+
 
     private void setupBackButton() {
         backButton.setOnClickListener(v -> {
@@ -167,8 +218,8 @@ public class CampusMapActivity extends AppCompatActivity {
             }
         };
 
-        findViewById(R.id.editTextStart).setOnFocusChangeListener(focusListener);
-        findViewById(R.id.editTextEnd).setOnFocusChangeListener(focusListener);
+        editTextStart.setOnFocusChangeListener(focusListener);
+        editTextEnd.setOnFocusChangeListener(focusListener);
     }
 
     private void setupFloorDropdown() {
@@ -395,6 +446,11 @@ public class CampusMapActivity extends AppCompatActivity {
     private void showBothInputFields() {
         inputLayoutStart.setVisibility(View.VISIBLE);
         inputLayoutEnd.setVisibility(View.VISIBLE);
+    }
+
+    private void hideBothInputFields() {
+        inputLayoutStart.setVisibility(View.GONE);
+        inputLayoutEnd.setVisibility(View.GONE);
     }
 
     private void hideKeyboard() {

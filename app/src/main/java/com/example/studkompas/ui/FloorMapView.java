@@ -26,7 +26,7 @@ public class FloorMapView extends PhotoView {
 
     private Map<String, GraphNode> floorGraph;
     private List<List<GraphNode>> floorPathSegments;
-    private List<TransitionPoint> transitionNodes = new ArrayList<>();
+    private List<TransitionPoint> transitionNodes;
     private boolean isGraphVisible = true;
 
     private String selectedFloor;
@@ -56,6 +56,17 @@ public class FloorMapView extends PhotoView {
         this.floorPathSegments = pathSegments;
         invalidate();
     }
+
+    public void clearPath() {
+        this.floorPathSegments = null;
+        invalidate();
+    }
+
+    public void clearTransitionNodes() {
+        this.transitionNodes = null;
+        invalidate();
+    }
+
 
     public void setTransitionNodes(List<TransitionPoint> nodes) {
         this.transitionNodes = nodes;

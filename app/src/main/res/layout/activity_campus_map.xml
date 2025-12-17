@@ -305,13 +305,72 @@
                 android:layout_width="160dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:backgroundTint="#FFA500"
+                android:backgroundTint="@color/orange"
                 android:text="Маршрут"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 app:cornerRadius="12dp" />
 
         </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/routeSummaryLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_marginBottom="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/startTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minWidth="150dp"
+                android:background="@drawable/rounded_white_background"
+                android:gravity="center"
+                android:padding="8dp"
+                android:textColor="@color/dark_grey"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="-->"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/endTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="150dp"
+                android:layout_weight="1"
+                android:background="@drawable/rounded_white_background"
+                android:gravity="center"
+                android:padding="8dp"
+                android:textColor="@color/dark_grey"
+                android:textSize="16sp" />
+
+
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/finishPathButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="32dp"
+            android:backgroundTint="@color/orange"
+            android:visibility="gone"
+            android:text="Завершить маршрут"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            app:cornerRadius="12dp" />
 
     </LinearLayout>
 
