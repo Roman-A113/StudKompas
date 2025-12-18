@@ -136,11 +136,13 @@ public class CampusMapActivity extends AppCompatActivity {
         finishPathButton.setOnClickListener(v -> {
 
             boolean isCounted = AnalyticsHelper.logRouteButtonClick(this);
+            /*
             if (isCounted) {
                 Toast.makeText(this, "Маршрут успешно завершен!", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "Маршрут отменен", Toast.LENGTH_SHORT).show();
             }
+             */
 
             clearPath();
             finishPathButton.setVisibility(View.GONE);

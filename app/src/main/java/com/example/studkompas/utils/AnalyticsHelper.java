@@ -71,8 +71,8 @@ public class AnalyticsHelper {
         // Очищаем сохраненные данные
         clearRouteData(context);
 
-        // Проверяем ваше условие: больше 30 секунд?
-        if (duration > 30000) { // 30 секунд = 30000 мс
+
+        if (duration > 20000) { // 20 секунд = 20000 мс
             // ЗАСЧИТЫВАЕМ нажатие как успешное завершение
             Map<String, Object> params = createRouteCompleteParams(
                     data.routeId, data.campusId, duration, true);
