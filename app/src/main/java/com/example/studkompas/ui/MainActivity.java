@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.studkompas.R;
 import com.example.studkompas.adapter.CampusesListAdapter;
 import com.example.studkompas.model.Campus;
+import com.example.studkompas.utils.AnalyticsHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,5 +65,11 @@ public class MainActivity extends AppCompatActivity {
                 8, R.drawable.bio_8
         )));
         return campuses;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AnalyticsHelper.checkForAutoCompletion(this);
     }
 }

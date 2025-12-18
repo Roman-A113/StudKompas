@@ -32,6 +32,7 @@ import com.example.studkompas.model.Campus;
 import com.example.studkompas.model.GraphNode;
 import com.example.studkompas.model.PathWithTransition;
 import com.example.studkompas.model.ShowUiTransitionListener;
+import com.example.studkompas.utils.AnalyticsHelper;
 import com.example.studkompas.utils.GraphEditorControllerUI;
 import com.example.studkompas.utils.GraphManager;
 import com.google.android.material.textfield.TextInputLayout;
@@ -133,6 +134,14 @@ public class CampusMapActivity extends AppCompatActivity {
 
     private void setupFinishPathButton(){
         finishPathButton.setOnClickListener(v -> {
+
+            boolean isCounted = AnalyticsHelper.logRouteButtonClick(this);
+            if (isCounted) {
+                Toast.makeText(this, "Маршрут успешно завершен!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Маршрут отменен", Toast.LENGTH_SHORT).show();
+            }
+
             clearPath();
             finishPathButton.setVisibility(View.GONE);
             routeSummaryLayout.setVisibility(View.GONE);
@@ -195,9 +204,15 @@ public class CampusMapActivity extends AppCompatActivity {
             endTextView.setText(selectedEndNode.name);
             routeSummaryLayout.setVisibility(View.VISIBLE);
             finishPathButton.setVisibility(View.VISIBLE);
+
+            AnalyticsHelper.logRouteStart(
+                    this,
+                    selectedCampus,
+                    selectedStartNode,
+                    selectedEndNode
+            );
         });
     }
-
 
     private void setupBackButton() {
         backButton.setOnClickListener(v -> {

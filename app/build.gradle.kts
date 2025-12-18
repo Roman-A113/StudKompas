@@ -46,4 +46,8 @@ dependencies {
 
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    implementation("io.appmetrica.analytics:analytics:7.14.0")
+    // Для Android 12+ нужно добавить экспорт intent-filter
+    implementation("androidx.work:work-runtime:2.7.0")
 }
