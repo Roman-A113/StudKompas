@@ -53,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
                 5, R.drawable.turgeneva_5,
                 6, R.drawable.turgeneva_6
         )));
-
         campuses.add(new Campus("Куйбышева", "bio", "ул. Куйбышева, 48", Map.of(
                 1, R.drawable.bio_1,
                 2, R.drawable.bio_2,
@@ -63,6 +62,13 @@ public class MainActivity extends AppCompatActivity {
                 6, R.drawable.bio_6,
                 7, R.drawable.bio_7,
                 8, R.drawable.bio_8
+        )));
+        campuses.add(new Campus("УГИ", "ugi", "ул. Ленина, 51", Map.of(
+                0, R.drawable.lenina_0,
+                1, R.drawable.lenina_1,
+                2, R.drawable.lenina_2,
+                3, R.drawable.lenina_3,
+                4, R.drawable.lenina_4
         )));
         return campuses;
     }
