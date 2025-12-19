@@ -1,6 +1,5 @@
 package com.example.studkompas.utils;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -51,7 +50,7 @@ public class AnalyticsHelper {
                 " (ID: " + routeId + ", время: " + startTime + ")");
 
         // Запускаем проверку на авто-завершение через 10 минут
-        scheduleAutoCompletionCheck(context, routeId, campus);
+        scheduleAutoCompletionCheck(context, routeId);
     }
 
     /**
@@ -134,11 +133,13 @@ public class AnalyticsHelper {
         params.put("route_id", routeId);
         params.put("campus_id", campus.Id);
         params.put("campus_name", campus.Name);
-        params.put("from_node", startNode.name);
-        params.put("to_node", endNode.name);
         params.put("from_floor", startNode.floor);
         params.put("to_floor", endNode.floor);
         params.put("timestamp", timestamp);
+
+        params.put("route_pair", startNode.name + " → " + endNode.name);
+        params.put("start_node", startNode.name);
+        params.put("end_node", endNode.name);
 
         return params;
     }
@@ -256,21 +257,9 @@ public class AnalyticsHelper {
     }
 
     /**
-     * Получить время начала текущего маршрута (для отладки)
-     */
-    public static long getCurrentRouteDuration(Context context) {
-        RouteData data = loadRouteData(context);
-
-        if (data.isValid()) {
-            return System.currentTimeMillis() - data.startTime;
-        }
-        return 0;
-    }
-
-    /**
      * Запланировать проверку на авто-завершение через 10 минут
      */
-    private static void scheduleAutoCompletionCheck(Context context, String routeId, Campus campus) {
+    private static void scheduleAutoCompletionCheck(Context context, String routeId) {
         // Используем Handler для простоты
         new android.os.Handler().postDelayed(() -> {
             // Проверяем, все ли еще этот маршрут активен
@@ -297,20 +286,5 @@ public class AnalyticsHelper {
         // Временный вывод в лог для отладки
         Log.i("METRICS", "📊 Событие: " + eventName +
                 (parameters != null ? ", Параметры: " + parameters : ""));
-    }
-
-    /**
-     * Для отладки: получить информацию о текущем маршруте
-     */
-    @SuppressLint("DefaultLocale")
-    public static String getCurrentRouteInfo(Context context) {
-        RouteData data = loadRouteData(context);
-
-        if (data.isValid()) {
-            long duration = System.currentTimeMillis() - data.startTime;
-            return String.format("Маршрут: %s → %s, длительность: %d сек",
-                    data.startNodeName, data.endNodeName, duration / 1000);
-        }
-        return "Нет активного маршрута";
     }
 }
