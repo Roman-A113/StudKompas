@@ -5,7 +5,7 @@ import android.content.Context;
 import com.example.studkompas.model.Campus;
 import com.example.studkompas.model.GraphNode;
 import com.example.studkompas.model.PathWithTransition;
-import com.example.studkompas.model.TransitionPoint;
+import com.example.studkompas.model.TransitionMark;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -282,7 +282,7 @@ public class GraphManager {
         Collections.reverse(fullPath);
 
         Map<String, List<List<GraphNode>>> segmentedPath = new HashMap<>();
-        Set<TransitionPoint> transitionNodes = new HashSet<>();
+        Set<TransitionMark> transitionNodes = new HashSet<>();
 
         if (fullPath.isEmpty()) {
             return new PathWithTransition(segmentedPath, new ArrayList<>(transitionNodes));
@@ -299,7 +299,7 @@ public class GraphManager {
             } else {
                 GraphNode previousNode = fullPath.get(i - 1);
                 segmentedPath.computeIfAbsent(currentFloor, k -> new ArrayList<>()).add(new ArrayList<>(currentSegment));
-                transitionNodes.add(new TransitionPoint(previousNode, node.floor, node));
+                transitionNodes.add(new TransitionMark(previousNode, node.floor));
                 currentSegment = new ArrayList<>();
                 currentFloor = node.floor;
                 currentSegment.add(node);

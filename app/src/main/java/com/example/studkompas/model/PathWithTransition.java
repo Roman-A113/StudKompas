@@ -5,11 +5,11 @@ import java.util.Map;
 
 public class PathWithTransition {
     public final Map<String, List<List<GraphNode>>> segmentedPath;
-    public final List<TransitionPoint> transitionNodes;
+    public final List<TransitionMark> transitionNodes;
 
     public PathWithTransition(
             Map<String, List<List<GraphNode>>> segmentedPath,
-            List<TransitionPoint> transitionNodes
+            List<TransitionMark> transitionNodes
     ) {
         this.segmentedPath = segmentedPath;
         this.transitionNodes = transitionNodes;

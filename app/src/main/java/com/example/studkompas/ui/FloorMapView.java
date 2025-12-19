@@ -12,7 +12,7 @@ import android.util.AttributeSet;
 import androidx.annotation.NonNull;
 
 import com.example.studkompas.model.GraphNode;
-import com.example.studkompas.model.TransitionPoint;
+import com.example.studkompas.model.TransitionMark;
 import com.github.chrisbanes.photoview.PhotoView;
 
 import java.util.List;
@@ -25,7 +25,7 @@ public class FloorMapView extends PhotoView {
 
     private Map<String, GraphNode> floorGraph;
     private List<List<GraphNode>> floorPathSegments;
-    private List<TransitionPoint> transitionNodes;
+    private List<TransitionMark> transitionNodes;
     private boolean isGraphVisible = true;
 
     private String selectedFloor;
@@ -51,6 +51,83 @@ public class FloorMapView extends PhotoView {
         canvas.drawText(node.name, cx, cy - 40, textPaint);
     }
 
+    private static void drawTransitionMark(Canvas canvas, int imageWidth, int imageHeight, TransitionMark tp,
+                                           Paint textPaint, Paint bgPaint, Paint borderPaint, Paint arrowPaint) {
+        float cx = tp.fromNode.location[0] * imageWidth;
+        float cy = tp.fromNode.location[1] * imageHeight;
+
+        float blockX = cx - 60;
+        float blockY = cy - 60;
+
+        String floorLabel = tp.targetFloor;
+        float textWidth = textPaint.measureText(floorLabel);
+        float textHeight = -textPaint.ascent() + textPaint.descent();
+
+
+        float arrowWidth = 30f;
+        float arrowHeight = 100f;
+        float padding = 30f;
+
+
+        float totalWidth = textWidth + arrowWidth + padding * 3;
+        float totalHeight = Math.max(textHeight, arrowHeight) + padding * 2;
+
+
+        float right = blockX + totalWidth;
+        float bottom = blockY + totalHeight;
+
+
+        canvas.drawRect(blockX, blockY, right, bottom, bgPaint);
+
+
+        canvas.drawRect(blockX, blockY, right, bottom, borderPaint);
+
+
+        float textX = blockX + padding;
+        float textY = blockY + padding + textHeight;
+        canvas.drawText(floorLabel, textX, textY, textPaint);
+        if (Integer.parseInt(tp.fromNode.floor) < Integer.parseInt(tp.targetFloor)) {
+            drawUpArrow(canvas, arrowPaint, textX, textWidth, padding, blockY, totalHeight, arrowHeight);
+        } else {
+            drawDownArrow(canvas, arrowPaint, textX, textWidth, padding, blockY, totalHeight, arrowHeight);
+        }
+    }
+
+    private static void drawUpArrow(Canvas canvas, Paint arrowPaint, float textX, float textWidth,
+                                    float padding, float blockY, float totalHeight, float arrowHeight) {
+        float arrowStartX = textX + textWidth + padding;
+        float arrowCenterY = blockY + totalHeight / 2;
+        Path arrow = new Path();
+
+        arrow.moveTo(arrowStartX, arrowCenterY);
+        arrow.lineTo(arrowStartX, arrowCenterY - arrowHeight / 2);
+
+
+        float headSize = 15f;
+        arrow.lineTo(arrowStartX - headSize, arrowCenterY - arrowHeight / 2 + headSize);
+        arrow.moveTo(arrowStartX, arrowCenterY - arrowHeight / 2);
+        arrow.lineTo(arrowStartX + headSize, arrowCenterY - arrowHeight / 2 + headSize);
+
+        canvas.drawPath(arrow, arrowPaint);
+    }
+
+    private static void drawDownArrow(Canvas canvas, Paint arrowPaint, float textX, float textWidth,
+                                      float padding, float blockY, float totalHeight, float arrowHeight) {
+        float arrowStartX = textX + textWidth + padding;
+        float arrowCenterY = blockY + totalHeight / 4;
+        Path arrow = new Path();
+
+        arrow.moveTo(arrowStartX, arrowCenterY);
+        arrow.lineTo(arrowStartX, arrowCenterY + arrowHeight / 2);
+
+        float headSize = 15f;
+        arrow.lineTo(arrowStartX - headSize, arrowCenterY + arrowHeight / 2 - headSize);
+        arrow.moveTo(arrowStartX, arrowCenterY + arrowHeight / 2);
+        arrow.lineTo(arrowStartX + headSize, arrowCenterY + arrowHeight / 2 - headSize);
+
+        canvas.drawPath(arrow, arrowPaint);
+    }
+
     public void updatePath(List<List<GraphNode>> pathSegments) {
         this.floorPathSegments = pathSegments;
         invalidate();
@@ -66,8 +143,7 @@ public class FloorMapView extends PhotoView {
         invalidate();
     }
 
-
-    public void setTransitionNodes(List<TransitionPoint> nodes) {
+    public void setTransitionNodes(List<TransitionMark> nodes) {
         this.transitionNodes = nodes;
         invalidate();
     }
@@ -102,7 +178,7 @@ public class FloorMapView extends PhotoView {
         }
 
         drawFloorSegmentsPath(canvas, imageWidth, imageHeight);
-        drawTransitionIndicators(canvas, imageWidth, imageHeight);
+        drawTransitionMarks(canvas, imageWidth, imageHeight);
 
         if (isGraphVisible && floorGraph != null) {
             drawWholeGraph(canvas, imageWidth, imageHeight);
@@ -162,8 +238,7 @@ public class FloorMapView extends PhotoView {
         }
     }
 
-
-    private void drawTransitionIndicators(Canvas canvas, int imageWidth, int imageHeight) {
+    private void drawTransitionMarks(Canvas canvas, int imageWidth, int imageHeight) {
         if (transitionNodes == null || transitionNodes.isEmpty()) return;
 
 
@@ -195,60 +270,11 @@ public class FloorMapView extends PhotoView {
         borderPaint.setStrokeWidth(3f);
         borderPaint.setAntiAlias(true);
 
-        for (TransitionPoint tp : transitionNodes) {
+        for (TransitionMark tp : transitionNodes) {
             if (!tp.fromNode.floor.equals(selectedFloor)) continue;
             if (tp.fromNode.location == null || tp.fromNode.location.length < 2) continue;
 
-            float cx = tp.fromNode.location[0] * imageWidth;
-            float cy = tp.fromNode.location[1] * imageHeight;
-
-            float blockX = cx - 60;
-            float blockY = cy - 60;
-
-            String floorLabel = tp.targetFloor;
-            float textWidth = textPaint.measureText(floorLabel);
-            float textHeight = -textPaint.ascent() + textPaint.descent();
-
-
-            float arrowWidth = 30f;
-            float arrowHeight = 100f;
-            float padding = 20f;
-
-
-            float totalWidth = textWidth + arrowWidth + padding * 3;
-            float totalHeight = Math.max(textHeight, arrowHeight) + padding * 2;
-
-
-            float right = blockX + totalWidth;
-            float bottom = blockY + totalHeight;
-
-
-            canvas.drawRect(blockX, blockY, right, bottom, bgPaint);
-
-
-            canvas.drawRect(blockX, blockY, right, bottom, borderPaint);
-
-
-            float textX = blockX + padding;
-            float textY = blockY + padding + textHeight;
-            canvas.drawText(floorLabel, textX, textY, textPaint);
-
-
-            float arrowStartX = textX + textWidth + padding;
-            float arrowCenterY = blockY + totalHeight / 2;
-
-            Path arrow = new Path();
-
-            arrow.moveTo(arrowStartX, arrowCenterY);
-            arrow.lineTo(arrowStartX, arrowCenterY - arrowHeight / 2);
-
-
-            float headSize = 15f;
-            arrow.lineTo(arrowStartX - headSize, arrowCenterY - arrowHeight / 2 + headSize);
-            arrow.moveTo(arrowStartX, arrowCenterY - arrowHeight / 2);
-            arrow.lineTo(arrowStartX + headSize, arrowCenterY - arrowHeight / 2 + headSize);
-
-            canvas.drawPath(arrow, arrowPaint);
+            drawTransitionMark(canvas, imageWidth, imageHeight, tp, textPaint, bgPaint, borderPaint, arrowPaint);
         }
     }
 

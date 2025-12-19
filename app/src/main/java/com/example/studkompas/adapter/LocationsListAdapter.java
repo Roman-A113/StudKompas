@@ -12,6 +12,7 @@ import com.example.studkompas.R;
 import com.example.studkompas.model.GraphNode;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class LocationsListAdapter extends RecyclerView.Adapter<LocationsListAdapter.ViewHolder> {
@@ -25,6 +26,7 @@ public class LocationsListAdapter extends RecyclerView.Adapter<LocationsListAdap
 
     public void updateList(List<GraphNode> newNodes) {
         this.nodes = newNodes;
+        this.nodes.sort(Comparator.comparing(node -> node.name));
         this.filteredNodes = new ArrayList<>(newNodes);
     }
 

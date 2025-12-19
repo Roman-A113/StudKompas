@@ -1,8 +1,6 @@
 package com.example.studkompas.ui;
 
 import android.content.Context;
-import android.graphics.Insets;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,7 +9,6 @@ import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.WindowInsets;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
@@ -138,33 +135,10 @@ public class CampusMapActivity extends AppCompatActivity {
         setupFinishPathButton();
     }
 
-    private void setupRootLayout() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            rootLayout.setOnApplyWindowInsetsListener((view, insets) -> {
-                Insets systemBars = null;
-                systemBars = insets.getInsets(WindowInsets.Type.systemBars());
-                view.setPadding(
-                        systemBars.left,
-                        systemBars.top,
-                        systemBars.right,
-                        systemBars.bottom
-                );
-                return insets;
-            });
-        }
-    }
-
     private void setupFinishPathButton() {
         finishPathButton.setOnClickListener(v -> {
 
             boolean isCounted = AnalyticsHelper.logRouteButtonClick(this);
-            /*
-            if (isCounted) {
-                Toast.makeText(this, "Маршрут успешно завершен!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Маршрут отменен", Toast.LENGTH_SHORT).show();
-            }
-             */
 
             clearPath();
             finishPathButton.setVisibility(View.GONE);

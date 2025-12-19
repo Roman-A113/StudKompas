@@ -2,7 +2,7 @@ package com.example.studkompas.utils;
 
 import com.example.studkompas.model.GraphNode;
 import com.example.studkompas.model.PathWithTransition;
-import com.example.studkompas.model.TransitionPoint;
+import com.example.studkompas.model.TransitionMark;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +67,7 @@ public class GraphTestHelper {
     public static boolean pathHasTransitionType(PathWithTransition path, String nodeType) {
         if (path == null || path.transitionNodes == null) return false;
 
-        for (TransitionPoint tp : path.transitionNodes) {
+        for (TransitionMark tp : path.transitionNodes) {
             if (tp.fromNode.name.contains(nodeType) || tp.targetNodeId.name.contains(nodeType)) {
                 return true;
             }
