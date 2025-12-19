@@ -109,6 +109,9 @@ public class CampusMapActivity extends AppCompatActivity {
 
         floorMapView = findViewById(R.id.floor_map_view);
         floorMapView.setMaximumScale(10.0f);
+        floorMapView.setOnTransitionMarkClickListener(targetFloor -> {
+            switchToFloor(Integer.parseInt(targetFloor));
+        });
 
 
         selectedCampus = (Campus) getIntent().getSerializableExtra("campus");

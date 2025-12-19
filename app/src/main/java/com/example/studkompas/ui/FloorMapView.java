@@ -30,6 +30,8 @@ public class FloorMapView extends PhotoView {
 
     private String selectedFloor;
 
+    private OnTransitionMarkClickListener transitionMarkClickListener;
+
 
     public FloorMapView(Context context) {
         super(context);
@@ -40,7 +42,6 @@ public class FloorMapView extends PhotoView {
         super(context, attrs);
         init();
     }
-
 
     private static void drawNodeName(@NonNull Canvas canvas, GraphNode node, float cx, float cy) {
         Paint textPaint = new Paint();
@@ -76,10 +77,10 @@ public class FloorMapView extends PhotoView {
         float right = blockX + totalWidth;
         float bottom = blockY + totalHeight;
 
+        tp.displayBounds.set(blockX, blockY, right, bottom);
+
 
         canvas.drawRect(blockX, blockY, right, bottom, bgPaint);
-
-
         canvas.drawRect(blockX, blockY, right, bottom, borderPaint);
 
 
@@ -126,6 +127,10 @@ public class FloorMapView extends PhotoView {
         arrow.lineTo(arrowStartX + headSize, arrowCenterY + arrowHeight / 2 - headSize);
 
         canvas.drawPath(arrow, arrowPaint);
+    }
+
+    public void setOnTransitionMarkClickListener(OnTransitionMarkClickListener listener) {
+        this.transitionMarkClickListener = listener;
     }
 
     public void updatePath(List<List<GraphNode>> pathSegments) {
@@ -206,7 +211,32 @@ public class FloorMapView extends PhotoView {
         pathPaint.setStyle(Paint.Style.STROKE);
         pathPaint.setStrokeWidth(50f);
         pathPaint.setAntiAlias(true);
+
+        setOnPhotoTapListener((view, x, y) -> HandleTransitionMarkTap(x, y));
     }
+
+    private void HandleTransitionMarkTap(float x, float y) {
+        Drawable drawable = getDrawable();
+        if (drawable == null || transitionNodes == null)
+            return;
+
+        int w = drawable.getIntrinsicWidth();
+        int h = drawable.getIntrinsicHeight();
+        float px = x * w;
+        float py = y * h;
+
+        for (TransitionMark mark : transitionNodes) {
+            if (!mark.fromNode.floor.equals(selectedFloor))
+                continue;
+            if (mark.displayBounds.contains(px, py)) {
+                if (transitionMarkClickListener != null) {
+                    transitionMarkClickListener.onTransitionMarkClicked(mark.targetFloor);
+                }
+                return;
+            }
+        }
+    }
+
 
     private void drawWholeGraph(Canvas canvas, int imageWidth, int imageHeight) {
         for (GraphNode node : floorGraph.values()) {
@@ -320,5 +350,9 @@ public class FloorMapView extends PhotoView {
 
     public void setFloor(String selectedFloor) {
         this.selectedFloor = selectedFloor;
+    }
+
+    public interface OnTransitionMarkClickListener {
+        void onTransitionMarkClicked(String targetFloor);
     }
 }
