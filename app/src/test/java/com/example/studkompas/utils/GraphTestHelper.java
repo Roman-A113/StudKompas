@@ -68,7 +68,7 @@ public class GraphTestHelper {
         if (path == null || path.transitionNodes == null) return false;
 
         for (TransitionMark tp : path.transitionNodes) {
-            if (tp.fromNode.name.contains(nodeType) || tp.targetNodeId.name.contains(nodeType)) {
+            if (tp.fromNode.name.contains(nodeType)) {
                 return true;
             }
         }
