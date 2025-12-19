@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         findViewById(R.id.buttonHelp).setOnClickListener(v -> startActivity(new Intent(MainActivity.this, HelpActivity.class)));
-        findViewById(R.id.buttonSettings).setOnClickListener(v -> startActivity(new Intent(MainActivity.this, SettingsActivity.class)));
     }
 
     private ArrayList<Campus> createCampusesList() {
