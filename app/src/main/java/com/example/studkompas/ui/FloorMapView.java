@@ -15,7 +15,6 @@ import com.example.studkompas.model.GraphNode;
 import com.example.studkompas.model.TransitionPoint;
 import com.github.chrisbanes.photoview.PhotoView;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 

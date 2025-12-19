@@ -146,6 +146,7 @@ public class AnalyticsHelper {
 
     /**
      * Создает параметры для события "завершение маршрута"
+     *
      * @param manuallyCompleted true - пользователь нажал кнопку, false - авто-завершение
      */
     private static Map<String, Object> createRouteCompleteParams(
@@ -176,21 +177,6 @@ public class AnalyticsHelper {
     }
 
     // ==================== РАБОТА С ХРАНИЛИЩЕМ ====================
-
-    /**
-     * Вспомогательный класс для хранения данных маршрута
-     */
-    private static class RouteData {
-        String routeId;
-        long startTime;
-        String campusId;
-        String startNodeName;
-        String endNodeName;
-
-        boolean isValid() {
-            return routeId != null && startTime > 0;
-        }
-    }
 
     /**
      * Сохраняет данные маршрута в SharedPreferences
@@ -238,8 +224,6 @@ public class AnalyticsHelper {
                 .apply();
     }
 
-    // ==================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ====================
-
     /**
      * Проверить, есть ли активный маршрут, который нужно авто-завершить
      */
@@ -255,6 +239,8 @@ public class AnalyticsHelper {
             }
         }
     }
+
+    // ==================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ====================
 
     /**
      * Запланировать проверку на авто-завершение через 10 минут
@@ -286,5 +272,20 @@ public class AnalyticsHelper {
         // Временный вывод в лог для отладки
         Log.i("METRICS", "📊 Событие: " + eventName +
                 (parameters != null ? ", Параметры: " + parameters : ""));
+    }
+
+    /**
+     * Вспомогательный класс для хранения данных маршрута
+     */
+    private static class RouteData {
+        String routeId;
+        long startTime;
+        String campusId;
+        String startNodeName;
+        String endNodeName;
+
+        boolean isValid() {
+            return routeId != null && startTime > 0;
+        }
     }
 }

@@ -1,6 +1,8 @@
 package com.example.studkompas.ui;
 
 import android.content.Context;
+import android.graphics.Insets;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -9,6 +11,7 @@ import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.WindowInsets;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
@@ -35,6 +38,7 @@ import com.example.studkompas.model.ShowUiTransitionListener;
 import com.example.studkompas.utils.AnalyticsHelper;
 import com.example.studkompas.utils.GraphEditorControllerUI;
 import com.example.studkompas.utils.GraphManager;
+import com.example.studkompas.utils.WindowInsetsHelper;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
@@ -82,8 +86,10 @@ public class CampusMapActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_campus_map);
+        WindowInsetsHelper.ApplySystemWindowInsets(this, R.id.mainConstraintLayout);
 
         rootLayout = findViewById(R.id.mainConstraintLayout);
+
 
         editorControls = findViewById(R.id.editor_controls);
         floorPanel = findViewById(R.id.floorDropdownContainer);
@@ -132,7 +138,23 @@ public class CampusMapActivity extends AppCompatActivity {
         setupFinishPathButton();
     }
 
-    private void setupFinishPathButton(){
+    private void setupRootLayout() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            rootLayout.setOnApplyWindowInsetsListener((view, insets) -> {
+                Insets systemBars = null;
+                systemBars = insets.getInsets(WindowInsets.Type.systemBars());
+                view.setPadding(
+                        systemBars.left,
+                        systemBars.top,
+                        systemBars.right,
+                        systemBars.bottom
+                );
+                return insets;
+            });
+        }
+    }
+
+    private void setupFinishPathButton() {
         finishPathButton.setOnClickListener(v -> {
 
             boolean isCounted = AnalyticsHelper.logRouteButtonClick(this);

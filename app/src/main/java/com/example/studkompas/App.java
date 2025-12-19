@@ -1,7 +1,9 @@
 package com.example.studkompas;
 
 import android.app.Application;
+
 import com.github.chrisbanes.photoview.BuildConfig;
+
 import io.appmetrica.analytics.AppMetrica;
 import io.appmetrica.analytics.AppMetricaConfig;
 

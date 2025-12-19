@@ -1,11 +1,11 @@
 package com.example.studkompas;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.content.Context;
 
@@ -15,6 +15,11 @@ import com.example.studkompas.model.PathWithTransition;
 import com.example.studkompas.utils.GraphMaker;
 import com.example.studkompas.utils.GraphManager;
 import com.example.studkompas.utils.GraphTestHelper;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
