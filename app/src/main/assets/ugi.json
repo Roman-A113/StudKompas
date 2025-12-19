@@ -315,9 +315,7 @@
       ],
       "floor": "1",
       "id": "12",
-      "interFloorEdges": {
-        "92": "2"
-      },
+      "interFloorEdges": {},
       "location": [
         0.5367064,
         0.5317932
@@ -1446,9 +1444,7 @@
       ],
       "floor": "2",
       "id": "92",
-      "interFloorEdges": {
-        "12": "1"
-      },
+      "interFloorEdges": {},
       "location": [
         0.86929595,
         0.3125137
