@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -41,11 +42,12 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class CampusMapActivity extends AppCompatActivity {
-    private final boolean isDeveloperMode = true;
+    private final boolean isDeveloperMode = false;
     private FloorMapView floorMapView;
     private View editorControls;
     private View floorPanel;
@@ -106,6 +108,13 @@ public class CampusMapActivity extends AppCompatActivity {
 
         backButton = findViewById(R.id.backButton);
         flagElevator = findViewById(R.id.flagElevator);
+        flagElevator.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked && (Objects.equals(selectedCampus.Id, "ugi") || Objects.equals(selectedCampus.Id, "guk"))) {
+                Toast.makeText(this, "Лифтов нет, но вы держитесь!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
 
         floorMapView = findViewById(R.id.floor_map_view);
         floorMapView.setMaximumScale(10.0f);
