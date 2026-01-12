@@ -15,7 +15,6 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -33,7 +32,6 @@ import com.example.studkompas.model.Campus;
 import com.example.studkompas.model.GraphNode;
 import com.example.studkompas.model.PathWithTransition;
 import com.example.studkompas.model.ShowUiTransitionListener;
-import com.example.studkompas.utils.AnalyticsHelper;
 import com.example.studkompas.utils.GraphEditorControllerUI;
 import com.example.studkompas.utils.GraphManager;
 import com.example.studkompas.utils.WindowInsetsHelper;
@@ -149,9 +147,6 @@ public class CampusMapActivity extends AppCompatActivity {
 
     private void setupFinishPathButton() {
         finishPathButton.setOnClickListener(v -> {
-
-            boolean isCounted = AnalyticsHelper.logRouteButtonClick(this);
-
             clearPath();
             finishPathButton.setVisibility(View.GONE);
             routeSummaryLayout.setVisibility(View.GONE);
@@ -215,12 +210,6 @@ public class CampusMapActivity extends AppCompatActivity {
             routeSummaryLayout.setVisibility(View.VISIBLE);
             finishPathButton.setVisibility(View.VISIBLE);
 
-            AnalyticsHelper.logRouteStart(
-                    this,
-                    selectedCampus,
-                    selectedStartNode,
-                    selectedEndNode
-            );
         });
     }
 

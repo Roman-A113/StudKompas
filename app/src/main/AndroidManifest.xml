@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
-        android:name=".App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -36,10 +35,5 @@
             android:name=".ui.HelpActivity"
             android:exported="false" />
 
-        <meta-data
-            android:name="io.appmetrica.analytics.api_key"
-            android:value="cf9292a2-8e55-42d5-bb70-90c6987fda09" />
-
     </application>
-
 </manifest>

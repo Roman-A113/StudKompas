@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.studkompas.R;
 import com.example.studkompas.adapter.CampusesListAdapter;
 import com.example.studkompas.model.Campus;
-import com.example.studkompas.utils.AnalyticsHelper;
 import com.example.studkompas.utils.WindowInsetsHelper;
 
 import java.util.ArrayList;
@@ -77,6 +76,5 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        AnalyticsHelper.checkForAutoCompletion(this);
     }
 }
