@@ -72,9 +72,4 @@ public class MainActivity extends AppCompatActivity {
         )));
         return campuses;
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
 }
