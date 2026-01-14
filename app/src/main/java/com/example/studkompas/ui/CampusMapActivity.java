@@ -113,7 +113,6 @@ public class CampusMapActivity extends AppCompatActivity {
         });
 
 
-
         floorMapView = findViewById(R.id.floor_map_view);
         floorMapView.setMaximumScale(10.0f);
         floorMapView.setOnTransitionMarkClickListener(targetFloor -> {
